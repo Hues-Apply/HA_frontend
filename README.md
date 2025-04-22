@@ -28,6 +28,30 @@ This repository contains the frontend code for the **Hues Apply** landing page. 
 * Styling: TailwindCSS
 * Version Control: Git + GitHub
 
+## 📁 Folder Structure & Conventions
+
+We are keeping the structure simple and scalable. Here’s the layout:
+
+```bash
+src/
+├── assets/   
+├── components/   
+├── sections/    
+│   ├── Hero/
+│   ├── PremiumServices/
+│   └── ...
+├── services/       
+├── App.tsx
+└── main.tsx
+```
+
+
+
+* Each section of the landing page lives in `sections/`, under its own folder.
+* Reusable elements go under `components/`.
+* Use TailwindCSS for styling. No external UI libraries unless approved.
+* Keep things modular, clean, and avoid nesting things too deep.
+
 ## 📦 Setup Instructions
 
 1. Clone the repo
