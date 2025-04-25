@@ -1,4 +1,3 @@
-import React from "react";
 import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
 
 const Hero = () => {
@@ -19,7 +18,7 @@ const Hero = () => {
     ]];
 
     return (
-        <div className="flex flex-col items-center px-4 sm:px-6 lg:px-8 pt-[8rem]">
+        <div className="flex flex-col items-center px-4 sm:px-6 lg:px-8 pt-[5rem] sm:pt-[8rem]">
             <div className="text-[#3D84FF] font-semibold text-[0.65rem] px-4 py-2 flex justify-center items-center bg-[#4B9CD31A] rounded-full sm:text-sm">
                 No.1 job searching and scholarship getting platform
             </div>
@@ -32,7 +31,7 @@ const Hero = () => {
                 the world a chance in you
             </div>
 
-            <div className="flex flex-col lg:flex-row items-stretch justify-between w-full max-w-[60rem] mt-8 p-2 rounded-2xl border border-gray-200 shadow-sm gap-4">
+            <div className="flex flex-col lg:flex-row items-stretch justify-between w-[90%] lg:w-full max-w-[60rem] mt-8 py-2 lg:px-4 rounded-xl lg:rounded-4xl lg:border lg:border-gray-200 lg:shadow-sm gap-2 lg:gap-4">
                 <div className="flex items-center flex-1 px-4 border border-gray-100 lg:border-none rounded-full bg-white">
                     <FaSearch className="text-gray-400 mr-2" />
                     <input
@@ -41,6 +40,9 @@ const Hero = () => {
                         className="w-full bg-transparent focus:outline-none text-sm text-gray-700 py-2"
                     />
                 </div>
+
+                <div className="hidden lg:block w-px h-8 bg-gray-300 mx-2"></div>
+                
                 <div className="flex items-center flex-1 px-4 border border-gray-100 lg:border-none rounded-full bg-white">
                     <FaMapMarkerAlt className="text-gray-400 mr-2" />
                     <input
@@ -61,7 +63,7 @@ const Hero = () => {
                 collaboration partners
             </div>
 
-            <div className="bg-[#EDF5FB] mt-6 rounded-3xl w-full max-w-6xl px-4 sm:px-12 py-8 flex flex-col gap-6 mb-20">
+            <div className="bg-[#EDF5FB] mt-6 rounded-3xl w-fit max-w-6xl px-4 sm:px-12 py-8 flex flex-col gap-6 mb-20">
                 {images.map((row, i) => (
                     <div key={i} className="flex flex-wrap justify-center gap-4">
                         {row.map((src, idx) => (
