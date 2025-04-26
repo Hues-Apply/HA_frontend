@@ -42,7 +42,6 @@ const Hero = () => {
                         className="w-full bg-transparent focus:outline-none text-sm text-gray-700 py-2"
                     />
                 </div>
-
                 <div className="hidden lg:block w-px h-8 bg-gray-300 mx-2" aria-hidden="true"></div>
                 
                 <div className="flex items-center flex-1 px-4 border border-gray-100 lg:border-none rounded-full bg-white">
