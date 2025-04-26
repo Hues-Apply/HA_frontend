@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import TestimonialCard from "../components/TestimonialCard";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -10,7 +10,7 @@ const testimonials = [
     title: "HR Manager at Meta",
     image: "https://randomuser.me/api/portraits/women/44.jpg",
   },
-  { 
+  {
     id: 2,
     text: "I was struggling to find relevant job openings, but Hues AI made everything simple. The AI recommendations matched my skills, and the easy application process made job hunting effortless. I received an offer within a month! Thank you, Hues AI.",
     name: "Adam Zampa",
@@ -29,13 +29,115 @@ const testimonials = [
     text: "I was struggling to find relevant job openings, but Hues AI made everything simple. The AI recommendations matched my skills, and the easy application process made job hunting effortless. I received an offer within a month! Thank you, Hues AI.",
     name: "Adam Zampa",
     title: "HR Manager at Meta",
-    image: "https://randomuser.me/api/portraits/men/64.jpg",
+    image: "https://randomuser.me/api/portraits/men/42.jpg",
+  },
+  {
+    id: 5,
+    text: "I was struggling to find relevant job openings, but Hues AI made everything simple. The AI recommendations matched my skills, and the easy application process made job hunting effortless. I received an offer within a month! Thank you, Hues AI.",
+    name: "Adam Zampa",
+    title: "HR Manager at Meta",
+    image: "https://randomuser.me/api/portraits/women/24.jpg",
   },
 ];
 
 const Testimonials: React.FC = () => {
+  const [startIndex, setStartIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+  const visibleCount = 3;
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  // Create a circular array to allow infinite scrolling
+  const getVisibleTestimonials = () => {
+    const result = [];
+    for (let i = 0; i < visibleCount; i++) {
+      const index = (startIndex + i) % testimonials.length;
+      result.push(testimonials[index]);
+    }
+    return result;
+  };
+
+  // Handle the animation timing
+  useEffect(() => {
+    if (isAnimating) {
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+        setSlideDirection(null);
+      }, 500); // match this to the duration in CSS
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating]);
+
+  // Navigation functions
+  const goToPrevious = () => {
+    if (isAnimating) return; // Prevent rapid clicking
+    setSlideDirection('right');
+    setIsAnimating(true);
+    
+    // Delay the actual index change to allow animation to start
+    setTimeout(() => {
+      setStartIndex((prevIndex) => 
+        prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+      );
+    }, 50);
+  };
+
+  const goToNext = () => {
+    if (isAnimating) return; // Prevent rapid clicking
+    setSlideDirection('left');
+    setIsAnimating(true);
+    
+    // Delay the actual index change to allow animation to start
+    setTimeout(() => {
+      setStartIndex((prevIndex) => 
+        (prevIndex + 1) % testimonials.length
+      );
+    }, 50);
+  };
+
+  const jumpToIndex = (index: number) => {
+    if (isAnimating) return;
+    const direction = index > startIndex ? 'left' : 'right';
+    setSlideDirection(direction);
+    setIsAnimating(true);
+    
+    setTimeout(() => {
+      setStartIndex(index);
+    }, 50);
+  };
+
+  const visibleTestimonials = getVisibleTestimonials();
+
+  // Generate CSS class based on animation state
+  const getSliderClass = () => {
+    if (!isAnimating) return 'transition-transform duration-500';
+    if (slideDirection === 'left') return 'animate-slide-left';
+    if (slideDirection === 'right') return 'animate-slide-right';
+    return '';
+  };
+
   return (
     <section className="w-full flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-white" aria-labelledby="testimonials-title">
+      <style>{`
+        @keyframes slideLeft {
+          0% { transform: translateX(5%); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideRight {
+          0% { transform: translateX(-5%); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        
+        .animate-slide-left {
+          animation: slideLeft 500ms ease-out;
+        }
+        
+        .animate-slide-right {
+          animation: slideRight 500ms ease-out;
+        }
+      `}</style>
+      
       <div className="text-[#3D84FF] font-semibold text-sm px-6 py-2 flex justify-center items-center bg-[#4B9CD31A] rounded-full">
         Testimonials & Success Stories
       </div>
@@ -48,10 +150,13 @@ const Testimonials: React.FC = () => {
         These testimonials showcase the real impacts that Hues Apply AI have on jobseekers & students
       </p>
 
-      <div className="relative w-full max-w-6xl">
-        <div className="flex flex-col md:flex-row gap-6">
-          {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="flex-1">
+      <div className="relative w-full max-w-6xl overflow-hidden">
+        <div 
+          className={`flex flex-col md:flex-row gap-6 ${getSliderClass()}`}
+          ref={sliderRef}
+        >
+          {visibleTestimonials.map((testimonial, index) => (
+            <div key={`${testimonial.id}-${startIndex}-${index}`} className="flex-1">
               <TestimonialCard
                 text={testimonial.text}
                 name={testimonial.name}
@@ -64,18 +169,38 @@ const Testimonials: React.FC = () => {
         
         {/* Navigation buttons */}
         <button 
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4B9CD3]"
+          onClick={goToPrevious}
+          disabled={isAnimating}
+          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-0 bg-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4B9CD3] disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Previous testimonial"
         >
           <FiChevronLeft className="w-6 h-6 text-gray-600" aria-hidden="true" />
         </button>
         
         <button 
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4B9CD3]"
+          onClick={goToNext}
+          disabled={isAnimating}
+          className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-0 bg-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4B9CD3] disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Next testimonial"
         >
           <FiChevronRight className="w-6 h-6 text-gray-600" aria-hidden="true" />
         </button>
+        
+        {/* Indicator dots */}
+        <div className="flex justify-center mt-8">
+          {testimonials.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => jumpToIndex(index)}
+              disabled={isAnimating}
+              className={`h-2 w-2 rounded-full mx-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4B9CD3] disabled:opacity-50 ${
+                index === startIndex ? "bg-[#4B9CD3]" : "bg-gray-300"
+              }`}
+              aria-label={`Go to testimonial ${index + 1}`}
+              aria-current={index === startIndex ? "true" : "false"}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

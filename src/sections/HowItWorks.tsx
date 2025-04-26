@@ -25,7 +25,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="px-6 py-12 bg-white text-center">
+    <section className="flex flex-col items-center px-4 sm:px-6 lg:px-8 py-16" aria-labelledby="how-it-works-title">
       <div className="inline-block px-4 py-2 bg-blue-100 rounded-full mb-4">
         <span className="text-blue-600 font-semibold text-lg">How It Works</span>
       </div>
