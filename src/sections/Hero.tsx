@@ -28,7 +28,7 @@ const Hero = () => {
             </h1>
             <p className="text-sm sm:text-base font-medium text-[#333333CC] pt-4 text-center max-w-xl">
                 Our platform provides the opportunities prospectives all around
-                the world a chance in you
+                opportunities worldwide to empower you
             </p>
 
             <form role="search" aria-label="Job search" className="flex flex-col lg:flex-row items-stretch justify-between w-[90%] lg:w-full max-w-[60rem] mt-8 py-2 lg:px-4 rounded-xl lg:rounded-4xl lg:border lg:border-gray-200 lg:shadow-sm gap-2 lg:gap-4">

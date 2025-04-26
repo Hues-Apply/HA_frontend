@@ -10,16 +10,16 @@ const FAQ: React.FC = () => {
       answer: "Simply click on \"Sign Up\" at the top of the page, choose your preferences as an user, and follow the registration process."
     },
     {
-      question: "How do I sign up to Hues Apply",
+      question: "How do I sign up to Hues Apply?",
       answer: "Visit our website, click on the 'Register' button in the top-right corner, fill in your details, and follow the on-screen instructions to complete the registration process."
     },
     {
-      question: "How do I sign up to Hues Apply",
-      answer: "Visit our website, click on the 'Register' button in the top-right corner, fill in your details, and follow the on-screen instructions to complete the registration process."
+      question: "What should I do if I forget my password?",
+      answer: "Click on the 'Forgot Password' link on the login page, enter your registered email address, and follow the instructions to reset your password."
     },
     {
-      question: "How do I sign up to Hues Apply",
-      answer: "Visit our website, click on the 'Register' button in the top-right corner, fill in your details, and follow the on-screen instructions to complete the registration process."
+      question: "Can I update my profile information after registration?",
+      answer: "Yes, you can update your profile information by navigating to the 'Profile' section in your account settings."
     }
   ];
 
