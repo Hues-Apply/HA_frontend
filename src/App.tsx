@@ -5,7 +5,8 @@ import PremiumServices from "./sections/PremiumServices";
 import FAQ from "./sections/FAQ";
 import Opportunity from "./sections/Opportunity";
 import Footer from "./sections/Footer";
-import Testimonials from "./sections/Testimonials";
+// import Testimonials from "./sections/Testimonials";
+// import HowItWorks from "./sections/HowItWorks";
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
       <main id="main-content">
         <Hero />
         <PremiumServices />
-        <Testimonials />
+        {/* <HowItWorks />
+        <Testimonials /> */}
         <FAQ />
         <Opportunity />
       </main>
