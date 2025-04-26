@@ -5,6 +5,7 @@ import PremiumServices from "./sections/PremiumServices";
 import FAQ from "./sections/FAQ";
 import Opportunity from "./sections/Opportunity";
 import Footer from "./sections/Footer";
+import Testimonials from "./sections/Testimonials";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <main id="main-content">
         <Hero />
         <PremiumServices />
+        <Testimonials />
         <FAQ />
         <Opportunity />
       </main>
