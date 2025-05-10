@@ -31,7 +31,7 @@ const RegisterInterest: React.FC = () => {
   };
 
   return (
-    <section className="relative py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-[#f0f7ff]">
+    <section id="register-interest" className="relative py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-[#f0f7ff]">
       {/* Background elements for visual interest */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute -top-16 -left-16 w-64 h-64 bg-[#4B9CD310] rounded-full blur-3xl"></div>
