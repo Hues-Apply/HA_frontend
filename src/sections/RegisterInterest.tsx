@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import RegisterForm from "../components/RegisterForm";
 import SurveyForm from "../components/SurveyForm";
+import TestimonialCard from "../components/TestimonialCard";
 import { FaStar, FaRegPaperPlane, FaRegLightbulb } from "react-icons/fa";
 
 const RegisterInterest: React.FC = () => {
@@ -187,24 +188,32 @@ const RegisterInterest: React.FC = () => {
               </div>
             )}
             
-            {/* Testimonial */}
+            {/* Testimonials Section */}
             {!submissionComplete && (
-              <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="flex items-center">
-                  <img
-                    src="https://randomuser.me/api/portraits/men/43.jpg"
-                    alt="John A."
-                    className="w-12 h-12 rounded-full mr-4"
-                  />
-                  <div>
-                    <p className="text-gray-600 italic mb-2">
-                      "As an entrepreneur, finding grants that fit my startup was always a challenge. 
-                      Hues Apply matched me with several opportunities and helped refine my proposal. 
-                      I couldn't be happier with the results!"
-                    </p>
-                    <p className="text-gray-800 font-medium">John A., Startup Founder</p>
-                  </div>
-                </div>
+              <div className="mt-8 space-y-6">
+                <TestimonialCard
+                  quote="Hues Apply made my dream to study in Canada come true. From admission to visa assistance, essay writing, and even off-campus housing. They supported me every step of the way. I secured a scholarship and a student loan, and I didn't need $10,000 to start. Truly life-changing!"
+                  name="Successful Applicant, Canada"
+                  image="/src/assets/img/canada_success.jpg"
+                />
+                
+                <TestimonialCard
+                  quote="I used to be overwhelmed by the application process. Now, I get matched with the right opportunities and I'm guided every step of the way."
+                  name="Kwame A, Aspiring Data Scientist"
+                  image="https://randomuser.me/api/portraits/men/54.jpg"
+                />
+                
+                <TestimonialCard
+                  quote="Thanks to Hues Apply, I landed a fully funded fellowship I didn't even know existed. The platform felt like a personal coach."
+                  name="Priya R, Final-Year Student"
+                  image="https://randomuser.me/api/portraits/women/28.jpg"
+                />
+                
+                <TestimonialCard
+                  quote="I appreciated how simple and focused the platform was. It showed me roles that truly aligned with my goals."
+                  name="Fatima B, Early-Career Professional"
+                  image="https://randomuser.me/api/portraits/women/54.jpg"
+                />
               </div>
             )}
           </div>

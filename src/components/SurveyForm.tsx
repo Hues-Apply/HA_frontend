@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm, ValidationError } from '@formspree/react';
 
 interface SurveyFormProps {
   onSubmit: (data: any) => void;
@@ -11,6 +12,8 @@ interface SurveyFormProps {
 }
 
 const SurveyForm: React.FC<SurveyFormProps> = ({ onSubmit, onBack, initialData }) => {
+  // Using Formspree for form submissions
+  const [formspreeState, handleFormspreeSubmit] = useForm("xblozqod");
   const [formData, setFormData] = useState({
     // Initial data passed from first form
     ...initialData,
@@ -67,9 +70,21 @@ const SurveyForm: React.FC<SurveyFormProps> = ({ onSubmit, onBack, initialData }
     }
   };
 
+  // When Formspree submission succeeds, call the onSubmit prop
+  useEffect(() => {
+    if (formspreeState.succeeded) {
+      onSubmit(formData);
+    }
+  }, [formspreeState.succeeded, formData, onSubmit]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Send the complete data (initial + survey) to Formspree
+    handleFormspreeSubmit({
+      ...formData,
+      formType: "combined"
+    });
   };
 
   return (
@@ -259,6 +274,13 @@ const SurveyForm: React.FC<SurveyFormProps> = ({ onSubmit, onBack, initialData }
             </div>
           </div>
         </div>
+
+        {formspreeState.errors && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+            <p className="font-medium">There was a problem submitting your form.</p>
+            <ValidationError errors={formspreeState.errors} />
+          </div>
+        )}
         
         <div className="flex flex-col sm:flex-row gap-4 justify-between mt-8">
           <button
@@ -268,12 +290,22 @@ const SurveyForm: React.FC<SurveyFormProps> = ({ onSubmit, onBack, initialData }
           >
             Back
           </button>
-          <button
-            type="submit"
-            className="px-8 py-3 bg-[#4B9CD3] text-white font-medium rounded-lg hover:bg-[#3D84FF] transition-colors duration-300"
-          >
-            Complete Registration
-          </button>
+          {formspreeState.submitting ? (
+            <button
+              type="button"
+              disabled
+              className="px-8 py-3 bg-[#7EB4DB] text-white font-medium rounded-lg cursor-not-allowed"
+            >
+              Submitting...
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="px-8 py-3 bg-[#4B9CD3] text-white font-medium rounded-lg hover:bg-[#3D84FF] transition-colors duration-300"
+            >
+              Complete Registration
+            </button>
+          )}
         </div>
       </form>
     </div>

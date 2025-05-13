@@ -32,7 +32,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     }
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     let valid = true;
     const newErrors = { name: '', email: '' };
     
@@ -57,6 +57,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     
     if (validateForm()) {
+      // Just pass the form data to the parent without formspree submission
       onSubmit(formData);
     }
   };
@@ -118,7 +119,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
           type="submit"
           className="w-full bg-[#4B9CD3] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#3D84FF] transition-colors duration-300"
         >
-          Join the Waitlist
+          Next Step
         </button>
       </form>
     </div>
