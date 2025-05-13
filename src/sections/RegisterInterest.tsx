@@ -3,6 +3,8 @@ import RegisterForm from "../components/RegisterForm";
 import SurveyForm from "../components/SurveyForm";
 import TestimonialCard from "../components/TestimonialCard";
 import { FaStar, FaRegPaperPlane, FaRegLightbulb } from "react-icons/fa";
+// Import image
+import canadaSuccessImg from "../assets/img/canada_success.jpg";
 
 const RegisterInterest: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -194,7 +196,7 @@ const RegisterInterest: React.FC = () => {
                 <TestimonialCard
                   quote="Hues Apply made my dream to study in Canada come true. From admission to visa assistance, essay writing, and even off-campus housing. They supported me every step of the way. I secured a scholarship and a student loan, and I didn't need $10,000 to start. Truly life-changing!"
                   name="Successful Applicant, Canada"
-                  image="/src/assets/img/canada_success.jpg"
+                  image={canadaSuccessImg}
                 />
                 
                 <TestimonialCard
