@@ -13,7 +13,7 @@ import Testimonials from "./sections/Testimonials";
 import HowItWorks from "./sections/HowItWorks";
 
 // Authentication & onboarding pages
-import Login from "./sections/Login";
+import Login from "./sections/login";
 import Signup from "./sections/Signup";
 import VerifyEmail from "./sections/VerifyEmail";
 import Onboarding from "./sections/Onboarding";
