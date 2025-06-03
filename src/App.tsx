@@ -64,7 +64,6 @@ function App() {
         <Route element={<MainLayout />}>
           {/* Public routes */}
           <Route index element={<Homepage />} />
-          <Route path="/" element={<Homepage />} />
         </Route>
       </Routes>
     </Router>
