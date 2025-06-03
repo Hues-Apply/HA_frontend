@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SignUp from "./signup";
+import SignUp from "./Signup";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
