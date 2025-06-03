@@ -14,7 +14,7 @@ import HowItWorks from "./sections/HowItWorks";
 
 // Authentication & onboarding pages
 import Login from "./sections/login";
-import Signup from "./sections/Signup";
+import Signup from "./sections/signup";
 import VerifyEmail from "./sections/VerifyEmail";
 import Onboarding from "./sections/Onboarding";
 import OnboardingStage1 from "./sections/Onboarding1";
