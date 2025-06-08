@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom
 // Layout components
 import Navbar from "./components/navbar";
 import Footer from "./sections/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Homepage sections
 import Hero from "./sections/Hero";
@@ -14,7 +15,7 @@ import HowItWorks from "./sections/HowItWorks";
 
 // Authentication & onboarding pages
 import Login from "./sections/login";
-import Signup from "./sections/signup";
+import Signup from "./sections/Signup";
 import VerifyEmail from "./sections/VerifyEmail";
 import Onboarding from "./sections/Onboarding";
 import OnboardingStage1 from "./sections/Onboarding1";
@@ -50,15 +51,22 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Dashboard route without main layout */}
-        <Route path="/dashboard" element={<JobPortal />} />
-        {/* Onboarding routes */}
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/onboarding/step-1" element={<OnboardingStage1 />} />
-        <Route path="/onboarding/step-2" element={<OnboardingStage2 />} />
+        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+
+        {/* Protected routes without main layout */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<JobPortal />} />
+        </Route>
+
+        {/* Protected onboarding routes with main layout */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding/step-1" element={<OnboardingStage1 />} />
+          <Route path="/onboarding/step-2" element={<OnboardingStage2 />} />
+        </Route>
 
         {/* Routes with main layout */}
         <Route element={<MainLayout />}>

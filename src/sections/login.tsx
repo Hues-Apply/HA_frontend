@@ -1,8 +1,33 @@
-import { useState } from "react";
-import SignUp from "./signup";
+import { useState, FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import SignUp from "./Signup";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // For now, we'll just handle Google login
+      // Add standard email/password login when backend supports it
+      setError("Email/password login is not yet implemented. Please use Google login.");
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-[#eaf2f8]">
@@ -26,13 +51,18 @@ export default function AuthForm() {
 
         {isLogin ? (
           <>
-            <form className="space-y-4">
+            {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</div>}
+            
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-medium">Email Address</label>
                 <input
                   type="email"
                   className="w-full px-4 py-2 border rounded"
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
 
@@ -42,6 +72,9 @@ export default function AuthForm() {
                   type="password"
                   className="w-full px-4 py-2 border rounded"
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
 
@@ -51,26 +84,22 @@ export default function AuthForm() {
 
               <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded mt-2 hover:bg-blue-600"
+                className="w-full bg-blue-500 text-white py-2 rounded mt-2 hover:bg-blue-600 disabled:bg-blue-300"
+                disabled={isLoading}
               >
-                Log In
+                {isLoading ? "Logging in..." : "Log In"}
               </button>
             </form>
 
             <div className="my-4 text-center text-sm text-gray-500">or</div>
 
-            <button className="w-full border py-2 rounded hover:bg-gray-100">
-              Continue with Google
-            </button>
+            <GoogleSignInButton className="w-full" />
 
             <p className="mt-4 text-sm text-center">
               Don't have an account?{' '}
-              <span
-                className="text-blue-500 cursor-pointer hover:underline"
-                onClick={() => setIsLogin(false)}
-              >
+              <Link to="/signup" className="text-blue-500 cursor-pointer hover:underline">
                 Sign Up
-              </span>
+              </Link>
             </p>
           </>
         ) : (
