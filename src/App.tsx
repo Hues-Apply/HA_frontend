@@ -20,7 +20,7 @@ import VerifyEmail from "./sections/VerifyEmail";
 import Onboarding from "./sections/Onboarding";
 import OnboardingStage1 from "./sections/Onboarding1";
 import OnboardingStage2 from "./sections/Onboarding2";
-import JobPortal from "./sections/JobPortal";
+import JobPortal from "./sections/jobportal";
 
 // Homepage component
 const Homepage = () => (

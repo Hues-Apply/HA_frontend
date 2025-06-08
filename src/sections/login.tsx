@@ -9,9 +9,9 @@ export default function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const [error, setError] = useState("");  // These will be used when implementing email login
+  // const navigate = useNavigate();
+  // const { setUser } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes, FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
-import { signOut } from "../services/auth";
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +38,7 @@ const Navbar: React.FC = () => {
                         to="/"
                         className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
                     >
-                        Home
+                        Homep 
                     </Link>
                     <Link
                         to="/#about"

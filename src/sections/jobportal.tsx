@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Search,
@@ -82,7 +82,7 @@ export default function Dashboard() {
     type: '',
     location: '',
   });
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { user } = useAuth();
 
   // Apply filters when search button is clicked or enter is pressed
   const applyFilters = () => {
@@ -165,9 +165,7 @@ export default function Dashboard() {
               </Link>
               <button 
                 onClick={() => {
-                  if (window.confirm('Are you sure you want to log out?')) {
-                    const refreshToken = localStorage.getItem('refreshToken') || '';
-                    localStorage.removeItem('accessToken');
+                  if (window.confirm('Are you sure you want to log out?')) {                    localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
                     localStorage.removeItem('user');
                     window.location.href = '/';
