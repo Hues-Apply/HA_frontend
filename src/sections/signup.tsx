@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { registerUser } from '../services/auth';
+import { useAuth } from '../context/AuthContext';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 interface FormData {
   lastName: string;
@@ -8,6 +12,7 @@ interface FormData {
   phone: string;
   password: string;
   confirmPassword: string;
+  role: 'applicant' | 'employer';
 }
 
 export default function SignupForm() {
@@ -19,20 +24,25 @@ export default function SignupForm() {
     phone: '',
     password: '',
     confirmPassword: '',
+    role: 'applicant',
   });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     let newValue = value;
 
     // Restrict characters
-    if (name === 'firstName' || name === 'lastName' || name === 'country') {
-      newValue = newValue.replace(/[^a-zA-Z\s]/g, '');
+    if ((name === 'firstName' || name === 'lastName' || name === 'country') && typeof value === 'string') {
+      newValue = value.replace(/[^a-zA-Z\s]/g, '');
     }
-    if (name === 'phone') {
-      newValue = newValue.replace(/[^\d]/g, '').slice(0, 10);
+    if (name === 'phone' && typeof value === 'string') {
+      newValue = value.replace(/[^\d]/g, '').slice(0, 10);
     }
 
     setFormData((prev) => ({ ...prev, [name]: newValue }));
@@ -63,22 +73,75 @@ export default function SignupForm() {
       case 'confirmPassword':
         if (value !== formData.password) error = 'Passwords do not match';
         break;
+      case 'role':
+        if (!['applicant', 'employer'].includes(value)) error = 'Role selection is required';
+        break;
     }
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    Object.entries(formData).forEach(([name, value]) => validateField(name, value));
-    if (Object.values(errors).every((err) => !err)) {
-      alert('Form submitted successfully!');
+    setApiError('');
+    
+    // Validate all fields
+    Object.entries(formData).forEach(([name, value]) => validateField(name, String(value)));
+    
+    // Check if there are any validation errors
+    const hasErrors = Object.values(errors).some(error => error !== '');
+    if (hasErrors) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await registerUser({
+        email: formData.email,
+        password: formData.password,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        role: formData.role
+      });
+      
+      // Store tokens
+      localStorage.setItem('accessToken', response.access_token);
+      localStorage.setItem('refreshToken', response.refresh_token);
+      
+      // Set user in auth context
+      setUser(response.user);
+      
+      // Redirect to dashboard or onboarding depending on needs
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      if (typeof error === 'object' && error !== null) {
+        // Format API validation errors
+        if (error.email) {
+          setErrors(prev => ({ ...prev, email: error.email[0] }));
+        }
+        if (error.password) {
+          setErrors(prev => ({ ...prev, password: error.password[0] }));
+        }
+        setApiError('Please correct the errors above.');
+      } else {
+        setApiError('Registration failed. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#eaf3f9]">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
+        
+        {apiError && (
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+            {apiError}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             <div className="flex-1">
@@ -89,6 +152,7 @@ export default function SignupForm() {
                 value={formData.lastName}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                disabled={isLoading}
               />
               {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
             </div>
@@ -100,6 +164,7 @@ export default function SignupForm() {
                 value={formData.firstName}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                disabled={isLoading}
               />
               {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
             </div>
@@ -114,6 +179,7 @@ export default function SignupForm() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                disabled={isLoading}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
             </div>
@@ -125,6 +191,7 @@ export default function SignupForm() {
                 value={formData.country}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                disabled={isLoading}
               />
               {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
             </div>
@@ -137,6 +204,7 @@ export default function SignupForm() {
             value={formData.phone}
             onChange={handleChange}
             className="w-full border rounded p-2"
+            disabled={isLoading}
           />
           {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
 
@@ -149,6 +217,7 @@ export default function SignupForm() {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                disabled={isLoading}
               />
               {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
             </div>
@@ -160,30 +229,45 @@ export default function SignupForm() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                disabled={isLoading}
               />
               {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
             </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">I am a:</label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+              disabled={isLoading}
+            >
+              <option value="applicant">Applicant looking for opportunities</option>
+              <option value="employer">Employer looking to post opportunities</option>
+            </select>
+            {errors.role && <p className="text-red-500 text-sm">{errors.role}</p>}
           </div>
 
           <p className="text-xs text-gray-600">
             By clicking continue, you agree to our Terms of Use and Privacy Policy
           </p>
 
-          <button type="submit" className="bg-blue-500 text-white w-full py-2 rounded">
-            Sign Up
+          <button 
+            type="submit" 
+            className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
 
           <div className="text-center text-gray-400">or</div>
 
-          <button
-            type="button"
-            className="w-full border rounded py-2 hover:bg-gray-100"
-          >
-            Continue with Google
-          </button>
+          <GoogleSignInButton className="w-full" />
 
           <p className="text-center text-sm">
-            Already have an account? <a href="#" className="text-blue-500">Log In</a>
+            Already have an account? <Link to="/login" className="text-blue-500">Log In</Link>
           </p>
         </form>
       </div>
