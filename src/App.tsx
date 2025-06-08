@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 
 // Layout components
-import Navbar from "./components/navbar";
+import Navbar from "./components/NavBar";
 import Footer from "./sections/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -14,13 +14,14 @@ import Testimonials from "./sections/Testimonials";
 import HowItWorks from "./sections/HowItWorks";
 
 // Authentication & onboarding pages
-import Login from "./sections/login";
-import Signup from "./sections/signup";
-import VerifyEmail from "./sections/VerifyEmail";
-import Onboarding from "./sections/Onboarding";
-import OnboardingStage1 from "./sections/Onboarding1";
-import OnboardingStage2 from "./sections/Onboarding2";
-import JobPortal from "./sections/jobportal";
+import Login from "./sections/Login";
+import Signup from "./sections/Signup";
+// Import placeholders for components that will be implemented later
+const VerifyEmail = () => <div>Email Verification</div>;
+const Onboarding = () => <div>Onboarding</div>;
+const OnboardingStage1 = () => <div>Onboarding Stage 1</div>;
+const OnboardingStage2 = () => <div>Onboarding Stage 2</div>;
+import JobPortal from "./sections/JobPortal";
 
 // Homepage component
 const Homepage = () => (

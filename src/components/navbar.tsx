@@ -33,12 +33,11 @@ const Navbar: React.FC = () => {
                     HUES APPLY
                 </Link>
 
-                <div className="hidden lg:flex text-[#333333] font-semibold text-[1rem] items-center gap-6" role="navigation" aria-label="Desktop menu">
-                    <Link
+                <div className="hidden lg:flex text-[#333333] font-semibold text-[1rem] items-center gap-6" role="navigation" aria-label="Desktop menu">                    <Link
                         to="/"
                         className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
                     >
-                        Homep 
+                        Home
                     </Link>
                     <Link
                         to="/#about"

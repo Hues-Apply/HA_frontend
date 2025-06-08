@@ -1,17 +1,14 @@
 import { useState, FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import SignUp from "./signup";
+import { Link } from "react-router-dom";
+import SignUp from "./Signup";
 import GoogleSignInButton from "../components/GoogleSignInButton";
-import { useAuth } from "../context/AuthContext";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");  // These will be used when implementing email login
-  // const navigate = useNavigate();
-  // const { setUser } = useAuth();
+  const [error, setError] = useState("");  // Form handling logic only
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
