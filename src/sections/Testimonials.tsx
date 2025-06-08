@@ -49,7 +49,7 @@ const Testimonials: React.FC = () => {
 
   // Create a circular array to allow infinite scrolling
   const getVisibleTestimonials = () => {
-    const result = [];
+    const result: typeof testimonials = [];
     for (let i = 0; i < visibleCount; i++) {
       const index = (startIndex + i) % testimonials.length;
       result.push(testimonials[index]);
