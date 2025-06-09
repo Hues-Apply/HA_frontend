@@ -1,14 +1,13 @@
 import { useState, FormEvent } from "react";
-import { Link } from "react-router-dom";
-import SignUp from "./Signup";
+import { Link, useNavigate } from "react-router-dom";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 
-export default function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true);
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");  // Form handling logic only
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,30 +24,12 @@ export default function AuthForm() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="flex h-screen bg-[#eaf2f8]">
       <div className="m-auto w-full max-w-md p-8 bg-white rounded shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">{isLogin ? "Sign In" : "Sign Up"}</h2>
-
-        <div className="flex mb-6">
-          <button
-            className={`flex-1 py-2 border ${!isLogin ? "bg-blue-400 text-white" : "bg-blue-100"}`}
-            onClick={() => setIsLogin(false)}
-          >
-            Sign Up
-          </button>
-          <button
-            className={`flex-1 py-2 border border-l-0 ${isLogin ? "bg-blue-400 text-white" : "bg-blue-100"}`}
-            onClick={() => setIsLogin(true)}
-          >
-            Log In
-          </button>
-        </div>
-
-        {isLogin ? (
-          <>
-            {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</div>}
+        <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+        
+        {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</div>}
             
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
@@ -84,24 +65,19 @@ export default function AuthForm() {
                 className="w-full bg-blue-500 text-white py-2 rounded mt-2 hover:bg-blue-600 disabled:bg-blue-300"
                 disabled={isLoading}
               >
-                {isLoading ? "Logging in..." : "Log In"}
-              </button>
+                {isLoading ? "Logging in..." : "Log In"}              </button>
             </form>
-
+            
             <div className="my-4 text-center text-sm text-gray-500">or</div>
 
             <GoogleSignInButton className="w-full" />
-
+            
             <p className="mt-4 text-sm text-center">
               Don't have an account?{' '}
               <Link to="/signup" className="text-blue-500 cursor-pointer hover:underline">
                 Sign Up
               </Link>
             </p>
-          </>
-        ) : (
-          <SignUp />
-        )}
       </div>
     </div>
   );

@@ -1,108 +1,64 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getGoogleClientId, authenticateWithGoogle } from '../services/auth';
-import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
+import { FcGoogle } from 'react-icons/fc';
+import { getGoogleClientId } from '../services/auth';
+import { BASE_URL } from '../services/api';
 
 interface GoogleSignInButtonProps {
-  onSuccess?: () => void;
-  redirect?: string;
   className?: string;
   text?: string;
 }
 
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: any) => void;
-          renderButton: (element: HTMLElement, options: any) => void;
-          prompt: () => void;
-        };
-      };
-    };
-  }
-}
-
 const GoogleSignInButton = ({ 
-  onSuccess, 
-  redirect = '/dashboard',
   className = '',
   text = 'Sign in with Google'
 }: GoogleSignInButtonProps) => {
-  const buttonRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   
-  useEffect(() => {
-    // Load the Google Identity Services script
-    const loadGoogleScript = () => {
-      if (window.google) {
-        initializeGoogleSignIn();
-        return;
-      }
-      
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeGoogleSignIn;
-      document.body.appendChild(script);
-    };
-
-    // Initialize Google Sign-In once the script is loaded
-    const initializeGoogleSignIn = async () => {
-      try {
-        const { client_id } = await getGoogleClientId();
-        
-        window.google?.accounts.id.initialize({
-          client_id,
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
-        
-        if (buttonRef.current) {
-          window.google?.accounts.id.renderButton(buttonRef.current, {
-            theme: 'outline',
-            size: 'large',
-            type: 'standard',
-            text,
-            shape: 'rectangular',
-          });
-        }
-      } catch (error) {
-        console.error('Error initializing Google Sign-In:', error);
-      }
-    };
-
-    loadGoogleScript();
-  }, [text]);
-
-  const handleCredentialResponse = async (response: any) => {
+  // Handle button click to redirect to Google OAuth
+  const handleSignInClick = async () => {
     try {
-      const authResponse = await authenticateWithGoogle(response.credential);
+      setIsLoading(true);
       
-      // Store tokens
-      localStorage.setItem('accessToken', authResponse.access_token);
-      localStorage.setItem('refreshToken', authResponse.refresh_token);
+      // Get the Google client ID from your backend
+      const { client_id } = await getGoogleClientId();
       
-      // Update user context
-      setUser(authResponse.user);
+      // Create the redirect URL for after authentication
+      const redirectUri = `${BASE_URL}/api/auth/google/callback`;
       
-      // Execute success callback if provided
-      if (onSuccess) {
-        onSuccess();
-      }
+      // Generate a random state value for security
+      const state = Math.random().toString(36).substring(2);
+      localStorage.setItem('oauth_state', state);
       
-      // Redirect user
-      navigate(redirect);
+      // Build the Google OAuth URL with the required parameters
+      const oauthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+      
+      // Add required parameters
+      oauthUrl.searchParams.append('client_id', client_id);
+      oauthUrl.searchParams.append('redirect_uri', redirectUri);
+      oauthUrl.searchParams.append('response_type', 'code');
+      oauthUrl.searchParams.append('scope', 'email profile openid');
+      oauthUrl.searchParams.append('state', state);
+      oauthUrl.searchParams.append('access_type', 'offline');
+      oauthUrl.searchParams.append('prompt', 'select_account');
+      
+      // Redirect to Google's OAuth page
+      window.location.href = oauthUrl.toString();
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('Error initiating Google Sign-In:', error);
+      alert("Could not start Google Sign-In. Please try again.");
+      setIsLoading(false);
     }
   };
-
-  return <div ref={buttonRef} className={className}></div>;
+  return (
+    <button
+      onClick={handleSignInClick}
+      disabled={isLoading}
+      className={`flex items-center justify-center gap-2 w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 transition-colors ${className}`}
+    >
+      <FcGoogle className="text-xl" />
+      <span>{isLoading ? "Redirecting to Google..." : text}</span>
+    </button>
+  );
 };
 
 export default GoogleSignInButton;

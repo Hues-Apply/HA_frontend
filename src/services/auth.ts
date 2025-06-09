@@ -33,14 +33,17 @@ export const getGoogleClientId = async (): Promise<{client_id: string}> => {
   return handleApiResponse(response);
 };
 
-// Handle Google authentication
-export const authenticateWithGoogle = async (credential: string): Promise<AuthResponse> => {
-  const response = await fetch(`${BASE_URL}/api/auth/google/`, {
+// Handle Google OAuth code exchange
+export const exchangeGoogleAuthCode = async (code: string, state: string): Promise<AuthResponse> => {
+  const response = await fetch(`${BASE_URL}/api/auth/google/callback`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ credential })
+    body: JSON.stringify({ 
+      code,
+      state
+    })
   });
   
   return handleApiResponse(response);
