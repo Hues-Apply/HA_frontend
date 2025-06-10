@@ -27,23 +27,14 @@ export interface UserRole {
   is_admin: boolean;
 }
 
-// Get Google OAuth client ID
-export const getGoogleClientId = async (): Promise<{client_id: string}> => {
-  const response = await fetch(`${BASE_URL}/api/auth/google-client-id/`);
-  return handleApiResponse(response);
-};
-
-// Handle Google OAuth code exchange
-export const exchangeGoogleAuthCode = async (code: string, state: string): Promise<AuthResponse> => {
-  const response = await fetch(`${BASE_URL}/api/auth/google/callback`, {
+// Exchange Google authorization code for tokens
+export const exchangeGoogleAuthCode = async (code: string): Promise<AuthResponse> => {
+  const response = await fetch(`${BASE_URL}/api/auth/google/callback/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ 
-      code,
-      state
-    })
+    body: JSON.stringify({ code })
   });
   
   return handleApiResponse(response);

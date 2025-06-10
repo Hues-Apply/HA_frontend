@@ -16,7 +16,6 @@ import HowItWorks from "./sections/HowItWorks";
 // Authentication & onboarding pages
 import Login from "./sections/Login";
 import Signup from "./sections/Signup";
-import GoogleAuthCallback from "./components/GoogleAuthCallback";
 // Import placeholders for components that will be implemented later
 const VerifyEmail = () => <div>Email Verification</div>;
 const Onboarding = () => <div>Onboarding</div>;
@@ -56,7 +55,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
 
         {/* Protected routes without main layout */}
         <Route element={<ProtectedRoute />}>
