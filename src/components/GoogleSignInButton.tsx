@@ -38,10 +38,12 @@ const GoogleSignInButton = ({
         localStorage.setItem('refreshToken', authResponse.refresh_token);
         
         // Update user context
-        setUser(authResponse.user);
-        
-        // Redirect to dashboard
-        navigate('/dashboard');
+        setUser(authResponse.user);        // Redirect user based on whether they're new or returning
+        if (authResponse.user.is_new_user) {
+          navigate('/onboarding/step-1');
+        } else {
+          navigate('/dashboard');
+        }
       } catch (error) {
         console.error('Error during Google auth code exchange:', error);
         alert('Failed to complete Google authentication. Please try again.');

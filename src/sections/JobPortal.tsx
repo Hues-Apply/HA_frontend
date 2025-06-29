@@ -19,8 +19,8 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import ProfileCompletion from '../components/ProfileCompletion';
 import OpportunityList from '../components/OpportunityList';
-import RecommendedOpportunities from '../components/RecommendedOpportunities';
 
 const jobs = [
   {
@@ -236,8 +236,9 @@ export default function Dashboard() {
           </div>
         </div>        {activeSection === 'dashboard' && (
           <div className="space-y-8">
-            {/* Recommended Opportunities from API */}
-            <RecommendedOpportunities />
+            {/* Profile Completion Nudge */}
+            <ProfileCompletion />
+            
             
             {/* Latest Opportunities from API */}
             <OpportunityList 
@@ -253,7 +254,6 @@ export default function Dashboard() {
 
         {activeSection === 'matches' && (
           <section className="mb-10">
-            <RecommendedOpportunities />
           </section>
         )}
 

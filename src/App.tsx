@@ -16,12 +16,14 @@ import HowItWorks from "./sections/HowItWorks";
 // Authentication & onboarding pages
 import Login from "./sections/Login";
 import Signup from "./sections/Signup";
+import OnboardingReview from "./sections/OnboardingReview";
+import OnboardingComplete from "./sections/Onboarding";
 // Import placeholders for components that will be implemented later
 const VerifyEmail = () => <div>Email Verification</div>;
-const Onboarding = () => <div>Onboarding</div>;
-const OnboardingStage1 = () => <div>Onboarding Stage 1</div>;
-const OnboardingStage2 = () => <div>Onboarding Stage 2</div>;
+import Onboarding1 from "./sections/Onboarding1";
+import Onboarding2 from "./sections/Onboarding2";
 import JobPortal from "./sections/JobPortal";
+import UsersList from "./components/UsersList";
 
 // Homepage component
 const Homepage = () => (
@@ -50,22 +52,24 @@ const MainLayout = () => (
 
 function App() {
   return (
-    <Router>      <Routes>
+    <Router>
+      <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/users-list" element={<UsersList />} />
 
         {/* Protected routes without main layout */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<JobPortal />} />
         </Route>
-
-        {/* Protected onboarding routes with main layout */}
+        {/* Protected onboarding routes without main layout */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/onboarding/step-1" element={<OnboardingStage1 />} />
-          <Route path="/onboarding/step-2" element={<OnboardingStage2 />} />
+          <Route path="/onboarding/step-1" element={<Onboarding1 />} />
+          <Route path="/onboarding/step-2" element={<Onboarding2 />} />
+          <Route path="/onboarding/review" element={<OnboardingReview />} />
+          <Route path="/onboarding/complete" element={<OnboardingComplete />} />
         </Route>
 
         {/* Routes with main layout */}
@@ -75,7 +79,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,4 +1,4 @@
-import { BASE_URL, fetchWithAuth, handleApiResponse } from './api';
+import { BASE_URL, fetchWithAuth, handleApiResponse, getAuthHeader } from './api';
 
 // Types for authentication responses
 export interface AuthResponse {
