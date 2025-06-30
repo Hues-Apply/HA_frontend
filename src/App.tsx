@@ -23,6 +23,7 @@ const VerifyEmail = () => <div>Email Verification</div>;
 import Onboarding1 from "./sections/Onboarding1";
 import Onboarding2 from "./sections/Onboarding2";
 import JobPortal from "./sections/JobPortal";
+import Profile from "./sections/Profile";
 import UsersList from "./components/UsersList";
 
 // Homepage component
@@ -58,11 +59,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/users-list" element={<UsersList />} />
-
-        {/* Protected routes without main layout */}
+        <Route path="/users-list" element={<UsersList />} />        {/* Protected routes without main layout */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<JobPortal />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         {/* Protected onboarding routes without main layout */}
         <Route element={<ProtectedRoute />}>

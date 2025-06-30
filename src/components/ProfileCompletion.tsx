@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getProfileCompletionStatus } from '../services/profile';
 
 interface ProfileCompletionProps {
@@ -14,6 +15,7 @@ interface CompletionStatus {
 const ProfileCompletion = ({ className = '' }: ProfileCompletionProps) => {
   const [completionStatus, setCompletionStatus] = useState<CompletionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCompletionStatus = async () => {
@@ -94,7 +96,10 @@ const ProfileCompletion = ({ className = '' }: ProfileCompletionProps) => {
         </div>
       )}
 
-      <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">
+      <button 
+        onClick={() => navigate('/profile')}
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+      >
         Update Profile
       </button>
     </div>
