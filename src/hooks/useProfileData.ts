@@ -69,6 +69,38 @@ export interface AIPreferences {
 }
 
 export const useProfileData = () => {
+  // Helper function to convert date strings to yyyy-MM-dd format
+  const parseDate = (dateString: string): string => {
+    if (!dateString) return '';
+    
+    // If already in yyyy-MM-dd format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // Handle formats like "October 2015", "July 2019", etc.
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    const parts = dateString.trim().split(' ');
+    if (parts.length === 2) {
+      const monthName = parts[0];
+      const year = parts[1];
+      const monthIndex = monthNames.indexOf(monthName);
+      
+      if (monthIndex !== -1 && /^\d{4}$/.test(year)) {
+        // Use the first day of the month as default
+        const month = (monthIndex + 1).toString().padStart(2, '0');
+        return `${year}-${month}-01`;
+      }
+    }
+    
+    // If we can't parse it, return empty string
+    return '';
+  };
+
   // State management
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,15 +165,28 @@ export const useProfileData = () => {
         });
 
         // Populate education
-        const educationData = profile.education_profiles?.map(edu => ({
-          id: edu.id.toString(),
-          degree: edu.degree || '',
-          school: edu.school || '',
-          startDate: edu.start_date || '',
-          endDate: edu.end_date || '',
-          isStudying: edu.is_currently_studying,
-          description: edu.extra_curricular || ''
-        })) || [];
+        const educationData = profile.parsed_profile_data?.education?.map((edu, index) => {
+          // Parse the combined date string if it exists (e.g., "October 2015 - July 2019")
+          let startDate = edu.start_date || '';
+          let endDate = edu.end_date || '';
+          
+          // If end_date contains a date range, split it
+          if (endDate && endDate.includes(' - ')) {
+            const dateParts = endDate.split(' - ');
+            startDate = dateParts[0]?.trim() || '';
+            endDate = dateParts[1]?.trim() || '';
+          }
+          
+          return {
+            id: `existing_${index}`,
+            degree: edu.degree || '',
+            school: edu.institution || '',
+            startDate: parseDate(startDate),
+            endDate: parseDate(endDate),
+            isStudying: false, // This field doesn't seem to be in the response
+            description: edu.description || ''
+          };
+        }) || [];
         
         setEducation(educationData.length > 0 ? educationData : [{
           id: 'new',
@@ -154,16 +199,29 @@ export const useProfileData = () => {
         }]);
 
         // Populate experience
-        const experienceData = profile.experience_profiles?.map(exp => ({
-          id: exp.id.toString(),
-          jobTitle: exp.job_title || '',
-          companyName: exp.company_name || '',
-          location: exp.location || '',
-          startDate: exp.start_date || '',
-          endDate: exp.end_date || '',
-          isCurrentlyWorking: exp.is_currently_working,
-          description: exp.description || ''
-        })) || [];
+        const experienceData = profile.parsed_profile_data?.experience?.map((exp, index) => {
+          // Parse the combined date string if it exists (e.g., "July 2024 – Feb 2025")
+          let startDate = exp.start_date || '';
+          let endDate = exp.end_date || '';
+          
+          // If end_date contains a date range, split it
+          if (endDate && endDate.includes(' – ')) {
+            const dateParts = endDate.split(' – ');
+            startDate = dateParts[0]?.trim() || '';
+            endDate = dateParts[1]?.trim() || '';
+          }
+          
+          return {
+            id: `existing_${index}`,
+            jobTitle: exp.position || '',
+            companyName: exp.company || '',
+            location: '', // Location not provided in the parsed data
+            startDate: parseDate(startDate),
+            endDate: parseDate(endDate),
+            isCurrentlyWorking: exp.is_current || false,
+            description: exp.description || ''
+          };
+        }) || [];
 
         setExperience(experienceData.length > 0 ? experienceData : [{
           id: 'new',
