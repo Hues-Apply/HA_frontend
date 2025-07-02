@@ -109,7 +109,7 @@ export const getUserById = async (userId : number) : Promise<User> => {
 
 // Get all Users
 export const getAllUsers = async (): Promise<User[]> => {
-  const response = await fetchWithAuth('api/users/');
+  const response = await fetchWithAuth('/api/users/');
   return handleApiResponse(response) as User[];
 };
 
