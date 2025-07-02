@@ -129,7 +129,7 @@ export const updateUserById = async (userId: number, userData : Partial<User>): 
 // Delete user by ID
 export const deleteUserById = async (user: User): Promise<{message: string}> => {
 
-  const response = await fetchWithAuth(`/api/users/${user.id}`, {
+  const response = await fetchWithAuth(`/api/users/${user.id}/`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
