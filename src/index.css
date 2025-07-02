@@ -13,3 +13,9 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Tailwind custom layer (optional) */
+.bg-stars {
+  background-image: url('/public/hero/path-to-star-texture.png');
+  background-size: cover;
+}

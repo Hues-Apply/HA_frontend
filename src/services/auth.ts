@@ -1,4 +1,5 @@
 import { BASE_URL, fetchWithAuth, handleApiResponse, getAuthHeader } from './api';
+import { deleteEducation } from './profile';
 
 // Types for authentication responses
 export interface AuthResponse {
@@ -36,7 +37,6 @@ export const exchangeGoogleAuthCode = async (code: string): Promise<AuthResponse
     },
     body: JSON.stringify({ code })
   });
-  
   return handleApiResponse(response);
 };
 
@@ -80,4 +80,83 @@ export const updateUserRole = async (role: 'applicant' | 'employer'): Promise<{m
     method: 'POST',
     body: JSON.stringify({ role })
   });
+};
+
+
+// Get user profile
+export const getUserProfile = async (): Promise<User> => {
+  const response = await fetchWithAuth('/api/profile/');
+  return handleApiResponse(response);
+}
+
+// Update user profile
+export const updateUserProfile = async (profileData : Partial<User> ) : Promise<User> => {
+  const response = await fetchWithAuth('/api/profile/', {
+    method: 'PUT',
+    headers: {
+      'Content-Type' : 'application/json',
+    },
+    body: JSON.stringify(profileData)
+  });
+  return handleApiResponse(response);
+};
+
+// Get user by ID
+export const getUserById = async (userId : number) : Promise<User> => {
+  const response = await fetchWithAuth(`/api/users/${userId}/`);
+  return handleApiResponse(response);
+};
+
+// Get all Users
+export const getAllUsers = async (): Promise<User> => {
+  const response = await fetchWithAuth('api/users/');
+  return handleApiResponse(response);
+};
+
+// Update user by ID
+export const updateUserById = async (userId: number, userData : Partial<User>): Promise<User> => {
+  const response = await fetchWithAuth(`/api/users/${userId}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData)
+  });
+  
+  return handleApiResponse(response);
+};
+
+// Delete user by ID
+export const deleteUserById = async (user: User): Promise<{message: string}> => {
+
+  const response = await fetchWithAuth(`/api/users/${user.id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
+  const result = await handleApiResponse(response);
+
+  if(user.role === 'applicant') {
+    await deleteEducation(user.id);
+  }
+
+  return result;
+};
+
+// Get user authentication header
+export const getUserAuthHeader = async (): Promise<{ Authorization: string } | { Authorization?: undefined }> => {
+  return getAuthHeader();
+};
+
+// Check if user is authenticated
+export const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    const response = await fetchWithAuth('/api/auth/check-auth/');
+    return response.ok;
+  } catch (error) {
+    console.error('Error checking auth: ', error);
+    return false;
+  }
 };
