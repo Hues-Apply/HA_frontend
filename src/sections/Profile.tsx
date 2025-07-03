@@ -96,6 +96,9 @@ export default function Profile() {
             <Link to="/dashboard" className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded hover:bg-gray-200">
               <LayoutDashboard size={18} /> Dashboard
             </Link>
+            <Link to="/admin" className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded hover:bg-gray-200">
+              <Settings size={18} /> Admin Panel
+            </Link>
             <div className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded cursor-pointer hover:bg-gray-200">
               <Brain size={18} /> My AI Matches
             </div>

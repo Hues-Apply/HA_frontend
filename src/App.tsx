@@ -24,6 +24,7 @@ import Onboarding1 from "./sections/Onboarding1";
 import Onboarding2 from "./sections/Onboarding2";
 import JobPortal from "./sections/JobPortal";
 import Profile from "./sections/Profile";
+import AdminDashboard from "./sections/AdminDashboard";
 import UsersList from "./components/UsersList";
 
 // Homepage component
@@ -63,6 +64,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<JobPortal />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Route>
         {/* Protected onboarding routes without main layout */}
         <Route element={<ProtectedRoute />}>
