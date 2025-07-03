@@ -7,7 +7,6 @@ import {
   Download, 
   RefreshCw, 
   Globe,
-  Building2,
   Briefcase,
   MapPin,
   Clock,
@@ -141,7 +140,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Check for cached jobs on component mount
-    const cachedJobs = localStorage.getItem('cachedJobs');
+    const cachedJobs = localStorage.getItem('linkedin_crawled_jobs');
     if (cachedJobs) {
       setHasCachedJobs(true);
       console.log('Cached jobs found:', JSON.parse(cachedJobs));

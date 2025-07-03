@@ -1,5 +1,5 @@
+import React from 'react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Home,
   LayoutDashboard,
@@ -12,6 +12,8 @@ import {
   LogOut,
   ExternalLink,
   Edit,
+  Clipboard,
+  Camera,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProfileData } from '../hooks/useProfileData';
@@ -21,6 +23,7 @@ import EducationTab from '../components/EducationTab';
 import ExperienceTab from '../components/ExperienceTab';
 import ProjectsTab from '../components/ProjectsTab';
 import AITab from '../components/AITab';
+import { SidebarLayout, SidebarItem } from '../components/SidebarLayout';
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('Personal');
@@ -84,112 +87,81 @@ export default function Profile() {
   }
 
   return (
+
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white p-4 border-r flex flex-col justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-blue-700 mb-6">Hues Apply</h2>
-          <nav className="space-y-2">
-            <Link to="/" className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded hover:bg-gray-200">
-              <Home size={18} /> Home
-            </Link>
-            <Link to="/dashboard" className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded hover:bg-gray-200">
-              <LayoutDashboard size={18} /> Dashboard
-            </Link>
-            <Link to="/admin" className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded hover:bg-gray-200">
-              <Settings size={18} /> Admin Panel
-            </Link>
-            <div className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded cursor-pointer hover:bg-gray-200">
-              <Brain size={18} /> My AI Matches
-            </div>
-            <div className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded cursor-pointer hover:bg-gray-200">
-              <Bookmark size={18} /> Saved jobs
-            </div>
-            <div className="flex items-center text-black font-semibold gap-2 px-2 py-1 rounded cursor-pointer hover:bg-gray-200">
-              <TrendingUp size={18} /> Progress tracker
-            </div>
-          </nav>
-        </div>
-
-        <div className="mb-10">
-          <div className="space-y-2 text-sm text-gray-600 mb-6">
-            <Link to="/settings" className="flex items-center gap-2 hover:text-blue-600">
-              <Settings size={16} /> Settings
-            </Link>
-            <div className="flex items-center gap-2 text-blue-600 bg-blue-50 px-2 py-1 rounded">
-              <User size={16} /> Profile
-            </div>
-            <Link to="/help" className="flex items-center gap-2 hover:text-blue-600">
-              <HelpCircle size={16} /> Help Center
-            </Link>
-            <button 
-              onClick={logout} 
-              className="flex items-center gap-2 hover:text-blue-600 w-full text-left"
-            >
-              <LogOut size={16} /> Logout
-            </button>
-          </div>
-          <div className="pt-4 border-t">
-            <div className="text-sm font-medium">
-              {personalInfo.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User'}
-            </div>
-            <div className="text-xs text-gray-500">{personalInfo.email || user?.email || 'email@example.com'}</div>
-          </div>
-        </div>
-      </aside>
-
+        
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 relative">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-400 text-white p-6">
-          <h1 className="text-2xl font-bold mb-2">Welcome, I'm your AI buddy</h1>
-          <p className="text-blue-100">Complete your profile</p>
+      <div className="absolute top-0 left-0 w-full h-56 bg-gradient-to-r from-blue-600 to-blue-400 bg-stars z-0">
+        <div className="relative z-10 px-12 pt-10">
+          <h1 className="text-3xl font-semibold text-white">Welcome, I’m your AI buddy</h1>
+          <p className="text-blue-100 mt-1 text-sm">Complete your profile</p>
         </div>
 
-        <div className="flex">
+        <div className="flex left-2.5 mt-6 mx-6 gap-6">
           {/* Profile Sidebar */}
-          <div className="w-64 bg-white p-6 border-r">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
+          <div className="w-72 bg-white rounded-xl shadow-sm p-6 border">
+            {/* Profile Image */}
+            <div className="text-center">
+              <div className="relative w-24 h-24 rounded-full mx-auto overflow-hidden border-4 border-white shadow-md">
                 {profileData?.profile_picture ? (
-                  <img src={profileData.profile_picture} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                  <img
+                    src={profileData.profile_picture || '/hero/userprofile.svg'}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <User size={40} className="text-gray-500" />
+                  <User size={48} className="text-gray-500 w-full h-full flex items-center justify-center" />
                 )}
+
+                {/* Camera Icon Overlay */}
+                <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow-md">
+                  <Camera size={16} className="text-blue-600" />
+                </div>
               </div>
-              <h3 className="font-semibold text-gray-800">
+
+              {/* Name & Title */}
+              <h3 className="mt-4 font-semibold text-lg text-gray-900">
                 {personalInfo.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User'}
               </h3>
-              <p className="text-sm text-gray-600">{careerProfile.jobTitle || 'Job Title'}</p>
+              <p className="text-sm text-gray-500">{careerProfile.jobTitle || 'Job Title'}</p>
             </div>
 
-            <div className="space-y-4 text-sm">
-              <div>
-                <span className="text-gray-600">Opportunities applied</span>
-                <span className="float-right font-semibold text-yellow-600">32</span>
+            {/* Stats */}
+            <div className="mt-6 space-y-2 text-sm">
+              <div className="flex justify-between text-gray-700">
+                <span>Opportunities applied</span>
+                <span className="font-medium text-orange-500">32</span>
               </div>
-              <div>
-                <span className="text-gray-600">Opportunities won</span>
-                <span className="float-right font-semibold text-green-600">26</span>
+              <div className="flex justify-between text-gray-700">
+                <span>Opportunities won</span>
+                <span className="font-medium text-green-600">26</span>
               </div>
-              <div>
-                <span className="text-gray-600">Current Opportunities</span>
-                <span className="float-right font-semibold text-blue-600">06</span>
+              <div className="flex justify-between text-gray-700">
+                <span>Current Opportunities</span>
+                <span className="font-medium text-blue-600">06</span>
               </div>
             </div>
 
-            <button className="w-full mt-6 py-2 text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
+            {/* View Profile Button */}
+            <button className="w-full mt-6 py-2 text-sm text-blue-600 font-medium border border-blue-600 rounded-md hover:bg-blue-50 transition">
               View public profile
             </button>
 
-            <div className="mt-4 p-2 bg-gray-50 rounded text-xs text-blue-600 flex items-center">
-              <ExternalLink size={12} className="mr-1" />
-              https://www.abc...
+            {/* Profile Link */}
+            <div className="mt-4 bg-gray-100 text-blue-600 text-xs rounded-md p-2 flex items-center justify-between">
+              <div className="truncate flex items-center">
+                <ExternalLink size={12} className="mr-1" />
+                https://www.abc...
+              </div>
+              <Clipboard size={12} className="ml-2 cursor-pointer" />
             </div>
           </div>
 
+
           {/* Profile Form */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 bg-white rounded-xl shadow-sm border">
             {/* Tab Navigation */}
             <div className="flex space-x-0 mb-6 border-b">
               {tabs.map((tab) => (
@@ -273,7 +245,10 @@ export default function Profile() {
             </div>
           </div>
         </div>
+      </div>
       </main>
     </div>
   );
 }
+
+
