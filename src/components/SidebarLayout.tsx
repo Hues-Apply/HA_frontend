@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   useContext,
   useState,
@@ -15,7 +15,7 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType>({ expanded: true });
 
 interface SidebarLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
   profileData?: { profile_picture?: string };
   personalInfo: { name?: string; email?: string };
 }
@@ -28,24 +28,30 @@ export function SidebarLayout({
   const [expanded, setExpanded] = useState(true);
   const { user } = useAuth();
 
+  const childrenArray = React.Children.toArray(children);
+  const topItem = childrenArray.slice(0, childrenArray.length - 4);
+  const bottomItems = childrenArray.slice(childrenArray.length - 4);
+
   return (
-    <aside className="h-screen">
+    <aside className="top-0 left-0 h-screen bg-white border-r shadow-sm">
       <nav className="h-full flex flex-col bg-blue-50 border-r shadow-sm">
         {/* Header */}
         <div className="p-4 pb-2 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <img
-              src={ "/hero/hues_apply_logo.svg"}
-              alt= "Hues Apply"
-              className="h-8 w-auto text-blue-600"
-            />
-            { expanded && (
-               <span className="font-bold text-lg text-blue-400">Hues Apply</span>
+          <div className="flex items-center gap-2">      
+            {expanded && (
+              <div className="flex items-center gap-2">
+                <img
+                  src={"/hero/hues_apply_logo.svg"}
+                  alt="Hues Apply"
+                  className="h-12 w-auto text-[#4DA5E2]"
+                />
+                <span className="font-bold text-lg text-[#4DA5E2]">Hues Apply</span>
+              </div>
             )}
           </div>
           <button
             onClick={() => setExpanded((prev) => !prev)}
-            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
+            className="p-1.5 rounded-lg bg-blue-200 hover:bg-blue-200"
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>
@@ -53,7 +59,12 @@ export function SidebarLayout({
 
         {/* Items */}
         <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">{children}</ul>
+          {/* {Top item} */}
+          <div className="flex-1 flex flex-col">
+            <ul className="flex-1 px-3 flex flex-col gap-2">{topItem}</ul>
+          </div>
+          {/* {Bottom Item} */}
+          <ul className="px-3 flex flex-col gap-2 mb-2">{bottomItems}</ul>
         </SidebarContext.Provider>
 
         {/* Footer */}
@@ -81,7 +92,6 @@ export function SidebarLayout({
               </span>
             </div>
           </div>
-          {expanded && <MoreVertical size={20} />}
         </div>
       </nav>
     </aside>
@@ -108,21 +118,20 @@ export function SidebarItem({
   const { expanded } = useContext(SidebarContext);
 
   const classes = `
-    relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer
-    transition-colors group
+    relative flex items-center justify-center py-3 px-3 font-medium rounded-md cursor-pointer transition-colors group
     ${
-      active
-        ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-        : "hover:bg-indigo-50 text-gray-600"
+     active
+      ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
+      : "hover:bg-indigo-50 text-gray-600"
     }
   `;
 
   const content = (
     <>
-      {icon}
+      <div className="w-6 h-6 flex items-center justify-center">{icon}</div>
       <span
         className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3" : "w-0"
+          expanded ? "w-52 ml-3" : "w-0 ml-0"
         }`}
       >
         {text}
@@ -161,5 +170,5 @@ export function SidebarItem({
       </div>
     </li>
   );
-}
+};
 

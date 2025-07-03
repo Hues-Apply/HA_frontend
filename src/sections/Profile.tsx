@@ -1,5 +1,5 @@
+import React from 'react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Home,
   LayoutDashboard,
@@ -23,7 +23,7 @@ import EducationTab from '../components/EducationTab';
 import ExperienceTab from '../components/ExperienceTab';
 import ProjectsTab from '../components/ProjectsTab';
 import AITab from '../components/AITab';
-import { SidebarLayout, SidebarItem } from '../components/SidebarLayout'
+import { SidebarLayout, SidebarItem } from '../components/SidebarLayout';
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('Personal');
@@ -89,26 +89,7 @@ export default function Profile() {
   return (
 
     <div className="flex min-h-screen bg-gray-100">
-
-      {/* Sidebar */}
-      <SidebarLayout profileData={profileData} personalInfo={personalInfo}>
-      <SidebarItem icon={<Home size={20} />} text="Home" link="/" />
-      <SidebarItem icon={<LayoutDashboard size={20} />} text="Dashboard" link="/dashboard" />
-      <SidebarItem icon={<Brain size={20} />} text="My AI Matches" />
-      <SidebarItem icon={<Bookmark size={20} />} text="Saved Jobs" />
-      <SidebarItem icon={<TrendingUp size={20} />} text="Progress Tracker" />
-      <SidebarItem icon={<User size={20} />} text="Profile" />
-      <SidebarItem icon={<Settings size={20} />} text="Settings" link="/settings" />
-      <SidebarItem icon={<HelpCircle size={20} />} text="Help Center" link="/help" />
-      <SidebarItem
-        icon={<LogOut size={20} />}
-        text="Logout"
-        link="#"
-        onClick={logout}
-      />
-      </SidebarLayout>
-
-
+        
       {/* Main Content */}
       <main className="flex-1 relative">
         {/* Header */}
@@ -117,7 +98,6 @@ export default function Profile() {
           <h1 className="text-3xl font-semibold text-white">Welcome, I’m your AI buddy</h1>
           <p className="text-blue-100 mt-1 text-sm">Complete your profile</p>
         </div>
-
 
         <div className="flex left-2.5 mt-6 mx-6 gap-6">
           {/* Profile Sidebar */}
@@ -265,13 +245,8 @@ export default function Profile() {
             </div>
           </div>
         </div>
-
-        
       </div>
-
-        
       </main>
-
     </div>
   );
 }
