@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom
 import Navbar from "./components/NavBar";
 import Footer from "./sections/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SidebarWrapper from "./components/SidebarWrapper";
 
 // Homepage sections
 import Hero from "./sections/Hero";
@@ -61,8 +62,10 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/users-list" element={<UsersList />} />        {/* Protected routes without main layout */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<JobPortal />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route element={<SidebarWrapper />}>
+            <Route path="/dashboard" element={<JobPortal />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Route>
         {/* Protected onboarding routes without main layout */}
         <Route element={<ProtectedRoute />}>
