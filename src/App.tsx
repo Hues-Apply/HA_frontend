@@ -25,6 +25,7 @@ import Onboarding1 from "./sections/Onboarding1";
 import Onboarding2 from "./sections/Onboarding2";
 import JobPortal from "./sections/JobPortal";
 import Profile from "./sections/Profile";
+import AdminDashboard from "./sections/AdminDashboard";
 import UsersList from "./components/UsersList";
 
 // Homepage component
@@ -62,10 +63,8 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/users-list" element={<UsersList />} />        {/* Protected routes without main layout */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<SidebarWrapper />}>
-            <Route path="/dashboard" element={<JobPortal />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
+          <Route path="/dashboard" element={<JobPortal />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         {/* Protected onboarding routes without main layout */}
         <Route element={<ProtectedRoute />}>
