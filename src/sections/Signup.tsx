@@ -29,6 +29,7 @@ export default function SignupForm() {
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(true);
   const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
   const { setUser } = useAuth();
@@ -133,9 +134,31 @@ export default function SignupForm() {
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#eaf3f9]">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
-        
+      <img
+        src={"/hero/hues_apply_logo.svg"}
+        alt="Hues Apply"
+        className="absolute top-4 left-4 h-20 w-28 text-[#4DA5E2] hidden md:block"
+      >
+      </img>
+      <div className="bg-white p-6 rounded shadow-md max-w-md py-8 w-full">
+        <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
+
+        <div className="flex mb-6">
+          
+          <button
+            className="flex-1 py-2 border border-l-0 bg-blue-400 text-white"
+            disabled
+          >
+            Sign Up
+          </button>
+          <Link
+            to="/login"
+            className="flex-1 py-2 border bg-blue-100 text-center text-gray-700 hover:bg-blue-200"
+          >
+            Log In
+          </Link>
+        </div>
+
         {apiError && (
           <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
             {apiError}
