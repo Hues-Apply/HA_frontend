@@ -110,8 +110,8 @@ export const getUserById = async (userId : number) : Promise<User> => {
 // Get all Users
 export const getAllUsers = async (): Promise<User[]> => {
   const response = await fetchWithAuth('/api/users/');
-  return handleApiResponse(response) as User[];
-};
+  return handleApiResponse(response);
+}
 
 // Update user by ID
 export const updateUserById = async (userId: number, userData : Partial<User>): Promise<User> => {
@@ -160,3 +160,17 @@ export const isAuthenticated = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// Get user by email
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  const response = await fetchWithAuth(`/api/users/email/${email}/`);
+
+  if(response.ok) {
+    return handleApiResponse(response);
+  } else if(response.status === 404) {
+    return null;
+  } else {
+    throw new Error(`Error fetching user by email: ${response.statusText}`);
+  }
+};
+
