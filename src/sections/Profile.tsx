@@ -1,17 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
 import {
-  Home,
-  LayoutDashboard,
-  Brain,
-  Bookmark,
-  TrendingUp,
-  Settings,
   User,
-  HelpCircle,
-  LogOut,
   ExternalLink,
-  Edit,
   Clipboard,
   Camera,
 } from 'lucide-react';
@@ -101,7 +92,7 @@ export default function Profile() {
 
         <div className="flex left-2.5 mt-6 mx-6 gap-6">
           {/* Profile Sidebar */}
-          <div className="w-72 bg-white rounded-xl shadow-sm p-6 border">
+          <div className="bg-white rounded-xl shadow-sm p-6 border-0 h-fit">
             {/* Profile Image */}
             <div className="text-center">
               <div className="relative w-24 h-24 rounded-full mx-auto overflow-hidden border-4 border-white shadow-md">
@@ -129,7 +120,7 @@ export default function Profile() {
             </div>
 
             {/* Stats */}
-            <div className="mt-6 space-y-2 text-sm">
+            <div className="mt-12 space-y-5 text-sm">
               <div className="flex justify-between text-gray-700">
                 <span>Opportunities applied</span>
                 <span className="font-medium text-orange-500">32</span>
@@ -145,7 +136,7 @@ export default function Profile() {
             </div>
 
             {/* View Profile Button */}
-            <button className="w-full mt-6 py-2 text-sm text-blue-600 font-medium border border-blue-600 rounded-md hover:bg-blue-50 transition">
+            <button className="w-full mt-32 py-2 text-sm text-black font-medium border border-gray-600 rounded-md hover:bg-gray-50 transition">
               View public profile
             </button>
 
@@ -161,17 +152,17 @@ export default function Profile() {
 
 
           {/* Profile Form */}
-          <div className="flex-1 p-6 bg-white rounded-xl shadow-sm border">
-            {/* Tab Navigation */}
-            <div className="flex space-x-0 mb-6 border-b">
+          <div className="flex-1 p-6 bg-white rounded-xl shadow-sm border-0">
+            {/* Tab Navigation with underline fix */}
+            <div className="flex border-b border-gray-200 mb-6">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 font-medium border-b-2 transition-colors ${
+                  className={`px-6 py-3 -mb-px text-sm font-medium transition-colors border-b-2 ${
                     activeTab === tab
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-600 hover:text-gray-800'
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
                   }`}
                 >
                   {tab}

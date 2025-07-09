@@ -4,15 +4,16 @@ import { SidebarLayout, SidebarItem } from "./SidebarLayout";
 import {
   Home,
   LayoutDashboard,
-  Brain,
-  Bookmark,
-  TrendingUp,
+  Sparkles,
+  FileText,
+  Search,
   User,
   Settings,
   HelpCircle,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import Header from "./Header";
 
 export default function SidebarWrapper() {
   const { logout, user } = useAuth();
@@ -31,9 +32,9 @@ export default function SidebarWrapper() {
       <SidebarLayout profileData={profileData} personalInfo={personalInfo}>
         <SidebarItem icon={<Home size={20} />} text="Home" link="/" />
         <SidebarItem icon={<LayoutDashboard size={20} />} text="Dashboard" link="/dashboard" />
-        <SidebarItem icon={<Brain size={20} />} text="My AI Matches" link="/ai-matches" />
-        <SidebarItem icon={<Bookmark size={20} />} text="Saved Jobs" link="/saved-jobs" />
-        <SidebarItem icon={<TrendingUp size={20} />} text="Progress Tracker" link="/progress" />
+        <SidebarItem icon={<Sparkles size={20} />} text="My AI Matches" link="/ai-matches" />
+        <SidebarItem icon={<FileText size={20} />} text="Saved Jobs" link="/saved-jobs" />
+        <SidebarItem icon={<Search size={20} />} text="Progress Tracker" link="/progress" />
         <SidebarItem icon={<User size={20} />} text="Profile" link="/profile" />
         <SidebarItem icon={<Settings size={20} />} text="Settings" link="/settings" />
         <SidebarItem icon={<HelpCircle size={20} />} text="Help Center" link="/help" />
@@ -46,11 +47,12 @@ export default function SidebarWrapper() {
       </SidebarLayout>
 
       {/* Main content rendered here */}
-      <div className="flex-1 overflow-y-auto">
-        <Outlet />
+      <div className="flex-1 overflow-y-auto flex flex-col ">
+        <Header /> 
+        <div className="flex-1">
+          <Outlet />
+        </div>
       </div>
-
-
     </div>
   );
 }

@@ -33,8 +33,8 @@ export function SidebarLayout({
   const bottomItems = childrenArray.slice(childrenArray.length - 4);
 
   return (
-    <aside className="top-0 left-0 h-screen bg-white border-r shadow-sm">
-      <nav className="h-full flex flex-col bg-blue-50 border-r shadow-sm">
+    <aside className="top-0 left-0 h-screen bg-white shadow-sm">
+      <nav className="h-full flex flex-col bg-blue-50 shadow-sm">
         {/* Header */}
         <div className="p-4 pb-2 flex justify-between items-center">
           <div className="flex items-center gap-2">      
