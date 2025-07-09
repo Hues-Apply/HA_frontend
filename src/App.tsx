@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom
 
 // Layout components
 import Navbar from "./components/NavBar";
+import Header from "./components/Header";
 import Footer from "./sections/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SidebarWrapper from "./components/SidebarWrapper";
@@ -40,17 +41,19 @@ const Homepage = () => (
 );
 
 // Layout component for main site pages
-const MainLayout = () => (
-  <>
-    <header>
-      <Navbar />
-    </header>
-    <main id="main-content">
-      <Outlet />
-    </main>
-    <Footer />
-  </>
-);
+const MainLayout = () => {
+  return (
+    <>
+      <header>
+        <Navbar />
+      </header>
+      <main id="main-content">
+        <Outlet />
+      </main>
+      <Footer />
+    </>
+  );
+};
 
 function App() {
   return (
