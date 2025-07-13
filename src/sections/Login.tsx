@@ -41,7 +41,7 @@ export default function LoginForm() {
       <div className="m-auto w-full max-w-md p-8 bg-white rounded shadow-md">
         <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
 
-        <div className="flex mb-6">
+        <div className="flex mb-3">
           <Link
             to="/Signup"
             className="flex-1 py-2 border bg-blue-100 text-center text-gray-700 hover:bg-blue-200"
@@ -54,7 +54,18 @@ export default function LoginForm() {
           >
             Log In
           </button>
+          
         </div>
+
+        <div className="my-3 text-center text-sm text-gray-500">or</div>
+
+        <div className="mb-6">
+        <GoogleSignInButton 
+          text="Continue with Google"
+          className="hover:bg-gray-50"
+        />
+        </div>
+        
 
         {error && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -101,17 +112,10 @@ export default function LoginForm() {
             {isLoading ? 'Logging in...' : 'Log In'}
           </button>
 
-          <div className="my-4 text-center text-sm text-gray-500">or</div>
-          
-          <div className="mb-6">
-          <GoogleSignInButton 
-            text="Continue with Google"
-            className="hover:bg-gray-50"
-          />
-          </div>
+          <div className="my-3 text-center text-sm text-gray-500">or</div>
         </form>
 
-        <p className="mt-4 text-sm text-center">
+        <p className="mt-3 text-sm text-center">
           Don't have an account?{' '}
           <Link to="/signup" className="text-blue-500 hover:underline">
             Sign Up

@@ -151,15 +151,15 @@ export const getUserAuthHeader = async (): Promise<{ Authorization: string } | {
 };
 
 // Check if user is authenticated
-export const isAuthenticated = async (): Promise<boolean> => {
-  try {
-    const response = await fetchWithAuth('/api/auth/check-auth/');
-    return response.ok;
-  } catch (error) {
-    console.error('Error checking auth: ', error);
-    return false;
-  }
-};
+// export const isAuthenticated = async (): Promise<boolean> => {
+//   try {
+//     const response = await fetchWithAuth('/api/auth/check-auth/');
+//     return response.ok;
+//   } catch (error) {
+//     console.error('Error checking auth: ', error);
+//     return false;
+//   }
+// };
 
 // Get user by email
 export const getUserByEmail = async (email: string): Promise<User | null> => {

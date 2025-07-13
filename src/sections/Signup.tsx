@@ -143,7 +143,7 @@ export default function SignupForm() {
       <div className="bg-white p-6 rounded shadow-md max-w-md py-8 w-full">
         <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
 
-        <div className="flex mb-6">
+        <div className="flex mb-3">
           
           <button
             className="flex-1 py-2 border border-l-0 bg-blue-400 text-white"
@@ -157,6 +157,15 @@ export default function SignupForm() {
           >
             Log In
           </Link>
+        </div>
+
+        <div className="my-3 text-center text-sm text-gray-500">or</div>
+
+        <div className="mb-8">
+          <GoogleSignInButton
+          text="Continue with Google"
+          className="w-full hover:bg-gray-50" 
+          />
         </div>
 
         {apiError && (
@@ -287,7 +296,7 @@ export default function SignupForm() {
 
           <div className="text-center text-gray-400">or</div>
 
-          <GoogleSignInButton className="w-full" />
+          
 
           <p className="text-center text-sm">
             Already have an account? <Link to="/login" className="text-blue-500">Log In</Link>
