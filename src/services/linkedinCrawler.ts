@@ -292,7 +292,7 @@ export class LinkedInJobCrawler {
         jobsToSend = cachedData.jobs;
       }
 
-      const result = await fetchWithAuth('/api/jobs/bulk-create', {
+      const result = await fetchWithAuth('/api/opportunities/bulk-create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

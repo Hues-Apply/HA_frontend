@@ -19,7 +19,7 @@ export default function SidebarWrapper() {
   const { logout, user } = useAuth();
 
   const profileData = {
-    profile_picture: user?.profile_picture || "/hero/userprofile.svg",
+    profile_picture: user?.google_data?.picture || "/hero/userprofile.svg",
   };
 
   const personalInfo = {
