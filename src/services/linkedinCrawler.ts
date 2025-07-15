@@ -152,108 +152,56 @@ export class LinkedInJobCrawler {
     error?: string;
   }> {
     try {
-      // TEMPORARY: Use mock data due to CORS restrictions in browser
-      // TODO: Move this to backend where linkedin-jobs-api can work properly
-      console.warn('⚠️ Using mock data - LinkedIn API blocked by CORS in browser environment');
-      console.log('LinkedIn crawl started with query:', {
-        keyword: filters.keyword || 'software engineer',
-        location: filters.location || 'United States',
-        limit: '50',
-        page: '0',
-        sortBy: 'recent'
+      // Build request body for /api/opportunities/scrape-jobs/
+      const body = {
+        site_names: ["linkedin"],
+        location: filters.location || "United States",
+        search_term: filters.keyword || "",
+        job_type: filters.jobType || null,
+        results_wanted: 50,
+        hours_old: 168,
+        is_remote: false,
+        country_indeed: "USA",
+        linkedin_fetch_description: false,
+        proxies: [],
+        dry_run: false
+      };
+
+      const response = await fetchWithAuth('/api/opportunities/scrape_jobs/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
       });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // The backend returns jobs already mapped to the Opportunity model
+      // Use 'created_opportunity_ids' and 'stats' for reporting, but for preview, use the jobs if returned
+      let jobs = [];
+      let count = 0;
+      if (response && response.stats && typeof response.stats.scraped_count === 'number') {
+        count = response.stats.scraped_count;
+      }
+      // If backend returns sample_data (dry_run), use that for preview
+      if (response.sample_data) {
+        jobs = response.sample_data;
+        count = jobs.length;
+      } else if (response.jobs) {
+        jobs = response.jobs;
+        count = jobs.length;
+      }
 
-      // Mock LinkedIn job data that matches the real API structure
-      const mockLinkedInJobs: LinkedInJob[] = [
-        {
-          position: "Senior Software Engineer",
-          company: "Tech Corp",
-          companyLogo: "https://via.placeholder.com/64x64?text=TC",
-          location: "San Francisco, CA",
-          date: "2024-01-15",
-          agoTime: "2 days ago",
-          salary: "$120,000 - $160,000",
-          jobUrl: "https://linkedin.com/jobs/view/123456"
-        },
-        {
-          position: "Full Stack Developer",
-          company: "Innovation Labs",
-          companyLogo: "https://via.placeholder.com/64x64?text=IL",
-          location: "New York, NY",
-          date: "2024-01-14",
-          agoTime: "3 days ago",
-          salary: "$100,000 - $140,000",
-          jobUrl: "https://linkedin.com/jobs/view/123457"
-        },
-        {
-          position: "Frontend React Developer",
-          company: "Startup Inc",
-          companyLogo: "https://via.placeholder.com/64x64?text=SI",
-          location: "Austin, TX",
-          date: "2024-01-13",
-          agoTime: "4 days ago",
-          salary: "$90,000 - $120,000",
-          jobUrl: "https://linkedin.com/jobs/view/123458"
-        },
-        {
-          position: "Backend Engineer",
-          company: "Enterprise Solutions",
-          companyLogo: "https://via.placeholder.com/64x64?text=ES",
-          location: "Seattle, WA",
-          date: "2024-01-12",
-          agoTime: "5 days ago",
-          salary: "$110,000 - $150,000",
-          jobUrl: "https://linkedin.com/jobs/view/123459"
-        },
-        {
-          position: "DevOps Engineer",
-          company: "Cloud Systems",
-          companyLogo: "https://via.placeholder.com/64x64?text=CS",
-          location: "Remote",
-          date: "2024-01-11",
-          agoTime: "6 days ago",
-          salary: "$115,000 - $145,000",
-          jobUrl: "https://linkedin.com/jobs/view/123460"
-        }
-      ];
-
-      console.log(`Mock LinkedIn crawl completed. Found ${mockLinkedInJobs.length} jobs`);
-
-      // Transform jobs to standard format
-      const transformedJobs = this.transformJobsToStandardFormat(mockLinkedInJobs);
-      
       // Save to localStorage for preview and editing workflow
-      // Users can review, edit, and select which jobs to send to backend
-      this.saveJobsToLocalStorage(transformedJobs, new Date().toISOString());
-
-      console.log(`Cached ${transformedJobs.length} jobs for preview. Use Preview Jobs button to review.`);
+      this.saveJobsToLocalStorage(jobs, new Date().toISOString());
 
       return {
         success: true,
-        jobs: transformedJobs,
-        count: transformedJobs.length
+        jobs,
+        count
       };
-
-
     } catch (error: any) {
       console.error('LinkedIn crawl failed:', error);
-      
-      // Handle specific error cases
-      let errorMessage = 'Unknown error occurred';
-      
-      if (error.message?.includes('CORS')) {
-        errorMessage = 'CORS error - LinkedIn crawling needs to run on backend. Using mock data for demo.';
-      } else if (error.message?.includes('network')) {
-        errorMessage = 'Network error - check internet connection';
-      } else if (error.message?.includes('rate limit')) {
-        errorMessage = 'Rate limit exceeded - please wait before trying again';
-      } else {
-        errorMessage = error.message || 'Failed to crawl LinkedIn jobs';
-      }
-
+      let errorMessage = error.message || 'Failed to crawl LinkedIn jobs';
       return {
         success: false,
         jobs: [],
@@ -265,18 +213,46 @@ export class LinkedInJobCrawler {
 
   // Method to transform LinkedIn jobs to our standard format
   public static transformJobsToStandardFormat(linkedInJobs: LinkedInJob[]) {
-    return linkedInJobs.map(job => ({
-      title: job.position,
-      company: job.company,
-      location: job.location,
-      description: '', // LinkedIn API doesn't provide full description
-      salary: job.salary,
-      jobUrl: job.jobUrl,
-      datePosted: job.date,
-      source: 'LinkedIn',
-      companyLogo: job.companyLogo,
-      postedAgo: job.agoTime
-    }));
+    // Map LinkedIn jobs to the backend's expected format (see JOBSPY_API.md)
+    return linkedInJobs.map(job => {
+      // Parse salary range if possible
+      let salary_min = undefined;
+      let salary_max = undefined;
+      let salary_period = 'yearly';
+      let salary_currency = 'USD';
+      if (job.salary) {
+        const match = job.salary.match(/\$([\d,]+)\s*-\s*\$([\d,]+)/);
+        if (match) {
+          salary_min = parseInt(match[1].replace(/,/g, ''));
+          salary_max = parseInt(match[2].replace(/,/g, ''));
+        } else {
+          const single = job.salary.match(/\$([\d,]+)/);
+          if (single) {
+            salary_min = parseInt(single[1].replace(/,/g, ''));
+          }
+        }
+      }
+      return {
+        title: job.position,
+        type: 'job',
+        organization: job.company,
+        location: job.location,
+        is_remote: job.location.toLowerCase().includes('remote'),
+        experience_level: '', // Could be parsed from job.position if needed
+        description: '', // LinkedIn API doesn't provide full description
+        application_url: job.jobUrl,
+        source: 'linkedin',
+        external_id: job.jobUrl, // Use jobUrl as unique external_id
+        salary_min,
+        salary_max,
+        salary_period,
+        salary_currency,
+        skills_required: [], // Could be extracted from description if available
+        company_logo: job.companyLogo,
+        posted_ago: job.agoTime,
+        date_posted: job.date
+      };
+    });
   }
 
   // Method to send crawled jobs to backend (from localStorage after preview/editing)
@@ -292,14 +268,18 @@ export class LinkedInJobCrawler {
         jobsToSend = cachedData.jobs;
       }
 
-      const result = await fetchWithAuth('/api/jobs/bulk-create', {
+
+      // Generate a batch_id for tracking
+      const batch_id = `import_batch_${new Date().toISOString().replace(/[-:.TZ]/g, '')}`;
+      const result = await fetchWithAuth('/api/opportunities/bulk-create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           jobs: jobsToSend,
-          source: 'linkedin_frontend_crawl'
+          batch_id,
+          source: 'linkedin'
         })
       });
 

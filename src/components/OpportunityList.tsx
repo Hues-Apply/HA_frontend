@@ -16,18 +16,23 @@ interface OpportunityListProps {
 }
 
 interface Opportunity {
-  id: string;
-  title: string;
   company: string;
+  title: string;
   location: string;
-  type: string;
-  description: string;
-  requirements: string[];
-  salary_range: string;
-  deadline: string;
-  created_at: string;
-  is_active: boolean;
+  link?: string;
+  id?: string;
+  type?: string;
+  description?: string;
+  requirements?: string[];
+  salary_range?: string;
+  deadline?: string;
+  created_at?: string;
+  is_active?: boolean;
   match_percentage?: number;
+  application_url?: string;
+  skills_required?: string[];
+  experience_level?: string;
+  employment_type?: string;
 }
 
 export default function OpportunityList({ filters, title }: OpportunityListProps) {
@@ -35,17 +40,29 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savedOpportunities, setSavedOpportunities] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+
+  useEffect(() => {
+    setPage(1); // Reset to first page when filters change
+  }, [filters]);
 
   useEffect(() => {
     fetchOpportunities();
-  }, [filters]);
+  }, [filters, page]);
 
   const fetchOpportunities = async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await getOpportunities(filters);
-      setOpportunities(data.results || []);
+      // Accept both array and object with results property, filter for required fields
+      let raw: Opportunity[] = Array.isArray(data) ? data : (data && Array.isArray(data.results) ? data.results : []);
+      // Only keep opportunities with company, title, location, and link
+      const filtered = raw.filter(
+        (opp) => opp.company && opp.title && opp.location && opp.link
+      );
+      setOpportunities(filtered);
     } catch (err: any) {
       console.error('Failed to fetch opportunities:', err);
       setError(err.message || 'Failed to load opportunities');
@@ -125,6 +142,10 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     );
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(opportunities.length / pageSize);
+  const paginatedOpportunities = opportunities.slice((page - 1) * pageSize, page * pageSize);
+
   if (opportunities.length === 0) {
     return (
       <section className="mb-10">
@@ -143,63 +164,96 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     <section className="mb-10">
       <h2 className="text-lg font-semibold mb-4">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {opportunities.map((opportunity) => (
-          <div key={opportunity.id} className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow">
-            <div className="absolute top-4 right-4">
-              <button
-                onClick={() => toggleSave(opportunity.id)}
-                className={`p-1 rounded ${
-                  savedOpportunities.has(opportunity.id) 
-                    ? 'text-blue-500' 
-                    : 'text-gray-400 hover:text-blue-500'
-                }`}
-              >
-                <BookmarkIcon size={18} fill={savedOpportunities.has(opportunity.id) ? 'currentColor' : 'none'} />
-              </button>
-            </div>
-            
-            <div className="pr-8">
-              <div className="text-lg font-bold mb-1 text-gray-800">{opportunity.title}</div>
-              <div className="flex items-center text-gray-600 mb-2">
-                <Building2 size={14} className="mr-1" />
-                <span className="text-sm">{opportunity.company}</span>
-              </div>
-              
-              {opportunity.match_percentage && (
-                <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold mb-3 ${getMatchColor(opportunity.match_percentage)}`}>
-                  {opportunity.match_percentage}% Match
-                </div>
-              )}
-              
-              <div className="space-y-1 mb-3">
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin size={14} className="mr-1" />
-                  <span>{opportunity.location}</span>
-                </div>
-                {opportunity.salary_range && (
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Salary:</span> {opportunity.salary_range}
-                  </div>
-                )}
-              </div>
-              
-              <div className="text-sm text-gray-700 mb-3 line-clamp-2">
-                {opportunity.description}
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock size={12} className="mr-1" />
-                  <span>Closes in {formatDeadline(opportunity.deadline)}</span>
-                </div>
-                <button className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600 transition-colors">
-                  Apply
+        {paginatedOpportunities.map((opportunity, idx) => {
+          // Use a fallback key if id is missing
+          const key = opportunity.id || `${opportunity.company}-${opportunity.title}-${opportunity.location}-${(page - 1) * pageSize + idx}`;
+          return (
+            <div key={key} className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow">
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => opportunity.id && toggleSave(opportunity.id)}
+                  className={`p-1 rounded ${
+                    opportunity.id && savedOpportunities.has(opportunity.id)
+                      ? 'text-blue-500'
+                      : 'text-gray-400 hover:text-blue-500'
+                  }`}
+                  disabled={!opportunity.id}
+                >
+                  <BookmarkIcon size={18} fill={opportunity.id && savedOpportunities.has(opportunity.id) ? 'currentColor' : 'none'} />
                 </button>
               </div>
+
+              <div className="pr-8">
+                <div className="text-lg font-bold mb-1 text-gray-800">{opportunity.title}</div>
+                <div className="flex items-center text-gray-600 mb-2">
+                  <Building2 size={14} className="mr-1" />
+                  <span className="text-sm">{opportunity.company}</span>
+                </div>
+
+                {typeof opportunity.match_percentage === 'number' && (
+                  <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold mb-3 ${getMatchColor(opportunity.match_percentage)}`}>
+                    {opportunity.match_percentage}% Match
+                  </div>
+                )}
+
+                <div className="space-y-1 mb-3">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin size={14} className="mr-1" />
+                    <span>{opportunity.location}</span>
+                  </div>
+                  {opportunity.salary_range && (
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Salary:</span> {opportunity.salary_range}
+                    </div>
+                  )}
+                </div>
+
+                {opportunity.description && (
+                  <div className="text-sm text-gray-700 mb-3 line-clamp-2">
+                    {opportunity.description}
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Clock size={12} className="mr-1" />
+                    <span>
+                      {opportunity.deadline ? `Closes in ${formatDeadline(opportunity.deadline)}` : 'No deadline'}
+                    </span>
+                  </div>
+                  <a
+                    href={opportunity.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Apply
+                  </a>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+      {/* Pagination Controls: Only Previous and Next */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className={`px-3 py-1 rounded border ${page === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className={`px-3 py-1 rounded border ${page === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 }

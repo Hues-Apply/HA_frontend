@@ -60,7 +60,10 @@ function App() {
     <Router>
       <Routes>
         {/* Public routes */}
+
         <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        {/* Authentication and onboarding routes */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/users-list" element={<UsersList />} />        {/* Protected routes without main layout */}
