@@ -27,6 +27,8 @@ import JobPortal from "./sections/JobPortal";
 import Profile from "./sections/Profile";
 import AdminDashboard from "./sections/AdminDashboard";
 import UsersList from "./components/UsersList";
+import ScholarshipList from "./components/ScholarshipList";
+import ScholarshipDetails from "./sections/ScholarshipDetails";
 
 // Homepage component
 const Homepage = () => (
@@ -71,6 +73,7 @@ function App() {
           <Route element={< SidebarWrapper />}>
             <Route path="/dashboard" element={<JobPortal />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
           </Route>
         </Route>
         {/* Protected onboarding routes without main layout */}

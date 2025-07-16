@@ -21,6 +21,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import ProfileCompletion from '../components/ProfileCompletion';
 import OpportunityList from '../components/OpportunityList';
+import ScholarshipList from '../components/ScholarshipList';
 
 const jobs = [
   {
@@ -82,6 +83,7 @@ export default function Dashboard() {
     type: '',
     location: '',
   });
+  const [activeTab, setActiveTab] = useState<'jobs' | 'scholarships' | 'grants'>('jobs');
   const { user } = useAuth();
 
   // Apply filters when search button is clicked or enter is pressed
@@ -116,62 +118,71 @@ export default function Dashboard() {
           <p className="text-sm text-gray-600">Here's what is happening with your job search applications</p>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          {showSearch ? (                  <div className="relative w-full max-w-lg">
-                    <input
-                      type="text"
-                      placeholder="Search opportunities..."
-                      className="w-full px-4 py-2 border rounded-md pl-10 pr-10"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                    />
-                    <button
-                      onClick={applyFilters}
-                      className="absolute right-12 top-1.5 px-2 py-1 bg-blue-500 text-white rounded text-sm"
-                    >
-                      Search
-                    </button>
-                    <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-                    <XCircle
-                      className="absolute right-3 top-2.5 text-gray-400 cursor-pointer hover:text-red-500"
-                      size={20}
-                      onClick={() => {
-                        setSearch('');
-                        setShowSearch(false);
-                      }}
-                    />
-                  </div>
-          ) : (
-            <button
-              onClick={() => setShowSearch(true)}
-              className="px-4 py-2 border rounded-md flex items-center gap-2"
-            >
-              <Search size={18} /> Search Jobs
-            </button>
-          )}
+        {/* New Opportunity Type Tabs */}
+        <div className="flex gap-4 mb-6">
+          <button
+            className={`px-4 py-2 rounded-full font-semibold border transition ${activeTab === 'jobs' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-50'}`}
+            onClick={() => setActiveTab('jobs')}
+          >
+            Jobs
+          </button>
+          <button
+            className={`px-4 py-2 rounded-full font-semibold border transition ${activeTab === 'scholarships' ? 'bg-green-500 text-white border-green-500' : 'bg-white text-green-500 border-green-500 hover:bg-green-50'}`}
+            onClick={() => setActiveTab('scholarships')}
+          >
+            Scholarships
+          </button>
+          <button
+            className={`px-4 py-2 rounded-full font-semibold border transition ${activeTab === 'grants' ? 'bg-purple-500 text-white border-purple-500' : 'bg-white text-purple-500 border-purple-500 hover:bg-purple-50'}`}
+            onClick={() => setActiveTab('grants')}
+          >
+            Grants
+          </button>
+        </div>
 
-          <div className="flex items-center gap-4 ml-4">
-            <Mail size={20} className="text-gray-600 cursor-pointer hover:text-blue-600" />
-            <Bell size={20} className="text-gray-600 cursor-pointer hover:text-blue-600" />
-            <UserCircle size={24} className="text-gray-600 cursor-pointer hover:text-blue-600" />
-          </div>
-        </div>        {activeSection === 'dashboard' && (
+        {/* Content Switcher */}
+        {activeTab === 'jobs' && (
           <div className="space-y-8">
             {/* Profile Completion Nudge */}
             <ProfileCompletion />
-            
-            
             {/* Latest Opportunities from API */}
-            <OpportunityList 
+            <OpportunityList
               filters={{
                 ...filter,
                 ordering: '-created_at',
                 show_expired: false
-              }} 
+              }}
               title="Latest Opportunities"
             />
           </div>
+        )}
+        {activeTab === 'scholarships' && (
+          <div className="space-y-8">
+            <ScholarshipList
+              filters={{
+                ...filter,
+                ordering: '-created_at',
+                show_expired: false,
+                page_size: 20
+              }}
+              title="Latest Scholarships"
+            />
+          </div>
+        )}
+        {activeTab === 'grants' && (
+          <section className="bg-white py-16 px-4 sm:px-6 lg:px-8 mb-8" aria-labelledby="grants-title">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2
+                id="grants-title"
+                className="text-3xl sm:text-4xl font-semibold text-purple-500 mb-4"
+              >
+                Grants Section (Coming Soon)
+              </h2>
+              <p className="text-gray-700 text-sm sm:text-base mb-8">
+                Grants functionality will be available soon. Stay tuned!
+              </p>
+            </div>
+          </section>
         )}
 
         {activeSection === 'matches' && (
@@ -182,7 +193,7 @@ export default function Dashboard() {
         {activeSection === 'saved' && (
           <section className="mb-10">
             <h2 className="text-lg font-semibold mb-4">Saved Opportunities</h2>
-            
+
             {/* We'll replace this with actual saved opportunities API integration later */}
             {savedJobs.length === 0 ? (
               <div className="text-gray-500 text-center p-8 bg-white rounded-lg shadow">
@@ -217,7 +228,7 @@ export default function Dashboard() {
             )}
           </section>
         )}
-        
+
         {activeSection === 'progress' && (
           <section className="mb-10">
             <h2 className="text-lg font-semibold mb-4">Application Progress</h2>
