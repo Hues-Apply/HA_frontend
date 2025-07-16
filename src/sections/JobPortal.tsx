@@ -109,13 +109,7 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-2">
-          <h1 className="text-xl font-semibold">Welcome back, Adam 😎</h1>
-        </div>
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">Here's what is happening with your job search applications</p>
-        </div>
-
+        
         <div className="flex justify-between items-center mb-6">
           {showSearch ? (                  <div className="relative w-full max-w-lg">
                     <input
@@ -151,12 +145,20 @@ export default function Dashboard() {
             </button>
           )}
 
-          <div className="flex items-center gap-4 ml-4">
+          {/* <div className="flex items-center gap-4 ml-4">
             <Mail size={20} className="text-gray-600 cursor-pointer hover:text-blue-600" />
             <Bell size={20} className="text-gray-600 cursor-pointer hover:text-blue-600" />
             <UserCircle size={24} className="text-gray-600 cursor-pointer hover:text-blue-600" />
-          </div>
-        </div>        {activeSection === 'dashboard' && (
+          </div> */}
+        </div>
+
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-xl font-semibold">Welcome back, Adam 😎</h1>
+        </div>
+        <div className="mb-4">
+          <p className="text-sm text-gray-600">Here's what is happening with your job search applications</p>
+        </div>     
+        {activeSection === 'dashboard' && (
           <div className="space-y-8">
             {/* Profile Completion Nudge */}
             <ProfileCompletion />
@@ -169,8 +171,62 @@ export default function Dashboard() {
                 ordering: '-created_at',
                 show_expired: false
               }} 
-              title="Latest Opportunities"
+              title="My AI Matches"
             />
+           <OpportunityList 
+              filters={{}} 
+              title="Saved Jobs"
+            />
+
+            <div className="bg-white rounded-xl shadow p-6">
+  <h2 className="text-lg font-semibold mb-4">Application progress tracker</h2>
+  <div className="overflow-x-auto">
+    <table className="min-w-full table-auto">
+      <thead>
+        <tr className="text-sm text-gray-500 bg-gray-50">
+          <th className="px-6 py-3 text-left font-medium">Company name</th>
+          <th className="px-6 py-3 text-left font-medium">Position</th>
+          <th className="px-6 py-3 text-left font-medium">Applied date</th>
+          <th className="px-6 py-3 text-left font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody className="text-sm text-gray-700 divide-y divide-gray-100">
+        {[
+          { company: "Google", position: "UX Designer", date: "11 Mar 2025", status: "In Review" },
+          { company: "Facebook", position: "UI/UX Designer", date: "06 Mar 2025", status: "Rejected" },
+          { company: "TATA", position: "UI Designer", date: "27 Feb 2024", status: "Accepted" },
+          { company: "TATA", position: "UX Designer", date: "09 Feb 2025", status: "Accepted" },
+          { company: "Slack", position: "UI Designer", date: "27 Jan 2025", status: "Awaiting Response" },
+          { company: "Airbnb", position: "UX Designer", date: "08 Jan 2025", status: "Accepted" },
+          { company: "Meta", position: "UI Designer", date: "11 Dec 2024", status: "Rejected" },
+          { company: "Emirate's", position: "UI Designer", date: "08 Dec 2024", status: "Accepted" },
+          { company: "Meta", position: "UI Designer", date: "20 Nov 2025", status: "Rejected" },
+          { company: "Facebook", position: "UI/UX Designer", date: "06 Nov 2025", status: "Rejected" },
+        ].map((app, i) => (
+          <tr key={i} className="hover:bg-gray-50">
+            <td className="px-6 py-4 whitespace-nowrap">{app.company}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{app.position}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{app.date}</td>
+            <td className="px-6 py-4">
+              <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full
+                ${app.status === "Accepted" ? "bg-green-100 text-green-600" : ""}
+                ${app.status === "Rejected" ? "bg-red-100 text-red-600" : ""}
+                ${app.status === "In Review" ? "bg-yellow-100 text-yellow-700" : ""}
+                ${app.status === "Awaiting Response" ? "bg-yellow-50 text-yellow-700" : ""}
+              `}>
+                {app.status}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+            
+          
           </div>
         )}
 
