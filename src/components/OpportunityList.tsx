@@ -274,20 +274,21 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
                       {opportunity.deadline ? `Closes in ${formatDeadline(opportunity.deadline)}` : 'No deadline'}
                     </span>
                   </div>
-                  {opportunity.id && isApplied ? (
+                  {opportunity.link ? (
+                    <a
+                      href={extractHref(opportunity.link) || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Apply
+                    </a>
+                  ) : (
                     <button
                       className="bg-gray-300 text-gray-600 text-sm px-4 py-1 rounded cursor-not-allowed"
                       disabled
                     >
-                      Applied
-                    </button>
-                  ) : (
-                    <button
-                      className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600 transition-colors"
-                      onClick={() => opportunity.id && handleApplyClick(opportunity.id)}
-                      disabled={!opportunity.id}
-                    >
-                      Apply
+                      No Link
                     </button>
                   )}
                 </div>

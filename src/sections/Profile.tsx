@@ -142,14 +142,14 @@ export default function Profile() {
 
               {/* Stats */}
               <div className="mt-12 space-y-5 text-sm">
-                <div className="flex justify-between text-gray-700">
+                {/* <div className="flex justify-between text-gray-700">
                   <span>Opportunities applied</span>
                   <span className="font-medium text-orange-500">{appliedCount !== null ? appliedCount : '--'}</span>
-                </div>
-                <div className="flex justify-between text-gray-700">
+                </div> */}
+                {/* <div className="flex justify-between text-gray-700">
                   <span>Opportunities won</span>
                   <span className="font-medium text-green-600">26</span>
-                </div>
+                </div> */}
                 {/* <div className="flex justify-between text-gray-700">
                 <span>Current Opportunities</span>
                 <span className="font-medium text-blue-600">06</span>
