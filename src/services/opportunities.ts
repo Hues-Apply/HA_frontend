@@ -50,7 +50,7 @@ export interface OpportunityDetail extends Opportunity {
 }
 
 // Get opportunities with filters
-export const getOpportunities = async (): Promise<OpportunitiesResponse> => {
+export const getOpportunities = async (_filters: OpportunityFilters = {}): Promise<OpportunitiesResponse> => {
   // For dev/demo, always use the from_jobs_json endpoint (no filters supported)
   return fetchWithAuth('/api/opportunities/from_jobs_json/');
 };
