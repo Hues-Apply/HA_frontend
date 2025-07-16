@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://huesapply.com/sitemap.xml
