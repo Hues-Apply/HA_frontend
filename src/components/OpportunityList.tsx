@@ -41,7 +41,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
   const [error, setError] = useState<string | null>(null);
   const [savedOpportunities, setSavedOpportunities] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const pageSize = 6;
 
   useEffect(() => {
     setPage(1); // Reset to first page when filters change
@@ -179,7 +179,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
                   }`}
                   disabled={!opportunity.id}
                 >
-                  <BookmarkIcon size={18} fill={opportunity.id && savedOpportunities.has(opportunity.id) ? 'currentColor' : 'none'} />
+                  <BookmarkIcon size={18} fill={opportunity.id && savedOpportunities.has(opportunity.id) ? 'currentColor' : 'border-blue'} />
                 </button>
               </div>
 
