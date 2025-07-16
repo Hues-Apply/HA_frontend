@@ -112,7 +112,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-xl font-semibold">Welcome back, Adam 😎</h1>
+          <h1 className="text-xl font-semibold">Welcome{user?.first_name ? `, ${user.first_name}` : ''} 😎</h1>
         </div>
         <div className="mb-4">
           <p className="text-sm text-gray-600">Here's what is happening with your job search applications</p>

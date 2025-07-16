@@ -30,7 +30,6 @@ export default function SidebarWrapper() {
   return (
     <div className="flex h-screen">
       <SidebarLayout profileData={profileData} personalInfo={personalInfo}>
-        <SidebarItem icon={<Home size={20} />} text="Home" link="/" />
         <SidebarItem icon={<LayoutDashboard size={20} />} text="Dashboard" link="/dashboard" />
         <SidebarItem icon={<Sparkles size={20} />} text="My AI Matches" link="/ai-matches" />
         <SidebarItem icon={<FileText size={20} />} text="Saved Jobs" link="/saved-jobs" />
@@ -48,7 +47,7 @@ export default function SidebarWrapper() {
 
       {/* Main content rendered here */}
       <div className="flex-1 overflow-y-auto flex flex-col ">
-        <Header /> 
+        <Header />
         <div className="flex-1">
           <Outlet />
         </div>

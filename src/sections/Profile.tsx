@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import { useEffect } from 'react';
 import {
   User,
   ExternalLink,
@@ -15,10 +16,13 @@ import ExperienceTab from '../components/ExperienceTab';
 import ProjectsTab from '../components/ProjectsTab';
 import AITab from '../components/AITab';
 import { SidebarLayout, SidebarItem } from '../components/SidebarLayout';
+import { getApplicationStatus as getJobApplications } from '../services/opportunities';
+import { getScholarshipApplicationStatus } from '../services/scholarships';
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('Personal');
   const { user, logout } = useAuth();
+  const [appliedCount, setAppliedCount] = useState<number | null>(null);
 
   // Use the custom hook for all profile data and logic
   const {
@@ -47,6 +51,23 @@ export default function Profile() {
     deleteProjectEntry
   } = useProfileData();
 
+  useEffect(() => {
+    async function fetchAppliedCounts() {
+      try {
+        const [jobApps, scholarshipApps] = await Promise.all([
+          getJobApplications(),
+          getScholarshipApplicationStatus()
+        ]);
+        const jobCount = jobApps.applications ? jobApps.applications.length : 0;
+        const scholarshipCount = scholarshipApps.applications ? scholarshipApps.applications.length : 0;
+        setAppliedCount(jobCount + scholarshipCount);
+      } catch (e) {
+        setAppliedCount(null);
+      }
+    }
+    fetchAppliedCounts();
+  }, []);
+
   const tabs = ['Personal', 'Career Profile', 'Education', 'Experience', 'Projects', 'AI'];
 
   if (loading) {
@@ -66,7 +87,7 @@ export default function Profile() {
         <div className="text-center bg-white p-8 rounded-lg shadow-md">
           <p className="text-red-600 mb-4">Failed to load profile data</p>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={fetchProfileData}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
@@ -80,163 +101,162 @@ export default function Profile() {
   return (
 
     <div className="flex min-h-screen bg-gray-100">
-        
+
       {/* Main Content */}
       <main className="flex-1 relative">
         {/* Header */}
-      <div className="absolute top-0 left-0 w-full h-56 bg-gradient-to-r from-blue-600 to-blue-400 bg-stars z-0">
-        <div className="relative z-10 px-12 pt-10">
-          <h1 className="text-3xl font-semibold text-white">Welcome, I’m your AI buddy</h1>
-          <p className="text-blue-100 mt-1 text-sm">Complete your profile</p>
-        </div>
+        <div className="absolute top-0 left-0 w-full h-56 bg-gradient-to-r from-blue-600 to-blue-400 bg-stars z-0">
+          <div className="relative z-10 px-12 pt-10">
+            <h1 className="text-3xl font-semibold text-white">Welcome, I’m your AI buddy</h1>
+            <p className="text-blue-100 mt-1 text-sm">Complete your profile</p>
+          </div>
 
-        <div className="flex left-2.5 mt-6 mx-6 gap-6">
-          {/* Profile Sidebar */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border-0 h-fit">
-            {/* Profile Image */}
-            <div className="text-center">
-              <div className="relative w-24 h-24 rounded-full mx-auto overflow-hidden border-4 border-white shadow-md">
-                {profileData?.profile_picture ? (
-                  <img
-                    src={profileData.profile_picture || '/hero/userprofile.svg'}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User size={48} className="text-gray-500 w-full h-full flex items-center justify-center" />
-                )}
+          <div className="flex left-2.5 mt-6 mx-6 gap-6">
+            {/* Profile Sidebar */}
+            <div className="bg-white rounded-xl shadow-sm p-6 border-0 h-fit">
+              {/* Profile Image */}
+              <div className="text-center">
+                <div className="relative w-24 h-24 rounded-full mx-auto overflow-hidden border-4 border-white shadow-md">
+                  {user?.google_data?.picture || profileData?.profile_picture ? (
+                    <img
+                      src={user?.google_data?.picture || profileData?.profile_picture || '/hero/userprofile.svg'}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={48} className="text-gray-500 w-full h-full flex items-center justify-center" />
+                  )}
 
-                {/* Camera Icon Overlay */}
-                <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow-md">
-                  <Camera size={16} className="text-blue-600" />
+                  {/* Camera Icon Overlay */}
+                  <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow-md">
+                    <Camera size={16} className="text-blue-600" />
+                  </div>
                 </div>
+
+                {/* Name & Title */}
+                <h3 className="mt-4 font-semibold text-lg text-gray-900">
+                  {personalInfo.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User'}
+                </h3>
+                <p className="text-sm text-gray-500">{careerProfile.jobTitle || 'Job Title'}</p>
               </div>
 
-              {/* Name & Title */}
-              <h3 className="mt-4 font-semibold text-lg text-gray-900">
-                {personalInfo.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User'}
-              </h3>
-              <p className="text-sm text-gray-500">{careerProfile.jobTitle || 'Job Title'}</p>
-            </div>
-
-            {/* Stats */}
-            <div className="mt-12 space-y-5 text-sm">
-              <div className="flex justify-between text-gray-700">
-                <span>Opportunities applied</span>
-                <span className="font-medium text-orange-500">32</span>
-              </div>
-              <div className="flex justify-between text-gray-700">
-                <span>Opportunities won</span>
-                <span className="font-medium text-green-600">26</span>
-              </div>
-              <div className="flex justify-between text-gray-700">
+              {/* Stats */}
+              <div className="mt-12 space-y-5 text-sm">
+                <div className="flex justify-between text-gray-700">
+                  <span>Opportunities applied</span>
+                  <span className="font-medium text-orange-500">{appliedCount !== null ? appliedCount : '--'}</span>
+                </div>
+                <div className="flex justify-between text-gray-700">
+                  <span>Opportunities won</span>
+                  <span className="font-medium text-green-600">26</span>
+                </div>
+                {/* <div className="flex justify-between text-gray-700">
                 <span>Current Opportunities</span>
                 <span className="font-medium text-blue-600">06</span>
+              </div> */}
               </div>
+
+
             </div>
 
-            {/* View Profile Button */}
-            <button className="w-full mt-32 py-2 text-sm text-black font-medium border border-gray-600 rounded-md hover:bg-gray-50 transition">
-              View public profile
-            </button>
 
-            {/* Profile Link */}
-            <div className="mt-4 bg-gray-100 text-blue-600 text-xs rounded-md p-2 flex items-center justify-between">
-              <div className="truncate flex items-center">
-                <ExternalLink size={12} className="mr-1" />
-                https://www.abc...
-              </div>
-              <Clipboard size={12} className="ml-2 cursor-pointer" />
-            </div>
-          </div>
-
-
-          {/* Profile Form */}
-          <div className="flex-1 p-6 bg-white rounded-xl shadow-sm border-0">
-            {/* Tab Navigation with underline fix */}
-            <div className="flex border-b border-gray-200 mb-6">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 -mb-px text-sm font-medium transition-colors border-b-2 ${
-                    activeTab === tab
+            {/* Profile Form */}
+            <div className="flex-1 p-6 bg-white rounded-xl shadow-sm border-0">
+              {/* Tab Navigation with underline fix */}
+              <div className="flex border-b border-gray-200 mb-6">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-6 py-3 -mb-px text-sm font-medium transition-colors border-b-2 ${activeTab === tab
                       ? 'border-black text-black'
                       : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+                      }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
 
-            {/* Tab Content */}
-            <div className="bg-white rounded-lg p-6">
-              {activeTab === 'Personal' && (
-                <PersonalTab 
-                  personalInfo={personalInfo}
-                  setPersonalInfo={setPersonalInfo}
-                />
-              )}
+              {/* Tab Content */}
+              <div className="bg-white rounded-lg p-6">
+                {activeTab === 'Personal' && (
+                  <PersonalTab
+                    personalInfo={personalInfo}
+                    setPersonalInfo={setPersonalInfo}
+                  />
+                )}
 
-              {activeTab === 'Career Profile' && (
-                <CareerProfileTab 
-                  careerProfile={careerProfile}
-                  setCareerProfile={setCareerProfile}
-                />
-              )}
+                {activeTab === 'Career Profile' && (
+                  <CareerProfileTab
+                    careerProfile={careerProfile}
+                    setCareerProfile={setCareerProfile}
+                  />
+                )}
 
-              {activeTab === 'Education' && (
-                <EducationTab
-                  education={education}
-                  setEducation={setEducation}
-                  addEducation={addEducation}
-                  deleteEducationEntry={deleteEducationEntry}
-                />
-              )}
+                {activeTab === 'Education' && (
+                  <EducationTab
+                    education={education}
+                    setEducation={setEducation}
+                    addEducation={addEducation}
+                    deleteEducationEntry={deleteEducationEntry}
+                  />
+                )}
 
-              {activeTab === 'Experience' && (
-                <ExperienceTab
-                  experience={experience}
-                  setExperience={setExperience}
-                  addExperience={addExperience}
-                  deleteExperienceEntry={deleteExperienceEntry}
-                />
-              )}
+                {activeTab === 'Experience' && (
+                  <ExperienceTab
+                    experience={experience}
+                    setExperience={setExperience}
+                    addExperience={addExperience}
+                    deleteExperienceEntry={deleteExperienceEntry}
+                  />
+                )}
 
-              {activeTab === 'Projects' && (
-                <ProjectsTab
-                  projects={projects}
-                  setProjects={setProjects}
-                  addProject={addProject}
-                  deleteProjectEntry={deleteProjectEntry}
-                />
-              )}
+                {activeTab === 'Projects' && (
+                  <ProjectsTab
+                    projects={projects}
+                    setProjects={setProjects}
+                    addProject={addProject}
+                    deleteProjectEntry={deleteProjectEntry}
+                  />
+                )}
 
-              {activeTab === 'AI' && (
-                <AITab
-                  aiPreferences={aiPreferences}
-                  setAIPreferences={setAIPreferences}
-                />
-              )}
+                {activeTab === 'AI' && (
+                  <AITab
+                    aiPreferences={aiPreferences}
+                    setAIPreferences={setAIPreferences}
+                  />
+                )}
 
-              {/* Action Buttons */}
-              <div className="flex justify-between mt-8 pt-6 border-t">
-                <button className="px-6 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50">
-                  Previous
-                </button>
-                <button 
-                  onClick={() => handleSave(activeTab)}
-                  disabled={loading}
-                  className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {loading ? 'Saving...' : (activeTab === 'AI' ? 'Save' : 'Next')}
-                </button>
+                {/* Action Buttons */}
+                <div className="flex justify-between mt-8 pt-6 border-t">
+                  <button
+                    className="px-6 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                    onClick={() => {
+                      const currentIndex = tabs.indexOf(activeTab);
+                      if (currentIndex > 0) setActiveTab(tabs[currentIndex - 1]);
+                    }}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const currentIndex = tabs.indexOf(activeTab);
+                      // Advance tab immediately
+                      if (currentIndex < tabs.length - 1) setActiveTab(tabs[currentIndex + 1]);
+                      // Save in background
+                      handleSave(activeTab);
+                    }}
+                    disabled={loading}
+                    className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Saving...' : (activeTab === 'AI' ? 'Save' : 'Next')}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </main>
     </div>
   );

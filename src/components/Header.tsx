@@ -1,9 +1,13 @@
 import React from 'react';
 import { Bell, Mail, User } from 'lucide-react';
 import { useProfileData } from '../hooks/useProfileData';
+import { useAuth } from '../context/AuthContext';
 
 const Header: React.FC = () => {
   const { profileData } = useProfileData();
+  const { user } = useAuth();
+
+  const profilePic = user?.google_data?.picture || profileData?.profile_picture || '/hero/userprofile.svg';
 
   return (
     <div className="w-full bg-white py-5 px-4 md:px-6 flex items-center justify-end gap-8 shadow-sm z-40">
@@ -15,9 +19,9 @@ const Header: React.FC = () => {
       </button>
 
       <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
-        {profileData?.profile_picture ? (
+        {profilePic ? (
           <img
-            src={profileData.profile_picture || '/hero/userprofile.svg'}
+            src={profilePic}
             alt="Profile"
             className="w-full h-full object-cover"
           />

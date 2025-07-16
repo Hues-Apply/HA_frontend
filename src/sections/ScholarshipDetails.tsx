@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getScholarship, getScholarships, ScholarshipDetail, Scholarship, applyToScholarship } from '../services/scholarships';
+import { getScholarship, getScholarships, ScholarshipDetail, Scholarship, applyToScholarship, getScholarshipApplicationStatus } from '../services/scholarships';
 
 const Tag = ({ children }: { children: React.ReactNode }) => (
   <span className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">{children}</span>
@@ -13,6 +13,9 @@ const ScholarshipDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [similar, setSimilar] = useState<Scholarship[]>([]);
   const [applied, setApplied] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [userApplications, setUserApplications] = useState<any[]>([]);
+  const [loadingApply, setLoadingApply] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -27,24 +30,45 @@ const ScholarshipDetails: React.FC = () => {
           getScholarships({ source: data.source, page_size: 3, exclude: id })
             .then(res => setSimilar(res.results || []));
         }
-        // If the user has already applied, set applied to true (if this info is available in data)
-        // For now, default to false; you can enhance this with backend info later
       })
       .catch(err => {
         setError('Failed to load scholarship details.');
         setLoading(false);
       });
+    // Fetch user's applied scholarships
+    getScholarshipApplicationStatus().then(res => {
+      if (res && res.applications) {
+        setUserApplications(res.applications);
+      }
+    });
   }, [id]);
 
-  const handleApply = async () => {
-    if (!id) return;
+  useEffect(() => {
+    if (!scholarship || !userApplications.length) return;
+    const found = userApplications.find((a: any) => (a.scholarship?.id || a.scholarship_id) && String(a.scholarship?.id || a.scholarship_id) === String(scholarship.id) && a.applied);
+    setApplied(!!found);
+  }, [scholarship, userApplications]);
+
+  const handleApply = () => {
+    setShowModal(true);
+  };
+
+  const confirmApply = async () => {
+    if (!id || !scholarship?.application_link) return;
     try {
+      setLoadingApply(true);
       await applyToScholarship(id);
       setApplied(true);
+      setShowModal(false);
+      setLoadingApply(false);
+      window.open(scholarship.application_link, '_blank');
     } catch (e) {
-      // Optionally handle error
+      setLoadingApply(false);
+      setShowModal(false);
     }
   };
+
+  const cancelApply = () => setShowModal(false);
 
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading scholarship details...</div>;
@@ -84,13 +108,32 @@ const ScholarshipDetails: React.FC = () => {
             </div>
           </div>
           {scholarship.application_link && (
-            <button
-              onClick={handleApply}
-              disabled={applied}
-              className={`px-6 py-2 rounded font-semibold text-white ${applied ? 'bg-green-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-            >
-              {applied ? 'Applied' : 'Apply now'}
-            </button>
+            <>
+              <button
+                onClick={handleApply}
+                disabled={applied}
+                className={`px-6 py-2 rounded font-semibold text-white ${applied ? 'bg-green-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                {applied ? 'Applied' : 'Apply now'}
+              </button>
+              {/* Modal */}
+              {showModal && !applied && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                  <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                    <h2 className="text-lg font-semibold mb-2">Leave HuesApply?</h2>
+                    <p className="mb-4 text-gray-700">You'll be moved to another page to complete your application. Continue?</p>
+                    <div className="flex justify-end gap-2">
+                      <button onClick={cancelApply} className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold">Cancel</button>
+                      <button onClick={confirmApply} disabled={loadingApply} className={`px-4 py-2 rounded font-semibold text-white ${loadingApply ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                        {loadingApply ? (
+                          <span className="flex items-center gap-2"><svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>Loading...</span>
+                        ) : 'Continue'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
         {/* About */}
