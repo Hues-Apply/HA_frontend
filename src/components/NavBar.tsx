@@ -29,8 +29,13 @@ const Navbar: React.FC = () => {
     return (
         <nav className={`bg-white w-full ${scrolled ? 'shadow-sm' : ''} fixed top-0 left-0 z-50 transition-shadow duration-300`} aria-label="Main navigation">
             <div className="flex justify-between items-center py-4 px-4 md:px-8">
-                <Link to="/" className="text-[#4B9CD3] font-semibold text-2xl" aria-label="Hues Apply Home">
-                    HUES APPLY
+                <Link to="/" className="text-[#4B9CD3] font-semibold text-2xl px-24" aria-label="Hues Apply Home">
+                    <img
+                        src={"./hero/hues_apply_logo.svg"}
+                        alt="Hues Apply"
+                        className="absolute top-0 left-10 h-24 w-28 hidden md:block"
+                    >
+                    </img>
                 </Link>
 
                 <div className="hidden lg:flex text-[#333333] font-semibold text-[1rem] items-center gap-6" role="navigation" aria-label="Desktop menu">                    <Link

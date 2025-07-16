@@ -51,19 +51,8 @@ export interface OpportunityDetail extends Opportunity {
 
 // Get opportunities with filters
 export const getOpportunities = async (filters: OpportunityFilters = {}): Promise<OpportunitiesResponse> => {
-  const params = new URLSearchParams();
-  
-  // Add filters to params
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') {
-      params.append(key, value.toString());
-    }
-  });
-  
-  const queryString = params.toString();
-  const endpoint = `/api/opportunities/${queryString ? `?${queryString}` : ''}`;
-  
-  return fetchWithAuth(endpoint);
+  // For dev/demo, always use the from_jobs_json endpoint (no filters supported)
+  return fetchWithAuth('/api/opportunities/from_jobs_json/');
 };
 
 // Get a specific opportunity by ID
