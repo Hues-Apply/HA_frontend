@@ -31,7 +31,7 @@ const ScholarshipDetails: React.FC = () => {
             .then(res => setSimilar(res.results || []));
         }
       })
-      .catch(err => {
+      .catch(() => {
         setError('Failed to load scholarship details.');
         setLoading(false);
       });
