@@ -4,123 +4,72 @@ import GoogleSignInButton from "../components/GoogleSignInButton";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginForm() {
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
-
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      // TODO: Implement login logic
-      setError('Traditional login not implemented yet. Please use Google Sign-In.');
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLoginData(prev => ({ ...prev, [name]: value }));
-  };
+  const [apiError, setApiError] = useState('');
 
   return (
-    <div className="flex h-screen bg-[#eaf2f8]">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <img
         src={"/hero/hues_apply_logo.svg"}
         alt="Hues Apply"
-        className="absolute top-4 left-4 h-20 w-28 text-[#4DA5E2] hidden md:block"
+        className="absolute top-6 left-6 h-24 w-32 text-[#4DA5E2] hidden md:block"
       />
-      <div className="m-auto w-full max-w-md p-8 bg-white rounded shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+      <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+          <p className="text-gray-600">Sign in to continue your journey</p>
+        </div>
 
-        <div className="flex mb-3">
+        <div className="flex mb-6 rounded-lg overflow-hidden shadow-sm">
           <Link
-            to="/Signup"
-            className="flex-1 py-2 border bg-blue-100 text-center text-gray-700 hover:bg-blue-200"
+            to="/signup"
+            className="flex-1 py-3 border bg-gray-50 text-center text-gray-700 hover:bg-gray-100 transition-colors font-medium"
           >
             Sign Up
           </Link>
           <button
-            className="flex-1 py-2 border border-l-0 bg-blue-400 text-white"
+            className="flex-1 py-3 border border-l-0 bg-blue-500 text-white font-medium transition-colors"
             disabled
           >
             Log In
           </button>
-          
         </div>
 
-        <div className="my-3 text-center text-sm text-gray-500">or</div>
-
-        <div className="mb-6">
-        <GoogleSignInButton 
-          text="Continue with Google"
-          className="hover:bg-gray-50"
-        />
+        <div className="relative mb-8">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">or continue with</span>
+          </div>
         </div>
-        
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+        <div className="mb-8">
+          <GoogleSignInButton
+            text="Continue with Google"
+            className="w-full hover:bg-gray-50 transition-colors shadow-sm"
+          />
+        </div>
+
+        {apiError && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
+            {apiError}
           </div>
         )}
 
-        <form className="space-y-4" onSubmit={handleLoginSubmit}>
-          <div>
-            <label className="block text-sm font-medium">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={loginData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={loginData.password}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          <p className="text-xs text-gray-500">
-            By clicking continue, you agree to our Terms of Use and Privacy Policy
+        <div className="text-center space-y-4">
+          <p className="text-xs text-gray-500 leading-relaxed">
+            By clicking continue, you agree to our{' '}
+            <a href="#" className="text-blue-600 hover:underline">Terms of Use</a> and{' '}
+            <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
           </p>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-500 text-white py-2 rounded mt-2 hover:bg-blue-600 disabled:opacity-50"
-          >
-            {isLoading ? 'Logging in...' : 'Log In'}
-          </button>
-
-          <div className="my-3 text-center text-sm text-gray-500">or</div>
-        </form>
-
-        <p className="mt-3 text-sm text-center">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-blue-500 hover:underline">
-            Sign Up
-          </Link>
-        </p>
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+              Sign Up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ export interface ScholarshipFilters {
   show_expired?: boolean;
   page?: number;
   page_size?: number;
+  source?: string;
+  exclude?: string | number;
 }
 
 export interface Scholarship {

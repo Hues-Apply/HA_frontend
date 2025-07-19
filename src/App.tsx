@@ -30,6 +30,8 @@ import UsersList from "./components/UsersList";
 import ScholarshipList from "./components/ScholarshipList";
 import ScholarshipDetails from "./sections/ScholarshipDetails";
 
+import ComingSoon from "./components/ComingSoon";
+
 // Homepage component
 const Homepage = () => (
   <>
@@ -68,12 +70,17 @@ function App() {
         {/* Authentication and onboarding routes */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/users-list" element={<UsersList />} />        {/* Protected routes without main layout */}
+        <Route path="/users-list" element={<UsersList />} />
+        {/* Protected routes without main layout */}
         <Route element={<ProtectedRoute />}>
           <Route element={< SidebarWrapper />}>
             <Route path="/dashboard" element={<JobPortal />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
+
+            {/* ComingSoon for all other dashboard subpages (authenticated) */}
+            <Route path="/dashboard/*" element={<ComingSoon />} />
+
           </Route>
         </Route>
         {/* Protected onboarding routes without main layout */}
@@ -82,6 +89,8 @@ function App() {
           <Route path="/onboarding/step-2" element={<Onboarding2 />} />
           <Route path="/onboarding/review" element={<OnboardingReview />} />
           <Route path="/onboarding/complete" element={<OnboardingComplete />} />
+          {/* ComingSoon for all other onboarding subpages (authenticated) */}
+          <Route path="/onboarding/*" element={<ComingSoon />} />
         </Route>
 
         {/* Routes with main layout */}
@@ -89,6 +98,8 @@ function App() {
           {/* Public routes */}
           <Route index element={<Homepage />} />
         </Route>
+        {/* ComingSoon for all other public pages (unauthenticated) */}
+        <Route path="*" element={<ComingSoon />} />
       </Routes>
     </Router>
   );
