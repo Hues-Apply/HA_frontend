@@ -44,6 +44,21 @@ export interface ScholarshipDetail extends Scholarship {
   overview?: string;
 }
 
+// Admin interface for creating/updating scholarships
+export interface ScholarshipFormData {
+  id?: number;
+  title: string;
+  source: string;
+  location: string;
+  amount?: string | null;
+  deadline?: string | null;
+  course?: string | null;
+  gpa?: string | null;
+  application_link?: string | null;
+  overview?: string | null;
+  scraped_at?: string;
+}
+
 // Get scholarships with filters
 export const getScholarships = async (filters: ScholarshipFilters = {}): Promise<ScholarshipsResponse> => {
   const params = new URLSearchParams();
@@ -60,6 +75,29 @@ export const getScholarships = async (filters: ScholarshipFilters = {}): Promise
 // Get a specific scholarship by ID
 export const getScholarship = async (id: string): Promise<ScholarshipDetail> => {
   return fetchWithAuth(`/api/scholarships/${id}/`);
+};
+
+// Admin Functions - Create new scholarship
+export const createScholarship = async (data: ScholarshipFormData): Promise<Scholarship> => {
+  return fetchWithAuth('/api/scholarships/', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+};
+
+// Admin Functions - Update scholarship
+export const updateScholarship = async (id: number, data: ScholarshipFormData): Promise<Scholarship> => {
+  return fetchWithAuth(`/api/scholarships/${id}/`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
+// Admin Functions - Delete scholarship
+export const deleteScholarship = async (id: number): Promise<void> => {
+  return fetchWithAuth(`/api/scholarships/${id}/`, {
+    method: 'DELETE'
+  });
 };
 
 // Apply to a scholarship
