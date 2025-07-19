@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
         };
 
         window.addEventListener('scroll', handleScroll);
-        
+
         // Clean up event listener
         return () => {
             window.removeEventListener('scroll', handleScroll);
@@ -39,11 +39,11 @@ const Navbar: React.FC = () => {
                 </Link>
 
                 <div className="hidden lg:flex text-[#333333] font-semibold text-[1rem] items-center gap-6" role="navigation" aria-label="Desktop menu">                    <Link
-                        to="/"
-                        className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
-                    >
-                        Home
-                    </Link>
+                    to="/"
+                    className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
+                >
+                    Home
+                </Link>
                     <Link
                         to="/#about"
                         className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
@@ -71,41 +71,41 @@ const Navbar: React.FC = () => {
                 </div>                <div className="hidden lg:flex items-center gap-4 font-semibold text-[1rem] text-[#333333]">
                     {isAuthenticated ? (
                         <div className="relative">
-                            <button 
-                                onClick={() => setShowUserMenu(!showUserMenu)} 
+                            <button
+                                onClick={() => setShowUserMenu(!showUserMenu)}
                                 className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100"
                                 aria-expanded={showUserMenu}
                                 aria-haspopup="true"
                             >
                                 {user?.google_data?.picture ? (
-                                    <img 
-                                        src={user.google_data.picture} 
-                                        alt="Profile" 
-                                        className="w-8 h-8 rounded-full" 
+                                    <img
+                                        src={user.google_data.picture}
+                                        alt="Profile"
+                                        className="w-8 h-8 rounded-full"
                                     />
                                 ) : (
                                     <FaUserCircle className="text-2xl text-gray-600" />
                                 )}
                                 <span>{user?.first_name || 'User'}</span>
                             </button>
-                            
+
                             {showUserMenu && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                    <Link 
-                                        to="/dashboard" 
+                                    <Link
+                                        to="/dashboard"
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setShowUserMenu(false)}
                                     >
                                         Dashboard
                                     </Link>
-                                    <Link 
-                                        to="/profile" 
+                                    <Link
+                                        to="/profile"
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setShowUserMenu(false)}
                                     >
                                         Profile
                                     </Link>
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             logout();
                                             setShowUserMenu(false);
@@ -142,10 +142,10 @@ const Navbar: React.FC = () => {
                 </div>
             </div>
 
-            
+
             {isOpen && (
-                <div 
-                    id="mobile-menu" 
+                <div
+                    id="mobile-menu"
                     className="lg:hidden bg-white border-t border-gray-200 px-4 py-4 flex flex-col gap-4 text-[#333333] font-semibold"
                     role="navigation"
                     aria-label="Mobile menu"
@@ -169,10 +169,10 @@ const Navbar: React.FC = () => {
                             <>
                                 <div className="flex items-center gap-2 px-4 py-2">
                                     {user?.google_data?.picture ? (
-                                        <img 
-                                            src={user.google_data.picture} 
-                                            alt="Profile" 
-                                            className="w-8 h-8 rounded-full" 
+                                        <img
+                                            src={user.google_data.picture}
+                                            alt="Profile"
+                                            className="w-8 h-8 rounded-full"
                                         />
                                     ) : (
                                         <FaUserCircle className="text-2xl text-gray-600" />
@@ -182,7 +182,7 @@ const Navbar: React.FC = () => {
                                 <Link to="/profile" className="w-full px-4 py-2 border border-gray-300 rounded-full text-center">
                                     Profile
                                 </Link>
-                                <button 
+                                <button
                                     onClick={() => {
                                         logout();
                                         setIsOpen(false);

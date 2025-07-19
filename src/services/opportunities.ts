@@ -50,7 +50,7 @@ export interface OpportunityDetail extends Opportunity {
 }
 
 // Get opportunities with filters
-export const getOpportunities = async (filters: OpportunityFilters = {}): Promise<OpportunitiesResponse> => {
+export const getOpportunities = async (_filters: OpportunityFilters = {}): Promise<OpportunitiesResponse> => {
   // For dev/demo, always use the from_jobs_json endpoint (no filters supported)
   return fetchWithAuth('/api/opportunities/from_jobs_json/');
 };
@@ -61,7 +61,7 @@ export const getOpportunity = async (id: string): Promise<OpportunityDetail> => 
 };
 
 // Apply to an opportunity
-export const applyToOpportunity = async (opportunityId: string, applicationData?: any): Promise<{success: boolean; application_id: string}> => {
+export const applyToOpportunity = async (opportunityId: string, applicationData?: any): Promise<{ success: boolean; application_id: string }> => {
   return fetchWithAuth(`/api/opportunities/${opportunityId}/apply/`, {
     method: 'POST',
     body: JSON.stringify(applicationData || {})
@@ -69,25 +69,19 @@ export const applyToOpportunity = async (opportunityId: string, applicationData?
 };
 
 // Save/unsave an opportunity
-export const toggleSaveOpportunity = async (opportunityId: string): Promise<{success: boolean; is_saved: boolean}> => {
+export const toggleSaveOpportunity = async (opportunityId: string): Promise<{ success: boolean; is_saved: boolean }> => {
   return fetchWithAuth(`/api/opportunities/${opportunityId}/save/`, {
     method: 'POST'
   });
 };
 
 // Get saved opportunities
-export const getSavedOpportunities = async (filters: OpportunityFilters = {}): Promise<OpportunitiesResponse> => {
+export const getSavedOpportunities = async (): Promise<OpportunitiesResponse> => {
   const params = new URLSearchParams();
-  
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') {
-      params.append(key, value.toString());
-    }
-  });
-  
+
   const queryString = params.toString();
   const endpoint = `/api/opportunities/saved/${queryString ? `?${queryString}` : ''}`;
-  
+
   return fetchWithAuth(endpoint);
 };
 
@@ -112,15 +106,15 @@ export const getApplicationStatus = async (): Promise<{
 // Get AI-matched opportunities
 export const getAIMatches = async (filters: OpportunityFilters = {}): Promise<OpportunitiesResponse> => {
   const params = new URLSearchParams();
-  
+
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== '') {
       params.append(key, value.toString());
     }
   });
-  
+
   const queryString = params.toString();
   const endpoint = `/api/opportunities/ai-matches/${queryString ? `?${queryString}` : ''}`;
-  
+
   return fetchWithAuth(endpoint);
 };

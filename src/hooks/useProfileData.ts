@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
+import {
   getComprehensiveProfile,
   updatePersonalInfo,
   updateCareerProfile,
@@ -72,31 +72,31 @@ export const useProfileData = () => {
   // Helper function to convert date strings to yyyy-MM-dd format
   const parseDate = (dateString: string): string => {
     if (!dateString) return '';
-    
+
     // If already in yyyy-MM-dd format, return as is
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       return dateString;
     }
-    
+
     // Handle formats like "October 2015", "July 2019", etc.
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    
+
     const parts = dateString.trim().split(' ');
     if (parts.length === 2) {
       const monthName = parts[0];
       const year = parts[1];
       const monthIndex = monthNames.indexOf(monthName);
-      
+
       if (monthIndex !== -1 && /^\d{4}$/.test(year)) {
         // Use the first day of the month as default
         const month = (monthIndex + 1).toString().padStart(2, '0');
         return `${year}-${month}-01`;
       }
     }
-    
+
     // If we can't parse it, return empty string
     return '';
   };
@@ -105,7 +105,7 @@ export const useProfileData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<any>(null);
-  
+
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     name: '',
     email: '',
@@ -136,17 +136,17 @@ export const useProfileData = () => {
       setLoading(true);
       setError(null);
       const response = await getComprehensiveProfile();
-      
+
       if (response.success) {
         const profile = response.data;
         setProfileData(profile);
-        
+
         // Populate personal info
-        const formattedGoals = profile.user_goals 
+        const formattedGoals = profile.user_goals
           ? profile.user_goals
-              .sort((a, b) => a.priority - b.priority)
-              .map(goal => `${goal.priority}. ${goal.goal_display}`)
-              .join('\n')
+            .sort((a, b) => a.priority - b.priority)
+            .map(goal => `${goal.priority}. ${goal.goal_display}`)
+            .join('\n')
           : profile.goal || '';
 
         setPersonalInfo({
@@ -169,14 +169,14 @@ export const useProfileData = () => {
           // Parse the combined date string if it exists (e.g., "October 2015 - July 2019")
           let startDate = edu.start_date || '';
           let endDate = edu.end_date || '';
-          
+
           // If end_date contains a date range, split it
           if (endDate && endDate.includes(' - ')) {
             const dateParts = endDate.split(' - ');
             startDate = dateParts[0]?.trim() || '';
             endDate = dateParts[1]?.trim() || '';
           }
-          
+
           return {
             id: `existing_${index}`,
             degree: edu.degree || '',
@@ -187,7 +187,7 @@ export const useProfileData = () => {
             description: edu.description || ''
           };
         }) || [];
-        
+
         setEducation(educationData.length > 0 ? educationData : [{
           id: 'new',
           degree: '',
@@ -203,14 +203,14 @@ export const useProfileData = () => {
           // Parse the combined date string if it exists (e.g., "July 2024 – Feb 2025")
           let startDate = exp.start_date || '';
           let endDate = exp.end_date || '';
-          
+
           // If end_date contains a date range, split it
           if (endDate && endDate.includes(' – ')) {
             const dateParts = endDate.split(' – ');
             startDate = dateParts[0]?.trim() || '';
             endDate = dateParts[1]?.trim() || '';
           }
-          
+
           return {
             id: `existing_${index}`,
             jobTitle: exp.position || '',
@@ -287,7 +287,7 @@ export const useProfileData = () => {
     const nameParts = personalInfo.name.split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
-    
+
     await updatePersonalInfo({
       first_name: firstName,
       last_name: lastName,
@@ -403,9 +403,9 @@ export const useProfileData = () => {
       if (id !== 'new' && !id.startsWith('temp_') && !isNaN(Number(id))) {
         await deleteEducation(Number(id));
       }
-      
+
       const updated = education.filter((_, i) => i !== index);
-      
+
       if (updated.length === 0) {
         updated.push({
           id: 'new',
@@ -417,7 +417,7 @@ export const useProfileData = () => {
           description: ''
         });
       }
-      
+
       setEducation(updated);
     } catch (error) {
       console.error('Failed to delete education entry:', error);
@@ -445,9 +445,9 @@ export const useProfileData = () => {
       if (id !== 'new' && !id.startsWith('temp_') && !isNaN(Number(id))) {
         await deleteExperience(Number(id));
       }
-      
+
       const updated = experience.filter((_, i) => i !== index);
-      
+
       if (updated.length === 0) {
         updated.push({
           id: 'new',
@@ -460,7 +460,7 @@ export const useProfileData = () => {
           description: ''
         });
       }
-      
+
       setExperience(updated);
     } catch (error) {
       console.error('Failed to delete experience entry:', error);
@@ -487,9 +487,9 @@ export const useProfileData = () => {
       if (id !== 'new' && !id.startsWith('temp_') && !isNaN(Number(id))) {
         await deleteProject(Number(id));
       }
-      
+
       const updated = projects.filter((_, i) => i !== index);
-      
+
       if (updated.length === 0) {
         updated.push({
           id: 'new',
@@ -501,7 +501,7 @@ export const useProfileData = () => {
           description: ''
         });
       }
-      
+
       setProjects(updated);
     } catch (error) {
       console.error('Failed to delete project entry:', error);
@@ -513,7 +513,7 @@ export const useProfileData = () => {
   const handleSave = async (activeTab: string) => {
     try {
       setLoading(true);
-      
+
       switch (activeTab) {
         case 'Personal':
           await savePersonalInfo();
@@ -534,8 +534,8 @@ export const useProfileData = () => {
           await saveAIPreferences();
           break;
       }
-      
-      alert('Profile saved successfully!');
+
+
       await fetchProfileData();
     } catch (error) {
       console.error('Failed to save profile:', error);
@@ -561,7 +561,7 @@ export const useProfileData = () => {
     experience,
     projects,
     aiPreferences,
-    
+
     // Setters
     setPersonalInfo,
     setCareerProfile,
@@ -569,7 +569,7 @@ export const useProfileData = () => {
     setExperience,
     setProjects,
     setAIPreferences,
-    
+
     // Functions
     fetchProfileData,
     handleSave,

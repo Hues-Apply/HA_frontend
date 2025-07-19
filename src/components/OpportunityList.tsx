@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Clock, Bookmark as BookmarkIcon, MapPin, Building2 } from 'lucide-react';
 import { getOpportunities } from '../services/opportunities';
+import { applyToOpportunity } from '../services/opportunities';
 
 interface OpportunityFilters {
   search?: string;
@@ -35,14 +36,38 @@ interface Opportunity {
   employment_type?: string;
 }
 
+// Utility to extract href from HTML anchor string
+function extractHref(htmlString?: string) {
+  if (!htmlString) return null;
+  const match = htmlString.match(/href=['"]([^'"]+)['"]/);
+  return match ? match[1] : null;
+}
+
+async function getAppliedOpportunities(): Promise<Set<string>> {
+  try {
+    const res = await fetch('/api/opportunities/applications/', { credentials: 'include' });
+    const data = await res.json();
+    if (data && data.applications) {
+      return new Set(data.applications.map((a: any) => String(a.opportunity_id)));
+    }
+  } catch (e) { }
+  return new Set();
+}
+
 export default function OpportunityList({ filters, title }: OpportunityListProps) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savedOpportunities, setSavedOpportunities] = useState<Set<string>>(new Set());
+  const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
   const pageSize = isMobile ? 3 : 6;
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
+
 
   useEffect(() => {
     setPage(1); // Reset to first page when filters change
@@ -57,6 +82,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+    getAppliedOpportunities().then(setAppliedOpportunities);
   }, []);
 
   const fetchOpportunities = async () => {
@@ -96,7 +122,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     const now = new Date();
     const diffTime = date.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return 'Expired';
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Tomorrow';
@@ -108,6 +134,27 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     if (percentage >= 80) return 'bg-green-100 text-green-700';
     if (percentage >= 60) return 'bg-yellow-100 text-yellow-700';
     return 'bg-red-100 text-red-700';
+  };
+
+  const handleApplyClick = (opportunityId: string) => {
+    setSelectedOpportunityId(opportunityId);
+    setShowApplyModal(true);
+    setApplyError(null);
+  };
+
+  const handleConfirmApply = async () => {
+    if (!selectedOpportunityId) return;
+    setApplyLoading(true);
+    setApplyError(null);
+    try {
+      await applyToOpportunity(selectedOpportunityId);
+      setAppliedOpportunities(prev => new Set(prev).add(selectedOpportunityId));
+      setShowApplyModal(false);
+    } catch (err: any) {
+      setApplyError(err?.message || 'Failed to apply.');
+    } finally {
+      setApplyLoading(false);
+    }
   };
 
   if (loading) {
@@ -138,7 +185,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
           <div className="text-center py-10 text-red-500">
             <p className="mb-4">Failed to load opportunities</p>
             <p className="text-sm text-gray-500">{error}</p>
-            <button 
+            <button
               onClick={fetchOpportunities}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
@@ -175,16 +222,20 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
         {paginatedOpportunities.map((opportunity, idx) => {
           // Use a fallback key if id is missing
           const key = opportunity.id || `${opportunity.company}-${opportunity.title}-${opportunity.location}-${(page - 1) * pageSize + idx}`;
+          const isApplied = opportunity.id && appliedOpportunities.has(String(opportunity.id));
           return (
             <div key={key} className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow">
+              {/* Applied badge */}
+              {opportunity.id && isApplied && (
+                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Applied</div>
+              )}
               <div className="absolute top-4 right-4">
                 <button
                   onClick={() => opportunity.id && toggleSave(opportunity.id)}
-                  className={`p-1 rounded ${
-                    opportunity.id && savedOpportunities.has(opportunity.id)
-                      ? 'text-blue-500'
-                      : 'text-gray-400 hover:text-blue-500'
-                  }`}
+                  className={`p-1 rounded ${opportunity.id && savedOpportunities.has(opportunity.id)
+                    ? 'text-blue-500'
+                    : 'text-gray-400 hover:text-blue-500'
+                    }`}
                   disabled={!opportunity.id}
                 >
                   <BookmarkIcon size={18} fill={opportunity.id && savedOpportunities.has(opportunity.id) ? 'currentColor' : 'border-blue'} />
@@ -229,14 +280,23 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
                       {opportunity.deadline ? `Closes in ${formatDeadline(opportunity.deadline)}` : 'No deadline'}
                     </span>
                   </div>
-                  <a
-                    href={opportunity.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Apply
-                  </a>
+                  {opportunity.link ? (
+                    <a
+                      href={extractHref(opportunity.link) || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Apply
+                    </a>
+                  ) : (
+                    <button
+                      className="bg-gray-300 text-gray-600 text-sm px-4 py-1 rounded cursor-not-allowed"
+                      disabled
+                    >
+                      No Link
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -260,6 +320,32 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
           >
             Next
           </button>
+        </div>
+      )}
+      {/* Apply Confirmation Modal */}
+      {showApplyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4">Confirm Application</h3>
+            <p className="mb-4">Are you sure you want to apply for this opportunity?</p>
+            {applyError && <div className="text-red-500 text-sm mb-2">{applyError}</div>}
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                onClick={() => setShowApplyModal(false)}
+                disabled={applyLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                onClick={handleConfirmApply}
+                disabled={applyLoading}
+              >
+                {applyLoading ? 'Applying...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>

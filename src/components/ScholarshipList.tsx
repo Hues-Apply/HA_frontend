@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Clock, Bookmark as BookmarkIcon, MapPin, Building2, DollarSign } from 'lucide-react';
 import { getScholarships } from '../services/scholarships';
 import { useNavigate } from 'react-router-dom';
+import { getScholarshipApplicationStatus } from '../services/scholarships';
 
 interface ScholarshipFilters {
   search?: string;
@@ -36,6 +37,7 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savedScholarships, setSavedScholarships] = useState<Set<string>>(new Set());
+  const [appliedScholarships, setAppliedScholarships] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [hasNext, setHasNext] = useState(false);
@@ -49,6 +51,18 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
   useEffect(() => {
     fetchScholarships();
   }, [filters, page]);
+
+  useEffect(() => {
+    getScholarshipApplicationStatus().then(res => {
+      if (res && res.applications) {
+        setAppliedScholarships(new Set(
+          res.applications
+            .filter((a: any) => (a.scholarship?.id || a.scholarship_id) && a.applied)
+            .map((a: any) => String(a.scholarship?.id || a.scholarship_id))
+        ));
+      }
+    });
+  }, []);
 
   const fetchScholarships = async () => {
     try {
@@ -176,6 +190,10 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
               className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => scholarship.id && navigate(`/dashboard/scholarships/${scholarship.id}`)}
             >
+              {/* Applied badge */}
+              {scholarship.id && appliedScholarships.has(String(scholarship.id)) && (
+                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Applied</div>
+              )}
               <div className="absolute top-4 right-4">
                 <button
                   onClick={e => {

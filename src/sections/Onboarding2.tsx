@@ -56,28 +56,28 @@ const UploadComponent = () => {
   };
 
   // Upload document file to backend
-  const uploadDocumentFile = async (file: File): Promise<{ document_id: string }> => {
+  const uploadDocumentFile = async (file: File): Promise<any> => {
     const formData = new FormData();
-    formData.append('document', file);
-    
-    const response = await fetch(`${BASE_URL}/api/profile/upload-document-file/`, {
+    formData.append('cv_file', file);
+
+    const response = await fetch(`${BASE_URL}/api/profile/personal/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
       },
       body: formData
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.detail || 'Document upload failed');
     }
-    
+
     return response.json();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];    if (selectedFile && allowedFormats.includes(selectedFile.type)) {
+    const selectedFile = e.target.files?.[0]; if (selectedFile && allowedFormats.includes(selectedFile.type)) {
       setFile(selectedFile);
       setError('');
     } else {
@@ -93,12 +93,12 @@ const UploadComponent = () => {
 
     setIsUploading(true);
     setError('');
-    
+
     try {
       // Step 1: Parse CV on frontend using resume-parser-ts
       const fileUrl = URL.createObjectURL(file);
       let parsedResume: Resume;
-      
+
       try {
         parsedResume = await parseResumeFromPdf(fileUrl);
       } catch (parseError) {
@@ -116,16 +116,16 @@ const UploadComponent = () => {
         // Clean up the object URL
         URL.revokeObjectURL(fileUrl);
       }
-      
+
       // Step 2: Transform parsed data to our structure
       const parsedCVData = transformResumeData(parsedResume);
-      
+
       // Step 3: Upload document file to backend
       await uploadDocumentFile(file);
-      
+
       // Step 4: Store parsed data for review step
       localStorage.setItem('parsedCVData', JSON.stringify(parsedCVData));
-      
+
       // Step 5: Navigate to review step
       navigate('/onboarding/review', { replace: true });
     } catch (error: any) {
@@ -157,8 +157,8 @@ const UploadComponent = () => {
           <UploadCloud className="text-gray-500 mb-2" size={40} />
           <p className="text-sm font-medium text-gray-700">Drag & Drop Files</p>
           <p className="text-xs text-gray-500">Or click to browse your files</p>          <p className="text-xs text-gray-500 mt-1">Supported formats: PDF only</p>
-          <input 
-            type="file" 
+          <input
+            type="file"
             accept=".pdf"
             onChange={handleFileChange}
             className="opacity-0 w-full h-full absolute top-0 left-0 cursor-pointer"
@@ -166,15 +166,15 @@ const UploadComponent = () => {
         </div>
         {file && <p className="mt-2 text-sm text-green-600">Selected file: {file.name}</p>}
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
-          <button 
+        <button
           className="mt-6 w-full bg-[#56a8f5] text-white font-medium py-2 rounded hover:bg-blue-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
           onClick={handleContinue}
           disabled={!file || isUploading}
         >
           {isUploading ? 'Parsing & Uploading...' : 'Continue'}
         </button>
-        
-        <button 
+
+        <button
           className="mt-3 w-full text-gray-600 text-sm hover:text-gray-800 transition"
           onClick={handleSkip}
           disabled={isUploading}
