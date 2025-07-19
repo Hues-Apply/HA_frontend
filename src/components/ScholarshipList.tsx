@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Clock, Bookmark as BookmarkIcon, MapPin, Building2, DollarSign } from 'lucide-react';
 import { getScholarships } from '../services/scholarships';
 import { useNavigate } from 'react-router-dom';
+
 import { getScholarshipApplicationStatus } from '../services/scholarships';
+
 
 interface ScholarshipFilters {
   search?: string;
@@ -52,6 +54,7 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
     fetchScholarships();
   }, [filters, page]);
 
+
   useEffect(() => {
     getScholarshipApplicationStatus().then(res => {
       if (res && res.applications) {
@@ -63,7 +66,6 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
       }
     });
   }, []);
-
   const fetchScholarships = async () => {
     try {
       setLoading(true);
@@ -190,6 +192,7 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
               className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => scholarship.id && navigate(`/dashboard/scholarships/${scholarship.id}`)}
             >
+
               {/* Applied badge */}
               {scholarship.id && appliedScholarships.has(String(scholarship.id)) && (
                 <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Applied</div>

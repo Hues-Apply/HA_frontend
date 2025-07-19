@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getScholarship, getScholarships, ScholarshipDetail, Scholarship, applyToScholarship, getScholarshipApplicationStatus } from '../services/scholarships';
 
+
 const Tag = ({ children }: { children: React.ReactNode }) => (
   <span className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">{children}</span>
 );

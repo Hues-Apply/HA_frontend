@@ -29,6 +29,7 @@ import AdminDashboard from "./sections/AdminDashboard";
 import UsersList from "./components/UsersList";
 import ScholarshipList from "./components/ScholarshipList";
 import ScholarshipDetails from "./sections/ScholarshipDetails";
+
 import ComingSoon from "./components/ComingSoon";
 
 // Homepage component
@@ -76,8 +77,10 @@ function App() {
             <Route path="/dashboard" element={<JobPortal />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
+
             {/* ComingSoon for all other dashboard subpages (authenticated) */}
             <Route path="/dashboard/*" element={<ComingSoon />} />
+
           </Route>
         </Route>
         {/* Protected onboarding routes without main layout */}
