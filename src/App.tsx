@@ -26,10 +26,13 @@ import Onboarding2 from "./sections/Onboarding2";
 import JobPortal from "./sections/JobPortal";
 import Profile from "./sections/Profile";
 import AdminDashboard from "./sections/AdminDashboard";
+import AdminScholarshipsList from "./components/AdminScholarshipsList";
+import AdminScholarshipForm from "./components/AdminScholarshipForm";
 import UsersList from "./components/UsersList";
 import ScholarshipList from "./components/ScholarshipList";
 import ScholarshipDetails from "./sections/ScholarshipDetails";
 import ComingSoon from "./components/ComingSoon";
+
 
 // Homepage component
 const Homepage = () => (
@@ -66,6 +69,9 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/scholarships" element={<AdminScholarshipsList />} />
+        <Route path="/admin/scholarships/new" element={< AdminScholarshipForm/>} />
+        <Route path="/admin/scholarships/new/edit/:id" element={< AdminScholarshipForm/>} />
         {/* Authentication and onboarding routes */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />

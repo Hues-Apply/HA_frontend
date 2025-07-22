@@ -61,11 +61,13 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
   const [savedOpportunities, setSavedOpportunities] = useState<Set<string>>(new Set());
   const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
-  const pageSize = 6;
+  const [isMobile, setIsMobile] = useState(false);
+  const pageSize = isMobile ? 3 : 6;
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+
 
   useEffect(() => {
     setPage(1); // Reset to first page when filters change
@@ -76,6 +78,10 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
   }, [filters, page]);
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
     getAppliedOpportunities().then(setAppliedOpportunities);
   }, []);
 
