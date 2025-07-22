@@ -155,6 +155,6 @@ export const getAIMatchedScholarships = async (filters: ScholarshipFilters = {})
     }
   });
   const queryString = params.toString();
-  const endpoint = `/api/scholarships/ai-matches/${queryString ? `?${queryString}` : ''}`;
+  const endpoint = `/api/scholarships/match/${queryString ? `?${queryString}` : ''}`;
   return fetchWithAuth(endpoint);
 };
