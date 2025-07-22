@@ -1,8 +1,8 @@
 // Base API services and constants for HuesApply
 
-export const BASE_URL = import.meta.env.PROD 
-  ? 'https://ha-backend-pq2f.vercel.app' 
-  : 'http://localhost:8000';
+export const BASE_URL = 'https://ha-backend-pq2f.vercel.app'; 
+
+  console.log('BASE_URL:', BASE_URL);
 
 // Helper to handle API responses consistently
 export const handleApiResponse = async (response: Response) => {
