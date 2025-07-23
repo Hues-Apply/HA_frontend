@@ -1,4 +1,6 @@
+import { request } from 'http';
 import { fetchWithAuth } from './api';
+import { resolve } from 'path';
 
 export interface ScholarshipFilters {
   search?: string;
@@ -59,6 +61,32 @@ export interface ScholarshipFormData {
   scraped_at?: string;
 }
 
+const retryRequest = async <T>(
+  requestFn: () => Promise<T>,
+  maxRetries: number = 2,
+  delay: number = 1000
+): Promise<T> => {
+  let lastError;
+
+  for(let i = 0; i <= maxRetries; i++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      lastError = error;
+      if(i === maxRetries) break;
+
+      if(error instanceof Error &&
+        (error.message.includes('404') || error.message.includes('401'))
+      ) {
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+    }
+  }
+
+  throw lastError;
+};
+
 // Get scholarships with filters
 export const getScholarships = async (filters: ScholarshipFilters = {}): Promise<ScholarshipsResponse> => {
   const params = new URLSearchParams();
@@ -69,12 +97,12 @@ export const getScholarships = async (filters: ScholarshipFilters = {}): Promise
   });
   const queryString = params.toString();
   const endpoint = `/api/scholarships/${queryString ? `?${queryString}` : ''}`;
-  return fetchWithAuth(endpoint);
+  return retryRequest(() => fetchWithAuth(endpoint));
 };
 
 // Get a specific scholarship by ID
 export const getScholarship = async (id: string): Promise<ScholarshipDetail> => {
-  return fetchWithAuth(`/api/scholarships/${id}/`);
+  return retryRequest(() => fetchWithAuth(`/api/scholarships/${id}/`));
 };
 
 // Admin Functions - Create new scholarship
@@ -125,7 +153,7 @@ export const getSavedScholarships = async (filters: ScholarshipFilters = {}): Pr
   });
   const queryString = params.toString();
   const endpoint = `/api/scholarships/saved/${queryString ? `?${queryString}` : ''}`;
-  return fetchWithAuth(endpoint);
+  return retryRequest(() => fetchWithAuth(endpoint));
 };
 
 // Get application status for scholarships
@@ -143,11 +171,11 @@ export const getScholarshipApplicationStatus = async (): Promise<{
     last_updated: string;
   }>;
 }> => {
-  return fetchWithAuth('/api/scholarships/applications/');
+  return retryRequest(() => fetchWithAuth('/api/scholarships/applications/')); 
 };
 
-// Get AI-matched scholarships
-export const getAIMatchedScholarships = async (filters: ScholarshipFilters = {}): Promise<ScholarshipsResponse> => {
+// Get matched scholarships
+export const getMatchedScholarships = async (filters: ScholarshipFilters = {}): Promise<ScholarshipsResponse> => {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== '') {
@@ -156,5 +184,11 @@ export const getAIMatchedScholarships = async (filters: ScholarshipFilters = {})
   });
   const queryString = params.toString();
   const endpoint = `/api/scholarships/match/${queryString ? `?${queryString}` : ''}`;
-  return fetchWithAuth(endpoint);
+  
+  try {
+    return await retryRequest(() => fetchWithAuth(endpoint));
+  } catch (error: any) {
+    console.log('Matched scholarships endpoint failed.', error);
+    throw error;
+  }
 };
