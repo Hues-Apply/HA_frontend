@@ -37,7 +37,7 @@ export const getAuthHeader = () => {
 };
 
 // Basic fetch wrapper with auth headers
-export const fetchWithAuth = (endpoint: string, options: RequestInit = {}) => {
+export const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${BASE_URL}${endpoint}`;
   const headers = {
     'Content-Type': 'application/json',
@@ -45,8 +45,9 @@ export const fetchWithAuth = (endpoint: string, options: RequestInit = {}) => {
     ...(options.headers as Record<string, string>)
   };
   
-  return fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers
-  }).then(handleApiResponse);
+  });
+  return handleApiResponse(response);
 };
