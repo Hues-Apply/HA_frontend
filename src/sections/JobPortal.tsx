@@ -224,8 +224,9 @@ export default function Dashboard() {
                 ...filter,
                 ordering: '-created_at',
                 show_expired: false,
-                page_size: 20
+                page_size: 9
               }}
+              showProfileCompletion={true}
               title="Latest Scholarships"
             />
           </div>
