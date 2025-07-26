@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Clock, Bookmark as BookmarkIcon, MapPin, Building2, DollarSign } from 'lucide-react';
+import { Clock, Bookmark, MapPin, Building2, DollarSign } from 'lucide-react';
 import { getScholarships } from '../services/scholarships';
 import { useNavigate } from 'react-router-dom';
 import { getScholarshipApplicationStatus } from '../services/scholarships';
+import ProfileCompletion from './ProfileCompletion';
 
 interface ScholarshipFilters {
   search?: string;
@@ -17,6 +18,7 @@ interface ScholarshipFilters {
 interface ScholarshipListProps {
   filters: ScholarshipFilters;
   title: string;
+  showProfileCompletion?: boolean; // Add this prop to control when to show profile completion
 }
 
 interface Scholarship {
@@ -32,7 +34,7 @@ interface Scholarship {
   scraped_at?: string;
 }
 
-export default function ScholarshipList({ filters, title }: ScholarshipListProps) {
+export default function ScholarshipList({ filters, title, showProfileCompletion = true }: ScholarshipListProps) {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,14 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
   const [totalCount, setTotalCount] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
+  const [showProfilePrompt, setShowProfilePrompt] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user has dismissed the profile completion prompt for scholarships
+    const dismissed = localStorage.getItem('scholarshipProfileCompletionDismissed');
+    setShowProfilePrompt(!dismissed && showProfileCompletion);
+  }, [showProfileCompletion]);
 
   useEffect(() => {
     setPage(1); // Reset to first page when filters change
@@ -88,6 +97,11 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDismissProfileCompletion = () => {
+    setShowProfilePrompt(false);
+    localStorage.setItem('scholarshipProfileCompletionDismissed', 'true');
   };
 
   const toggleSave = (scholarshipId: string) => {
@@ -160,120 +174,134 @@ export default function ScholarshipList({ filters, title }: ScholarshipListProps
     );
   }
 
-  // Remove client-side pagination logic
-  // const totalPages = Math.ceil(scholarships.length / pageSize);
-  // const paginatedScholarships = scholarships.slice((page - 1) * pageSize, page * pageSize);
-
-  if (scholarships.length === 0) {
-    return (
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
+  return (
+    <section className="mb-10">
+      <h2 className="text-lg font-semibold mb-4">{title}</h2>
+      
+      {/* In ScholarshipList component */}
+{showProfilePrompt && (
+  <div className="relative mb-6">
+    <ProfileCompletion 
+      context="scholarship"  // Add this line
+      className="border-l-4 border-blue-500" 
+    />
+    <button
+      onClick={handleDismissProfileCompletion}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+      title="Dismiss"
+    >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+)}
+      
+      {scholarships.length === 0 ? (
         <div className="bg-white rounded-lg p-6 shadow-md">
           <div className="text-center py-10 text-gray-500">
             <p className="mb-4">No scholarships found</p>
             <p className="text-sm">Try adjusting your search filters or check back later for new scholarships.</p>
           </div>
         </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="mb-10">
-      <h2 className="text-lg font-semibold mb-4">{title}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {scholarships.map((scholarship, idx) => {
-          const key = scholarship.id || `${scholarship.source}-${scholarship.title}-${scholarship.location}-${idx}`;
-          return (
-            <div
-              key={key}
-              className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => scholarship.id && navigate(`/dashboard/scholarships/${scholarship.id}`)}
-            >
-              {/* Applied badge */}
-              {scholarship.id && appliedScholarships.has(String(scholarship.id)) && (
-                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Applied</div>
-              )}
-              <div className="absolute top-4 right-4">
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    scholarship.id && toggleSave(String(scholarship.id));
-                  }}
-                  className={`p-1 rounded ${scholarship.id && savedScholarships.has(String(scholarship.id))
-                    ? 'text-blue-500'
-                    : 'text-gray-400 hover:text-blue-500'
-                    }`}
-                  disabled={!scholarship.id}
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {scholarships.map((scholarship, idx) => {
+              const key = scholarship.id || `${scholarship.source}-${scholarship.title}-${scholarship.location}-${idx}`;
+              return (
+                <div
+                  key={key}
+                  className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => scholarship.id && navigate(`/dashboard/scholarships/${scholarship.id}`)}
                 >
-                  <BookmarkIcon size={18} fill={scholarship.id && savedScholarships.has(String(scholarship.id)) ? 'currentColor' : 'none'} />
-                </button>
-              </div>
-
-              <div className="pr-8">
-                <div className="text-lg font-bold mb-1 text-gray-800">{scholarship.title}</div>
-                <div className="flex items-center text-gray-600 mb-2">
-                  <Building2 size={14} className="mr-1" />
-                  <span className="text-sm">{scholarship.source}</span>
-                </div>
-
-                <div className="space-y-1 mb-3">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin size={14} className="mr-1" />
-                    <span>{scholarship.location}</span>
+                  {/* Applied badge */}
+                  {scholarship.id && appliedScholarships.has(String(scholarship.id)) && (
+                    <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Applied</div>
+                  )}
+                  <div className="absolute top-4 right-4">
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        scholarship.id && toggleSave(String(scholarship.id));
+                      }}
+                      className={`p-1 rounded ${scholarship.id && savedScholarships.has(String(scholarship.id))
+                        ? 'text-blue-500'
+                        : 'text-gray-400 hover:text-blue-500'
+                        }`}
+                      disabled={!scholarship.id}
+                    >
+                      <Bookmark size={18} fill={scholarship.id && savedScholarships.has(String(scholarship.id)) ? 'currentColor' : 'none'} />
+                    </button>
                   </div>
-                  {scholarship.amount && (
-                    <div className="text-sm text-gray-600 flex items-center">
-                      <DollarSign size={14} className="mr-1" />
-                      <span className="font-medium">Amount:</span> {scholarship.amount}
-                    </div>
-                  )}
-                  {scholarship.course && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Course:</span> {scholarship.course}
-                    </div>
-                  )}
-                  {scholarship.gpa && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">GPA:</span> {scholarship.gpa}
-                    </div>
-                  )}
-                </div>
 
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Clock size={12} className="mr-1" />
-                    <span>
-                      {scholarship.deadline ? `Closes in ${formatDeadline(scholarship.deadline)}` : 'No deadline'}
-                    </span>
+                  <div className="pr-8">
+                    <div className="text-lg font-bold mb-1 text-gray-800">{scholarship.title}</div>
+                    <div className="flex items-center text-gray-600 mb-2">
+                      <Building2 size={14} className="mr-1" />
+                      <span className="text-sm">{scholarship.source}</span>
+                    </div>
+
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin size={14} className="mr-1" />
+                        <span>{scholarship.location}</span>
+                      </div>
+                      {scholarship.amount && (
+                        <div className="text-sm text-gray-600 flex items-center">
+                          <DollarSign size={14} className="mr-1" />
+                          <span className="font-medium">Amount:</span> {scholarship.amount}
+                        </div>
+                      )}
+                      {scholarship.course && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Course:</span> {scholarship.course}
+                        </div>
+                      )}
+                      {scholarship.gpa && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">GPA:</span> {scholarship.gpa}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Clock size={12} className="mr-1" />
+                        <span>
+                          {scholarship.deadline ? `Closes in ${formatDeadline(scholarship.deadline)}` : 'No deadline'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
+          
+          {/* Server-side Pagination Controls */}
+          {(hasNext || hasPrevious) && (
+            <div className="flex justify-center mt-6 space-x-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={!hasPrevious}
+                className={`px-3 py-1 rounded border ${!hasPrevious ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-green-600 hover:bg-green-50'}`}
+              >
+                Previous
+              </button>
+              <span className="px-3 py-1 text-sm text-gray-600">
+                Page {page} of {Math.ceil(totalCount / (filters.page_size || 20))}
+              </span>
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!hasNext}
+                className={`px-3 py-1 rounded border ${!hasNext ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-green-600 hover:bg-green-50'}`}
+              >
+                Next
+              </button>
             </div>
-          );
-        })}
-      </div>
-      {/* Server-side Pagination Controls */}
-      {(hasNext || hasPrevious) && (
-        <div className="flex justify-center mt-6 space-x-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={!hasPrevious}
-            className={`px-3 py-1 rounded border ${!hasPrevious ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-green-600 hover:bg-green-50'}`}
-          >
-            Previous
-          </button>
-          <span className="px-3 py-1 text-sm text-gray-600">
-            Page {page} of {Math.ceil(totalCount / (filters.page_size || 20))}
-          </span>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={!hasNext}
-            className={`px-3 py-1 rounded border ${!hasNext ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-green-600 hover:bg-green-50'}`}
-          >
-            Next
-          </button>
-        </div>
+          )}
+        </>
       )}
     </section>
   );

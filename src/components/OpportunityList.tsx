@@ -62,7 +62,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
   const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
-  const pageSize = isMobile ? 3 : 6;
+  const pageSize = isMobile ? 9 : 9;
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [applyLoading, setApplyLoading] = useState(false);
