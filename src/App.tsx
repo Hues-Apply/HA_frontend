@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 
 // Layout components
 import Navbar from "./components/NavBar";
@@ -66,50 +67,52 @@ const MainLayout = () => {
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Public routes - No authentication required */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+      <HelmetProvider>
+        <Routes>
+          {/* Public routes - No authentication required */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* Routes with main layout - Public */}
-        <Route element={<MainLayout />}>
-          <Route index element={<Homepage />} />
-        </Route>
-
-        {/* Protected routes - Require authentication */}
-        <Route element={<ProtectedRoute />}>
-          {/* Onboarding routes */}
-          <Route path="/onboarding/step-1" element={<Onboarding1 />} />
-          <Route path="/onboarding/step-2" element={<Onboarding2 />} />
-          <Route path="/onboarding/review" element={<OnboardingReview />} />
-          <Route path="/onboarding/complete" element={<OnboardingComplete />} />
-          <Route path="/onboarding/*" element={<ComingSoon />} />
-
-          {/* Dashboard routes - Require authentication */}
-          <Route element={<SidebarWrapper />}>
-            <Route path="/dashboard" element={<JobPortal />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
-            <Route path="/dashboard/*" element={<ComingSoon />} />
+          {/* Routes with main layout - Public */}
+          <Route element={<MainLayout />}>
+            <Route index element={<Homepage />} />
           </Route>
-        </Route>
 
-        {/* Admin routes - Require admin role */}
-        <Route element={<AdminRoute />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/scholarships" element={<AdminScholarshipsList />} />
-          <Route path="/admin/scholarships/new" element={<AdminScholarshipForm />} />
-          <Route path="/admin/scholarships/edit/:id" element={<AdminScholarshipForm />} />
-          <Route path="/admin/jobs" element={<AdminJobsList />} />
-          <Route path="/admin/jobs/new" element={<AdminJobForm />} />
-          <Route path="/admin/jobs/edit/:id" element={<AdminJobForm />} />
-          <Route path="/users-list" element={<UsersList />} />
-        </Route>
+          {/* Protected routes - Require authentication */}
+          <Route element={<ProtectedRoute />}>
+            {/* Onboarding routes */}
+            <Route path="/onboarding/step-1" element={<Onboarding1 />} />
+            <Route path="/onboarding/step-2" element={<Onboarding2 />} />
+            <Route path="/onboarding/review" element={<OnboardingReview />} />
+            <Route path="/onboarding/complete" element={<OnboardingComplete />} />
+            <Route path="/onboarding/*" element={<ComingSoon />} />
 
-        {/* Catch-all route */}
-        <Route path="*" element={<ComingSoon />} />
-      </Routes>
+            {/* Dashboard routes - Require authentication */}
+            <Route element={<SidebarWrapper />}>
+              <Route path="/dashboard" element={<JobPortal />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
+              <Route path="/dashboard/*" element={<ComingSoon />} />
+            </Route>
+          </Route>
+
+          {/* Admin routes - Require admin role */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/scholarships" element={<AdminScholarshipsList />} />
+            <Route path="/admin/scholarships/new" element={<AdminScholarshipForm />} />
+            <Route path="/admin/scholarships/edit/:id" element={<AdminScholarshipForm />} />
+            <Route path="/admin/jobs" element={<AdminJobsList />} />
+            <Route path="/admin/jobs/new" element={<AdminJobForm />} />
+            <Route path="/admin/jobs/edit/:id" element={<AdminJobForm />} />
+            <Route path="/users-list" element={<UsersList />} />
+          </Route>
+
+          {/* Catch-all route */}
+          <Route path="*" element={<ComingSoon />} />
+        </Routes>
+      </HelmetProvider>
     </Router>
   );
 }
