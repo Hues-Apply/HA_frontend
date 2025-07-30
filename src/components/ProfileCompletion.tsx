@@ -15,10 +15,10 @@ interface CompletionStatus {
   completed_sections: string[];
 }
 
-const ProfileCompletion = ({ 
-  className = '', 
+const ProfileCompletion = ({
+  className = '',
   context = 'general',
-  isScholarshipPage = false 
+  isScholarshipPage = false
 }: ProfileCompletionProps) => {
   const [completionStatus, setCompletionStatus] = useState<CompletionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,14 +32,14 @@ const ProfileCompletion = ({
       try {
         // This would be your actual API call
         // const status = await getProfileCompletionStatus();
-        
+
         // Mock data for demonstration
         const status = {
-          completion_percentage: 65,  
+          completion_percentage: 65,
           missing_sections: ['education', 'experience', 'personal_info'],
           completed_sections: ['career_profile', 'projects']
         };
-        
+
         setCompletionStatus(status);
       } catch (error) {
         console.error('Failed to fetch profile completion status:', error);
@@ -77,7 +77,7 @@ const ProfileCompletion = ({
         urgencyText: 'Many scholarships require detailed academic and personal information'
       };
     }
-    
+
     return {
       title: 'Complete Your Profile',
       description: 'Complete your profile to get better opportunity matches and increase your visibility to employers.',
@@ -130,10 +130,10 @@ const ProfileCompletion = ({
         <h3 className="text-lg font-semibold text-gray-800">{contextContent.title}</h3>
         <span className="text-2xl font-bold text-blue-600">{completion_percentage}%</span>
       </div>
-      
+
       {/* Progress Bar */}
       <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-        <div 
+        <div
           className={`h-3 rounded-full transition-all duration-300 ${getColorByPercentage(completion_percentage)}`}
           style={{ width: `${completion_percentage}%` }}
         ></div>
@@ -163,13 +163,12 @@ const ProfileCompletion = ({
             {scholarshipSections.map((section) => {
               const Icon = section.icon;
               return (
-                <div 
+                <div
                   key={section.key}
-                  className={`flex items-center px-3 py-2 rounded-lg border ${
-                    section.priority === 'high' 
-                      ? 'bg-red-50 border-red-200 text-red-700' 
-                      : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                  }`}
+                  className={`flex items-center px-3 py-2 rounded-lg border ${section.priority === 'high'
+                    ? 'bg-red-50 border-red-200 text-red-700'
+                    : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                    }`}
                 >
                   <Icon className="w-4 h-4 mr-2 flex-shrink-0" />
                   <span className="text-sm font-medium">{section.label}</span>
@@ -186,7 +185,7 @@ const ProfileCompletion = ({
           <h4 className="text-sm font-medium text-gray-700 mb-2">Missing sections:</h4>
           <div className="flex flex-wrap gap-2">
             {missing_sections.map((section, index) => (
-              <span 
+              <span
                 key={index}
                 className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded-full"
               >
@@ -197,13 +196,12 @@ const ProfileCompletion = ({
         </div>
       )}
 
-      <button 
+      <button
         onClick={() => navigate('/profile')}
-        className={`w-full py-2 px-4 rounded-md transition-colors ${
-          isScholarshipContext 
-            ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-            : 'bg-blue-500 hover:bg-blue-600 text-white'
-        }`}
+        className={`w-full py-2 px-4 rounded-md transition-colors ${isScholarshipContext
+          ? 'bg-orange-500 hover:bg-orange-600 text-white'
+          : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
       >
         {contextContent.buttonText}
       </button>

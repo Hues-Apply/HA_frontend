@@ -9,9 +9,9 @@ const AdminScholarshipForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const isEdit = Boolean(id);
-  
+
   const [formData, setFormData] = useState<ScholarshipFormData>({
     title: '',
     source: '',
@@ -36,7 +36,7 @@ const AdminScholarshipForm: React.FC = () => {
       setLoading(true);
       setError(null);
       const data = await getScholarship(id!);
-      
+
       setFormData({
         id: data.id ? (typeof data.id === 'string' ? parseInt(data.id) : data.id) : undefined,
         title: data.title || '',
@@ -67,7 +67,7 @@ const AdminScholarshipForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title || !formData.source || !formData.location) {
       setError('Please fill in all required fields');
       return;
@@ -76,7 +76,7 @@ const AdminScholarshipForm: React.FC = () => {
     try {
       setSaving(true);
       setError(null);
-      
+
       const submitData = {
         ...formData,
         amount: formData.amount || null,
@@ -94,7 +94,7 @@ const AdminScholarshipForm: React.FC = () => {
         await createScholarship(submitData);
         console.log('Scholarship created successfully');
       }
-      
+
       navigate('/admin/scholarships');
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Failed to save scholarship');

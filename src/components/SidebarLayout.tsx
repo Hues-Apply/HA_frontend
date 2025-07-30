@@ -34,13 +34,12 @@ export function SidebarLayout({
   return (
     <>
       {/* Mobile Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black z-40 lg:hidden transition-opacity duration-300 ${
-          mobileOpen ? "bg-opacity-50 visible" : "bg-opacity-0 invisible"
-        }`}
+      <div
+        className={`fixed inset-0 bg-black z-40 lg:hidden transition-opacity duration-300 ${mobileOpen ? "bg-opacity-50 visible" : "bg-opacity-0 invisible"
+          }`}
         onClick={() => setMobileOpen(false)}
       />
-      
+
       {/* Sidebar */}
       <aside
         className={`fixed lg:relative inset-y-0 left-0 z-50 h-screen bg-white text-gray-800 flex flex-col transition-all duration-300 border-r border-gray-200 shadow-xl lg:shadow-sm
@@ -56,7 +55,7 @@ export function SidebarLayout({
               <span className="text-lg font-bold text-gray-900">Hues Apply</span>
             </div>
           )}
-          
+
           {/* Close button for mobile */}
           <button
             onClick={() => setMobileOpen(false)}
@@ -64,7 +63,7 @@ export function SidebarLayout({
           >
             <X size={20} />
           </button>
-          
+
           {/* Collapse button for desktop */}
           <button
             onClick={() => setExpanded((prev) => !prev)}
@@ -81,7 +80,7 @@ export function SidebarLayout({
             <nav className="px-3 py-4">
               <ul className="space-y-1">{mainItems}</ul>
             </nav>
-            
+
             {/* Bottom Navigation */}
             <div className="mt-auto p-3 border-t border-gray-100">
               <ul className="space-y-1">{bottomItems}</ul>
@@ -134,10 +133,9 @@ export function SidebarItem({
 
   const baseClasses = `
     group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer
-    ${
-      active
-        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+    ${active
+      ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
     }
   `;
 
@@ -146,11 +144,10 @@ export function SidebarItem({
       <div className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-500'}`}>
         {icon}
       </div>
-      
+
       <span
-        className={`ml-3 transition-all duration-300 ${
-          expanded ? "opacity-100" : "opacity-0 w-0 overflow-hidden"
-        }`}
+        className={`ml-3 transition-all duration-300 ${expanded ? "opacity-100" : "opacity-0 w-0 overflow-hidden"
+          }`}
       >
         {text}
       </span>
