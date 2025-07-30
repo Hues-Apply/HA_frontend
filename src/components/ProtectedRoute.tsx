@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { isAdmin, canAccessEmployer } from "../utils/roleUtils";
 
 interface ProtectedRouteProps {
   redirectPath?: string;
@@ -57,7 +58,7 @@ const AdminRoute = ({
   }
 
   // Redirect to dashboard if not admin
-  if (!user || user.role !== 'admin') {
+  if (!user || !isAdmin(user.role)) {
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -92,7 +93,7 @@ const EmployerRoute = ({
   }
 
   // Redirect to dashboard if not employer or admin
-  if (!user || (user.role !== 'employer' && user.role !== 'admin')) {
+  if (!user || !canAccessEmployer(user.role)) {
     return <Navigate to={redirectPath} replace />;
   }
 
