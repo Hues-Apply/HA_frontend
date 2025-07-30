@@ -24,13 +24,13 @@ const ScholarshipDetails: React.FC = () => {
         setLoading(false);
         // Fetch similar scholarships by source, excluding current
         if (data.source) {
-          getScholarships({ source: data.source, page_size: 3, exclude: id })
+          getScholarships({ page_size: 3 })
             .then(res => setSimilar(res.results || []));
         }
         // If the user has already applied, set applied to true (if this info is available in data)
         // For now, default to false; you can enhance this with backend info later
       })
-      .catch(err => {
+      .catch(_err => {
         setError('Failed to load scholarship details.');
         setLoading(false);
       });

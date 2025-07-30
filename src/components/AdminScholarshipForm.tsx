@@ -38,7 +38,7 @@ const AdminScholarshipForm: React.FC = () => {
       const data = await getScholarship(id!);
       
       setFormData({
-        id: data.id || undefined,
+        id: data.id ? (typeof data.id === 'string' ? parseInt(data.id) : data.id) : undefined,
         title: data.title || '',
         source: data.source || '',
         location: data.location || '',
@@ -196,7 +196,7 @@ const AdminScholarshipForm: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.amount}
+                  value={formData.amount || ''}
                   onChange={(e) => handleInputChange('amount', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., $5,000 or ₹50,000"
@@ -210,7 +210,7 @@ const AdminScholarshipForm: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  value={formData.deadline}
+                  value={formData.deadline || ''}
                   onChange={(e) => handleInputChange('deadline', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={saving}
@@ -223,7 +223,7 @@ const AdminScholarshipForm: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.course}
+                  value={formData.course || ''}
                   onChange={(e) => handleInputChange('course', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., Computer Science, Medicine"
@@ -237,7 +237,7 @@ const AdminScholarshipForm: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.gpa}
+                  value={formData.gpa || ''}
                   onChange={(e) => handleInputChange('gpa', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., 3.5, 85%"
@@ -251,7 +251,7 @@ const AdminScholarshipForm: React.FC = () => {
                 </label>
                 <input
                   type="url"
-                  value={formData.application_link}
+                  value={formData.application_link || ''}
                   onChange={(e) => handleInputChange('application_link', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://..."
@@ -267,7 +267,7 @@ const AdminScholarshipForm: React.FC = () => {
               </label>
               <textarea
                 rows={4}
-                value={formData.overview}
+                value={formData.overview || ''}
                 onChange={(e) => handleInputChange('overview', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Detailed overview or description of the scholarship..."

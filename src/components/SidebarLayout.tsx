@@ -22,7 +22,7 @@ interface SidebarLayoutProps {
 
 export function SidebarLayout({
   children,
-  profileData,
+  profileData: _profileData,
   personalInfo,
 }: SidebarLayoutProps) {
   const [expanded, setExpanded] = useState(() => window.innerWidth >= 768);

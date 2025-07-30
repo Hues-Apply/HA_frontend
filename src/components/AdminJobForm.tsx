@@ -38,7 +38,7 @@ const AdminJobForm: React.FC = () => {
       const data = await getJob(id!);
 
       setFormData({
-        id: data.id || undefined,
+        id: data.id ? parseInt(data.id) : undefined,
         title: data.title || '',
         company: data.company || '',
         location: data.location || '',
@@ -237,7 +237,7 @@ const AdminJobForm: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.salary_range}
+                  value={formData.salary_range || ''}
                   onChange={(e) => handleInputChange('salary_range', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., $50,000 - $80,000"
@@ -251,7 +251,7 @@ const AdminJobForm: React.FC = () => {
                 </label>
                 <input
                   type="url"
-                  value={formData.application_url}
+                  value={formData.application_url || ''}
                   onChange={(e) => handleInputChange('application_url', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://..."

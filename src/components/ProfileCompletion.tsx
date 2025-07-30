@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Add this import
-import { GraduationCap, MapPin, Award, User } from 'lucide-react';
+import { GraduationCap, MapPin, Award, User, Briefcase } from 'lucide-react';
 import { getProfileCompletionStatus } from '../services/profile';
 
 interface ProfileCompletionProps {
@@ -52,11 +52,10 @@ const ProfileCompletion = ({
   }, []);
 
   const getScholarshipSpecificSections = (missingSections: string[]) => {
-    // Map scholarship-relevant sections
-    const scholarshipRelevantSections = {
+    const scholarshipRelevantSections: Record<string, { icon: any; label: string; priority: string }> = {
       'personal_info': { icon: User, label: 'Personal Information', priority: 'high' },
-      'education': { icon: GraduationCap, label: 'Education Details', priority: 'high' },
-      'experience': { icon: Award, label: 'Experience', priority: 'medium' },
+      'education': { icon: GraduationCap, label: 'Education', priority: 'high' },
+      'experience': { icon: Briefcase, label: 'Experience', priority: 'medium' },
       'career_profile': { icon: MapPin, label: 'Career Profile', priority: 'medium' }
     };
 
@@ -66,7 +65,7 @@ const ProfileCompletion = ({
         ...scholarshipRelevantSections[section],
         key: section
       }))
-      .sort((a, b) => a.priority === 'high' ? -1 : 1);
+      .sort((a, _b) => a.priority === 'high' ? -1 : 1);
   };
 
   const getContextualContent = () => {
