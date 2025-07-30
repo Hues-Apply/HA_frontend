@@ -57,12 +57,12 @@ export const registerUser = async (userData: RegisterData): Promise<AuthResponse
     },
     body: JSON.stringify(userData)
   });
-  
+
   return handleApiResponse(response);
 };
 
 // Sign out
-export const signOut = async (refreshToken: string): Promise<{success: string}> => {
+export const signOut = async (refreshToken: string): Promise<{ success: string }> => {
   return fetchWithAuth('/api/auth/sign-out/', {
     method: 'POST',
     body: JSON.stringify({ refresh_token: refreshToken })
@@ -75,7 +75,7 @@ export const getUserRole = async (): Promise<UserRole> => {
 };
 
 // Update user role
-export const updateUserRole = async (role: 'applicant' | 'employer'): Promise<{message: string}> => {
+export const updateUserRole = async (role: 'applicant' | 'employer'): Promise<{ message: string }> => {
   return fetchWithAuth('/api/role/', {
     method: 'POST',
     body: JSON.stringify({ role })
@@ -90,11 +90,11 @@ export const getUserProfile = async (): Promise<User> => {
 }
 
 // Update user profile
-export const updateUserProfile = async (profileData : Partial<User> ) : Promise<User> => {
+export const updateUserProfile = async (profileData: Partial<User>): Promise<User> => {
   const response = await fetchWithAuth('/api/profile/', {
     method: 'PUT',
     headers: {
-      'Content-Type' : 'application/json',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(profileData)
   });
@@ -102,7 +102,7 @@ export const updateUserProfile = async (profileData : Partial<User> ) : Promise<
 };
 
 // Get user by ID
-export const getUserById = async (userId : number) : Promise<User> => {
+export const getUserById = async (userId: number): Promise<User> => {
   const response = await fetchWithAuth(`/api/users/${userId}/`);
   return handleApiResponse(response);
 };
@@ -114,7 +114,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 }
 
 // Update user by ID
-export const updateUserById = async (userId: number, userData : Partial<User>): Promise<User> => {
+export const updateUserById = async (userId: number, userData: Partial<User>): Promise<User> => {
   const response = await fetchWithAuth(`/api/users/${userId}/`, {
     method: 'PUT',
     headers: {
@@ -122,12 +122,12 @@ export const updateUserById = async (userId: number, userData : Partial<User>): 
     },
     body: JSON.stringify(userData)
   });
-  
+
   return handleApiResponse(response);
 };
 
 // Delete user by ID
-export const deleteUserById = async (user: User): Promise<{message: string}> => {
+export const deleteUserById = async (user: User): Promise<{ message: string }> => {
 
   const response = await fetchWithAuth(`/api/users/${user.id}/`, {
     method: 'DELETE',
@@ -138,7 +138,7 @@ export const deleteUserById = async (user: User): Promise<{message: string}> => 
 
   const result = await handleApiResponse(response);
 
-  if(user.role === 'applicant') {
+  if (user.role === 'applicant') {
     await deleteEducation(user.id);
   }
 
@@ -165,12 +165,25 @@ export const getUserAuthHeader = async (): Promise<{ Authorization: string } | {
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   const response = await fetchWithAuth(`/api/users/email/${email}/`);
 
-  if(response.ok) {
+  if (response.ok) {
     return handleApiResponse(response);
-  } else if(response.status === 404) {
+  } else if (response.status === 404) {
     return null;
   } else {
     throw new Error(`Error fetching user by email: ${response.statusText}`);
   }
+};
+
+// Update user role by user ID (for admin use)
+export const updateUserRoleById = async (userId: number, role: 'applicant' | 'employer' | 'admin'): Promise<{ message: string }> => {
+  const response = await fetchWithAuth(`/api/users/${userId}/role/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ role })
+  });
+
+  return handleApiResponse(response);
 };
 

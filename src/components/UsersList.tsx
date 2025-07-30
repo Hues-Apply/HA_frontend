@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { updateUserById, updateUserRoleById } from '../services/auth';
 
 interface GoogleUser {
   id: number;
@@ -23,7 +24,10 @@ const UsersList = () => {
   const [users, setUsers] = useState<GoogleUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
+  const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
+  const [editingUser, setEditingUser] = useState<GoogleUser | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -32,14 +36,14 @@ const UsersList = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch users from backend API
       const response = await fetch(`${import.meta.env.PROD ? 'https://ha-backend-pq2f.vercel.app' : 'http://localhost:8000'}/api/users/google-signups/`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.status}`);
       }
-      
+
       const data: UsersListResponse = await response.json();
       setUsers(data.results);
     } catch (err: any) {
@@ -57,28 +61,132 @@ const UsersList = () => {
 
     try {
       setDeletingUserId(userId);
-      
+
       const response = await fetch(`${import.meta.env.PROD ? 'https://ha-backend-pq2f.vercel.app' : 'http://localhost:8000'}/api/users/${userId}/delete/`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to delete user: ${response.status}`);
       }
-      
+
       // Remove user from local state
       setUsers(prev => prev.filter(user => user.id !== userId));
-      
+
       // Show success message briefly
-      const originalError = error;
-      setError('User deleted successfully');
-      setTimeout(() => setError(originalError), 3000);
-      
+      setSuccessMessage('User deleted successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+
     } catch (err: any) {
       setError(err.message || 'Failed to delete user');
       console.error('Error deleting user:', err);
     } finally {
       setDeletingUserId(null);
+    }
+  };
+
+  const startEditUser = (user: GoogleUser) => {
+    setEditingUser({ ...user });
+  };
+
+  const cancelEdit = () => {
+    setEditingUser(null);
+  };
+
+  const updateUser = async (userId: number, userData: Partial<GoogleUser>) => {
+    try {
+      setUpdatingUserId(userId);
+
+      // If updating role, use the dedicated role endpoint
+      if (userData.role && userData.role !== users.find(u => u.id === userId)?.role) {
+        await updateUserRoleById(userId, userData.role as 'applicant' | 'employer' | 'admin');
+      }
+
+      // For other fields, use the general update endpoint
+      const { role, ...otherData } = userData;
+      if (Object.keys(otherData).length > 0) {
+        const updatedUser = await updateUserById(userId, otherData);
+
+        // Update user in local state
+        setUsers(prev => prev.map(user =>
+          user.id === userId ? { ...user, ...updatedUser } : user
+        ));
+      } else {
+        // If only role was updated, refresh the user data
+        const response = await fetch(`${import.meta.env.PROD ? 'https://ha-backend-pq2f.vercel.app' : 'http://localhost:8000'}/api/users/google-signups/`);
+        if (response.ok) {
+          const data: UsersListResponse = await response.json();
+          setUsers(data.results);
+        }
+      }
+
+      setSuccessMessage('User updated successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      setEditingUser(null);
+
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user');
+      console.error('Error updating user:', err);
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser) return;
+
+    await updateUser(editingUser.id, {
+      first_name: editingUser.first_name,
+      last_name: editingUser.last_name,
+      role: editingUser.role,
+      is_new_user: editingUser.is_new_user
+    });
+  };
+
+  const handleRoleChange = async (userId: number, newRole: string) => {
+    await updateUser(userId, { role: newRole });
+  };
+
+  const handleStatusChange = async (userId: number, isNewUser: boolean) => {
+    await updateUser(userId, { is_new_user: isNewUser });
+  };
+
+  const handleQuickRoleChange = async (userId: number, newRole: string) => {
+    try {
+      setUpdatingUserId(userId);
+
+      await updateUserRoleById(userId, newRole as 'applicant' | 'employer' | 'admin');
+
+      // Update user in local state
+      setUsers(prev => prev.map(user =>
+        user.id === userId ? { ...user, role: newRole } : user
+      ));
+
+      setSuccessMessage(`User role updated to ${newRole}`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user role');
+      console.error('Error updating user role:', err);
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  const handleQuickStatusChange = async (userId: number, isNewUser: boolean) => {
+    try {
+      setUpdatingUserId(userId);
+
+      await updateUser(userId, { is_new_user: isNewUser });
+
+      setSuccessMessage(`User status updated to ${isNewUser ? 'New User' : 'Returning'}`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user status');
+      console.error('Error updating user status:', err);
+    } finally {
+      setUpdatingUserId(null);
     }
   };
 
@@ -93,26 +201,23 @@ const UsersList = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">⚠️</div>
-          <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={fetchUsers}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            {successMessage}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200">
             <h1 className="text-2xl font-bold text-gray-800">Google Sign-up Users</h1>
@@ -120,7 +225,7 @@ const UsersList = () => {
               Total users: {users.length}
             </p>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -146,91 +251,203 @@ const UsersList = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {user.google_data?.picture ? (
-                          <img
-                            className="h-10 w-10 rounded-full"
-                            src={user.google_data.picture}
-                            alt={`${user.first_name} ${user.last_name}`}
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <span className="text-gray-600 font-medium">
-                              {user.first_name?.[0]}{user.last_name?.[0]}
-                            </span>
-                          </div>
-                        )}
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.first_name} {user.last_name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {user.id}
+                {users.map((user) => {
+                  const isEditing = editingUser?.id === user.id;
+                  const isUpdating = updatingUserId === user.id;
+
+                  return (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          {user.google_data?.picture ? (
+                            <img
+                              className="h-10 w-10 rounded-full"
+                              src={user.google_data.picture}
+                              alt={`${user.first_name} ${user.last_name}`}
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                              <span className="text-gray-600 font-medium">
+                                {user.first_name?.[0]}{user.last_name?.[0]}
+                              </span>
+                            </div>
+                          )}
+                          <div className="ml-4">
+                            {isEditing ? (
+                              <div className="space-y-2">
+                                <input
+                                  type="text"
+                                  value={editingUser.first_name}
+                                  onChange={(e) => setEditingUser(prev => prev ? { ...prev, first_name: e.target.value } : null)}
+                                  className="text-sm border border-gray-300 rounded px-2 py-1 w-24"
+                                  placeholder="First"
+                                />
+                                <input
+                                  type="text"
+                                  value={editingUser.last_name}
+                                  onChange={(e) => setEditingUser(prev => prev ? { ...prev, last_name: e.target.value } : null)}
+                                  className="text-sm border border-gray-300 rounded px-2 py-1 w-24"
+                                  placeholder="Last"
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {user.first_name} {user.last_name}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  ID: {user.id}
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span 
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.is_new_user 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {user.is_new_user ? 'New User' : 'Returning'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => deleteUser(user.id)}
-                        disabled={deletingUserId === user.id}
-                        className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${
-                          deletingUserId === user.id
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800'
-                        } transition-colors`}
-                      >
-                        {deletingUserId === user.id ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-3 w-3" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Deleting...
-                          </>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {isEditing ? (
+                          <select
+                            value={editingUser.role}
+                            onChange={(e) => setEditingUser(prev => prev ? { ...prev, role: e.target.value } : null)}
+                            className="text-sm border border-gray-300 rounded px-2 py-1"
+                            disabled={isUpdating}
+                          >
+                            <option value="applicant">Applicant</option>
+                            <option value="employer">Employer</option>
+                            <option value="admin">Admin</option>
+                          </select>
                         ) : (
-                          <>
-                            🗑️ Delete
-                          </>
+                          <div className="flex items-center space-x-2">
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                              {user.role}
+                            </span>
+                            <select
+                              value={user.role}
+                              onChange={(e) => handleQuickRoleChange(user.id, e.target.value)}
+                              disabled={isUpdating}
+                              className="text-xs border border-gray-300 rounded px-1 py-0.5 bg-white"
+                            >
+                              <option value="applicant">Applicant</option>
+                              <option value="employer">Employer</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                          </div>
                         )}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {isEditing ? (
+                          <select
+                            value={editingUser.is_new_user ? 'new' : 'returning'}
+                            onChange={(e) => setEditingUser(prev => prev ? { ...prev, is_new_user: e.target.value === 'new' } : null)}
+                            className="text-sm border border-gray-300 rounded px-2 py-1"
+                            disabled={isUpdating}
+                          >
+                            <option value="new">New User</option>
+                            <option value="returning">Returning</option>
+                          </select>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.is_new_user
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-800'
+                                }`}
+                            >
+                              {user.is_new_user ? 'New User' : 'Returning'}
+                            </span>
+                            <select
+                              value={user.is_new_user ? 'new' : 'returning'}
+                              onChange={(e) => handleQuickStatusChange(user.id, e.target.value === 'new')}
+                              disabled={isUpdating}
+                              className="text-xs border border-gray-300 rounded px-1 py-0.5 bg-white"
+                            >
+                              <option value="new">New User</option>
+                              <option value="returning">Returning</option>
+                            </select>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(user.created_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={handleSaveEdit}
+                                disabled={isUpdating}
+                                className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${isUpdating
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                  } transition-colors`}
+                              >
+                                {isUpdating ? (
+                                  <>
+                                    <svg className="animate-spin -ml-1 mr-2 h-3 w-3" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Saving...
+                                  </>
+                                ) : (
+                                  '💾 Save'
+                                )}
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                disabled={isUpdating}
+                                className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                              >
+                                ❌ Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => startEditUser(user)}
+                                className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={() => deleteUser(user.id)}
+                                disabled={deletingUserId === user.id}
+                                className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${deletingUserId === user.id
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : 'bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800'
+                                  } transition-colors`}
+                              >
+                                {deletingUserId === user.id ? (
+                                  <>
+                                    <svg className="animate-spin -ml-1 mr-2 h-3 w-3" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  '🗑️ Delete'
+                                )}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-            
+
             {users.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 text-lg mb-2">👥</div>
