@@ -176,12 +176,36 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 
 // Update user role by user ID (for admin use)
 export const updateUserRoleById = async (userId: number, role: 'applicant' | 'employer' | 'admin'): Promise<{ message: string }> => {
-  const response = await fetchWithAuth(`/api/users/${userId}/role/`, {
+  // First get the complete user data to ensure we send the full payload
+  const user = await getUserById(userId);
+
+  const response = await fetchWithAuth(`/api/role/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ role })
+    body: JSON.stringify({
+      id: userId,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role: role,
+      is_new_user: user.is_new_user,
+      google_data: user.google_data
+    })
+  });
+
+  return handleApiResponse(response);
+};
+
+// Update user with complete payload using /api/role/ endpoint
+export const updateUserComplete = async (userData: User): Promise<{ message: string }> => {
+  const response = await fetchWithAuth(`/api/role/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData)
   });
 
   return handleApiResponse(response);

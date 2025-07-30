@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom
 // Layout components
 import Navbar from "./components/NavBar";
 import Footer from "./sections/Footer";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute, { AdminRoute, EmployerRoute } from "./components/ProtectedRoute";
 import SidebarWrapper from "./components/SidebarWrapper";
 
 // Homepage sections
@@ -67,46 +67,47 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
-
+        {/* Public routes - No authentication required */}
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/scholarships" element={<AdminScholarshipsList />} />
-        <Route path="/admin/scholarships/new" element={< AdminScholarshipForm />} />
-        <Route path="/admin/scholarships/edit/:id" element={< AdminScholarshipForm />} />
-        <Route path="/admin/jobs" element={<AdminJobsList />} />
-        <Route path="/admin/jobs/new" element={<AdminJobForm />} />
-        <Route path="/admin/jobs/edit/:id" element={<AdminJobForm />} />
-        {/* Authentication and onboarding routes */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/users-list" element={<UsersList />} />
-        {/* Protected routes without main layout */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={< SidebarWrapper />}>
-            <Route path="/dashboard" element={<JobPortal />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
-            {/* ComingSoon for all other dashboard subpages (authenticated) */}
-            <Route path="/dashboard/*" element={<ComingSoon />} />
-          </Route>
+
+        {/* Routes with main layout - Public */}
+        <Route element={<MainLayout />}>
+          <Route index element={<Homepage />} />
         </Route>
-        {/* Protected onboarding routes without main layout */}
+
+        {/* Protected routes - Require authentication */}
         <Route element={<ProtectedRoute />}>
+          {/* Onboarding routes */}
           <Route path="/onboarding/step-1" element={<Onboarding1 />} />
           <Route path="/onboarding/step-2" element={<Onboarding2 />} />
           <Route path="/onboarding/review" element={<OnboardingReview />} />
           <Route path="/onboarding/complete" element={<OnboardingComplete />} />
-          {/* ComingSoon for all other onboarding subpages (authenticated) */}
           <Route path="/onboarding/*" element={<ComingSoon />} />
+
+          {/* Dashboard routes - Require authentication */}
+          <Route element={<SidebarWrapper />}>
+            <Route path="/dashboard" element={<JobPortal />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard/scholarships/:id" element={<ScholarshipDetails />} />
+            <Route path="/dashboard/*" element={<ComingSoon />} />
+          </Route>
         </Route>
 
-        {/* Routes with main layout */}
-        <Route element={<MainLayout />}>
-          {/* Public routes */}
-          <Route index element={<Homepage />} />
+        {/* Admin routes - Require admin role */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/scholarships" element={<AdminScholarshipsList />} />
+          <Route path="/admin/scholarships/new" element={<AdminScholarshipForm />} />
+          <Route path="/admin/scholarships/edit/:id" element={<AdminScholarshipForm />} />
+          <Route path="/admin/jobs" element={<AdminJobsList />} />
+          <Route path="/admin/jobs/new" element={<AdminJobForm />} />
+          <Route path="/admin/jobs/edit/:id" element={<AdminJobForm />} />
+          <Route path="/users-list" element={<UsersList />} />
         </Route>
-        {/* ComingSoon for all other public pages (unauthenticated) */}
+
+        {/* Catch-all route */}
         <Route path="*" element={<ComingSoon />} />
       </Routes>
     </Router>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { updateUserById, updateUserRoleById } from '../services/auth';
+import { updateUserById, updateUserRoleById, updateUserComplete } from '../services/auth';
 
 interface GoogleUser {
   id: number;
@@ -97,28 +97,29 @@ const UsersList = () => {
     try {
       setUpdatingUserId(userId);
 
-      // If updating role, use the dedicated role endpoint
-      if (userData.role && userData.role !== users.find(u => u.id === userId)?.role) {
-        await updateUserRoleById(userId, userData.role as 'applicant' | 'employer' | 'admin');
+      // Get the current user data to ensure we send complete payload
+      const currentUser = users.find(u => u.id === userId);
+      if (!currentUser) {
+        throw new Error('User not found');
       }
 
-      // For other fields, use the general update endpoint
-      const { role, ...otherData } = userData;
-      if (Object.keys(otherData).length > 0) {
-        const updatedUser = await updateUserById(userId, otherData);
+      // Always use the role endpoint with complete payload for all updates
+      const completeUserData = {
+        id: userId,
+        email: currentUser.email,
+        first_name: userData.first_name ?? currentUser.first_name,
+        last_name: userData.last_name ?? currentUser.last_name,
+        role: userData.role ?? currentUser.role,
+        is_new_user: userData.is_new_user ?? currentUser.is_new_user,
+        google_data: currentUser.google_data
+      };
 
-        // Update user in local state
-        setUsers(prev => prev.map(user =>
-          user.id === userId ? { ...user, ...updatedUser } : user
-        ));
-      } else {
-        // If only role was updated, refresh the user data
-        const response = await fetch(`${import.meta.env.PROD ? 'https://ha-backend-pq2f.vercel.app' : 'http://localhost:8000'}/api/users/google-signups/`);
-        if (response.ok) {
-          const data: UsersListResponse = await response.json();
-          setUsers(data.results);
-        }
-      }
+      await updateUserComplete(completeUserData);
+
+      // Update user in local state
+      setUsers(prev => prev.map(user =>
+        user.id === userId ? { ...user, ...userData } : user
+      ));
 
       setSuccessMessage('User updated successfully');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -155,7 +156,24 @@ const UsersList = () => {
     try {
       setUpdatingUserId(userId);
 
-      await updateUserRoleById(userId, newRole as 'applicant' | 'employer' | 'admin');
+      // Get the current user data to ensure we send complete payload
+      const currentUser = users.find(u => u.id === userId);
+      if (!currentUser) {
+        throw new Error('User not found');
+      }
+
+      // Use updateUserComplete with complete payload
+      const completeUserData = {
+        id: userId,
+        email: currentUser.email,
+        first_name: currentUser.first_name,
+        last_name: currentUser.last_name,
+        role: newRole,
+        is_new_user: currentUser.is_new_user,
+        google_data: currentUser.google_data
+      };
+
+      await updateUserComplete(completeUserData);
 
       // Update user in local state
       setUsers(prev => prev.map(user =>
