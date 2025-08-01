@@ -10,6 +10,8 @@ export interface User {
   is_superuser: boolean;
   date_joined: string;
   last_login: string;
+  role?: string;
+  is_new_user?: boolean;
   google_data?: {
     picture: string;
     email: string;
@@ -84,6 +86,9 @@ export const signup = async (userData: {
 
   return handleApiResponse(response);
 };
+
+// Alias for backward compatibility
+export const registerUser = signup;
 
 // Get user role
 export const getUserRole = async (): Promise<UserRole> => {

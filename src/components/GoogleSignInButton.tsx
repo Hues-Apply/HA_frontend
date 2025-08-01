@@ -41,7 +41,7 @@ const GoogleSignInButton = ({
 
         // Update user context
         setUser(authResponse.user);        // Redirect user based on whether they're new or returning
-        if (authResponse.user.is_new_user) {
+        if (authResponse.user.is_new_user === true) {
           navigate('/onboarding/step-1');
         } else {
           navigate('/dashboard');
