@@ -10,7 +10,7 @@ interface GoogleSignInButtonProps {
   text?: string;
 }
 
-const GoogleSignInButton = ({ 
+const GoogleSignInButton = ({
   className = '',
   text = 'Sign in with Google'
 }: GoogleSignInButtonProps) => {
@@ -28,17 +28,17 @@ const GoogleSignInButton = ({
       try {
         setIsLoading(true);
         console.log('Google Auth Success:', codeResponse);
-        
+
         // The codeResponse contains the authorization code we need to send to our backend
         const { code } = codeResponse;
-        
+
         // Send the code to our backend to exchange for tokens
         const authResponse = await exchangeGoogleAuthCode(code);
-        
+
         // Store tokens
         localStorage.setItem('accessToken', authResponse.access_token);
         localStorage.setItem('refreshToken', authResponse.refresh_token);
-        
+
         // Update user context
         setUser(authResponse.user);        // Redirect user based on whether they're new or returning
         if (authResponse.user.is_new_user) {
@@ -60,7 +60,7 @@ const GoogleSignInButton = ({
     },
     // Adding scopes for user profile information
     scope: 'email profile',
-  });  return (
+  }); return (
     <button
       onClick={() => login()}
       disabled={isLoading}
