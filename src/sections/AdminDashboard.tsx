@@ -506,12 +506,12 @@ export default function AdminDashboard() {
                         <h3 className="font-semibold text-gray-900">{platform.name}</h3>
                         <div className="flex items-center">
                           <div className={`w-2 h-2 rounded-full mr-2 ${isCrawling ? 'bg-yellow-500 animate-pulse' :
-                              platform.status === 'active' ? 'bg-green-500' :
-                                platform.status === 'crawling' ? 'bg-yellow-500' : 'bg-gray-400'
+                            platform.status === 'active' ? 'bg-green-500' :
+                              platform.status === 'crawling' ? 'bg-yellow-500' : 'bg-gray-400'
                             }`}></div>
                           <span className={`text-xs font-medium ${isCrawling ? 'text-yellow-600' :
-                              platform.status === 'active' ? 'text-green-600' :
-                                platform.status === 'crawling' ? 'text-yellow-600' : 'text-gray-500'
+                            platform.status === 'active' ? 'text-green-600' :
+                              platform.status === 'crawling' ? 'text-yellow-600' : 'text-gray-500'
                             }`}>
                             {isCrawling ? 'Crawling...' :
                               platform.status.charAt(0).toUpperCase() + platform.status.slice(1)}
@@ -578,8 +578,8 @@ export default function AdminDashboard() {
                       onClick={() => handleSingleCrawl(platform.id)}
                       disabled={isCrawling || platform.status === 'crawling'}
                       className={`flex-1 py-2 px-4 rounded text-sm font-medium ${platform.status === 'active' && !isCrawling
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                     >
                       {isCrawling ? (
@@ -614,8 +614,8 @@ export default function AdminDashboard() {
                 <div key={index} className="flex items-center justify-between py-3 border-b last:border-b-0">
                   <div className="flex items-center">
                     <div className={`w-3 h-3 rounded-full mr-3 ${activity.status === 'success' ? 'bg-green-500' :
-                        activity.status === 'running' ? 'bg-yellow-500 animate-pulse' :
-                          'bg-red-500'
+                      activity.status === 'running' ? 'bg-yellow-500 animate-pulse' :
+                        'bg-red-500'
                       }`}></div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">
