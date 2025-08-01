@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import SEO from '../components/SEO';
-import { useAuth } from "../context/AuthContext";
+
 
 export default function LoginForm() {
-  const [apiError, setApiError] = useState("");
+
 
   return (
     <>

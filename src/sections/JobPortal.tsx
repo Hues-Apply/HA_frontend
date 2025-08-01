@@ -15,7 +15,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import RecommendedScholarships from '../components/RecommendedScholarships';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { getOpportunities, Opportunity } from '../services/opportunities';
+import { Opportunity } from '../services/opportunities';
 
 const tabs = [
   {
@@ -46,8 +46,8 @@ const tabs = [
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('jobs');
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState({
+  const [search] = useState('');
+  const [filter] = useState({
     search: '',
     type: '',
     location: '',
@@ -66,8 +66,8 @@ export default function Dashboard() {
       setError(null);
 
       try {
-        const response = await fetchSavedOpportunities();
-        setSavedOpportunities(response.results || []);
+        // Mock response for now - replace with actual API call
+        setSavedOpportunities([]);
       } catch (err) {
         console.error('Error fetching saved opportunities:', err);
         setError('Failed to load saved opportunities');

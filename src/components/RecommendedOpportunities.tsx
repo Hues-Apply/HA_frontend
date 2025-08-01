@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getAIMatches } from '../services/opportunities';
 import { Opportunity } from '../services/opportunities';
 
@@ -75,18 +75,7 @@ export default function RecommendedOpportunities({
     }
   };
 
-  const formatDeadline = (deadline: string) => {
-    const date = new Date(deadline);
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return 'Expired';
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays < 7) return `${diffDays} days left`;
-    return date.toLocaleDateString();
-  };
 
   const getMatchColor = (percentage?: number) => {
     if (!percentage) return 'text-gray-500';

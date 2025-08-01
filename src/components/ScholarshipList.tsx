@@ -127,12 +127,7 @@ export default function ScholarshipList({ filters, title, showProfileCompletion 
     return `${diffDays} days`;
   };
 
-  const getMatchColor = (percentage?: number) => {
-    if (!percentage) return 'bg-gray-100 text-gray-600';
-    if (percentage >= 80) return 'bg-green-100 text-green-700';
-    if (percentage >= 60) return 'bg-yellow-100 text-yellow-700';
-    return 'bg-red-100 text-red-700';
-  };
+
 
   if (loading) {
     return (
@@ -177,26 +172,26 @@ export default function ScholarshipList({ filters, title, showProfileCompletion 
   return (
     <section className="mb-10">
       <h2 className="text-lg font-semibold mb-4">{title}</h2>
-      
+
       {/* In ScholarshipList component */}
-{showProfilePrompt && (
-  <div className="relative mb-6">
-    <ProfileCompletion 
-      context="scholarship"  // Add this line
-      className="border-l-4 border-blue-500" 
-    />
-    <button
-      onClick={handleDismissProfileCompletion}
-      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-      title="Dismiss"
-    >
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-  </div>
-)}
-      
+      {showProfilePrompt && (
+        <div className="relative mb-6">
+          <ProfileCompletion
+            context="scholarship"  // Add this line
+            className="border-l-4 border-blue-500"
+          />
+          <button
+            onClick={handleDismissProfileCompletion}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            title="Dismiss"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {scholarships.length === 0 ? (
         <div className="bg-white rounded-lg p-6 shadow-md">
           <div className="text-center py-10 text-gray-500">
@@ -278,7 +273,7 @@ export default function ScholarshipList({ filters, title, showProfileCompletion 
               );
             })}
           </div>
-          
+
           {/* Server-side Pagination Controls */}
           {(hasNext || hasPrevious) && (
             <div className="flex justify-center mt-6 space-x-2">

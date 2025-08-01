@@ -64,7 +64,7 @@ const OpportunityList = React.memo(({ filters, title }: OpportunityListProps) =>
   const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [showApplyModal, setShowApplyModal] = useState(false);
-  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
+
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
 

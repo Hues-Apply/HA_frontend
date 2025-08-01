@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { ChevronFirst, ChevronLast, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+
 
 interface SidebarContextType {
   expanded: boolean;

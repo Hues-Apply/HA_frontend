@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { X, MapPin, Building2, Clock, DollarSign, ExternalLink } from 'lucide-react';
 
 interface JobPreviewModalProps {

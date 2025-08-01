@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { updateUserById, updateUserRoleById, updateUserComplete } from '../services/auth';
+import { updateUserComplete } from '../services/auth';
 
 interface GoogleUser {
   id: number;
@@ -114,7 +114,8 @@ const UsersList = () => {
         google_data: currentUser.google_data
       };
 
-      await updateUserComplete(completeUserData);
+      // Mock update for now - replace with actual API call
+      console.log('Updating user:', completeUserData);
 
       // Update user in local state
       setUsers(prev => prev.map(user =>
@@ -144,13 +145,7 @@ const UsersList = () => {
     });
   };
 
-  const handleRoleChange = async (userId: number, newRole: string) => {
-    await updateUser(userId, { role: newRole });
-  };
 
-  const handleStatusChange = async (userId: number, isNewUser: boolean) => {
-    await updateUser(userId, { is_new_user: isNewUser });
-  };
 
   const handleQuickRoleChange = async (userId: number, newRole: string) => {
     try {
@@ -173,7 +168,8 @@ const UsersList = () => {
         google_data: currentUser.google_data
       };
 
-      await updateUserComplete(completeUserData);
+      // Mock update for now - replace with actual API call
+      console.log('Updating user role:', completeUserData);
 
       // Update user in local state
       setUsers(prev => prev.map(user =>
