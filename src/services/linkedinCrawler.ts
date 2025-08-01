@@ -213,10 +213,10 @@ export class LinkedInJobCrawler {
       });
 
       console.log('Jobs successfully sent to backend:', result);
-      
+
       // Clear localStorage after successful send
       this.clearJobsFromLocalStorage();
-      
+
       return result;
 
     } catch (error) {
