@@ -21,6 +21,8 @@ const GoogleSignInButton = ({
   const login = useGoogleLogin({
     // Using authorization code flow instead of implicit flow
     flow: 'auth-code',
+    // Specify the redirect URI to match backend configuration
+    redirect_uri: 'https://ha-backend-pq2f.vercel.app/api/auth/google/callback/',
     // Callback when Google auth is successful
     onSuccess: async (codeResponse) => {
       try {
