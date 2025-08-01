@@ -43,7 +43,7 @@ const handleApiResponse = async (response: Response) => {
 
 // Exchange Google authorization code for tokens
 export const exchangeGoogleAuthCode = async (code: string): Promise<LoginResponse> => {
-  const response = await fetch(`${BASE_URL}/auth/google/callback/`, {
+  const response = await fetch(`${BASE_URL}/api/auth/google/callback/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export const exchangeGoogleAuthCode = async (code: string): Promise<LoginRespons
 
 // Login function
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
-  const response = await fetch(`${BASE_URL}/auth/login/`, {
+  const response = await fetch(`${BASE_URL}/api/auth/login/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ export const signup = async (userData: {
   first_name: string;
   last_name: string;
 }): Promise<SignupResponse> => {
-  const response = await fetch(`${BASE_URL}/auth/signup/`, {
+  const response = await fetch(`${BASE_URL}/api/register/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -87,13 +87,13 @@ export const signup = async (userData: {
 
 // Get user role
 export const getUserRole = async (): Promise<UserRole> => {
-  const response = await fetchWithAuth(`${BASE_URL}/auth/role/`);
+  const response = await fetchWithAuth(`${BASE_URL}/api/role/`);
   return handleApiResponse(response);
 };
 
 // Sign out function
 export const signOut = async (refreshToken: string): Promise<void> => {
-  const response = await fetch(`${BASE_URL}/auth/logout/`, {
+  const response = await fetch(`${BASE_URL}/api/auth/sign-out/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
