@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { updateUserComplete } from '../services/auth';
+
 
 interface GoogleUser {
   id: number;

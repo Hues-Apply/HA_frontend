@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Clock, Bookmark as BookmarkIcon, MapPin, Building2 } from 'lucide-react';
 import { getOpportunities } from '../services/opportunities';
-import { applyToOpportunity } from '../services/opportunities';
+
 
 interface OpportunityFilters {
   search?: string;
@@ -65,8 +65,8 @@ const OpportunityList = React.memo(({ filters, title }: OpportunityListProps) =>
   const [page, setPage] = useState(1);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
-  const [applyLoading, setApplyLoading] = useState(false);
-  const [applyError, setApplyError] = useState<string | null>(null);
+  const [applyLoading] = useState(false);
+  const [applyError] = useState<string | null>(null);
 
   // Memoize page size calculation
   const pageSize = useMemo(() => 9, []); // Simplified since it was always 9
@@ -139,20 +139,7 @@ const OpportunityList = React.memo(({ filters, title }: OpportunityListProps) =>
     return 'bg-red-100 text-red-700';
   }, []);
 
-  const handleConfirmApply = useCallback(async () => {
-    if (!selectedOpportunityId) return;
-    setApplyLoading(true);
-    setApplyError(null);
-    try {
-      await applyToOpportunity(selectedOpportunityId);
-      setAppliedOpportunities(prev => new Set(prev).add(selectedOpportunityId));
-      setShowApplyModal(false);
-    } catch (err: any) {
-      setApplyError(err?.message || 'Failed to apply.');
-    } finally {
-      setApplyLoading(false);
-    }
-  }, [selectedOpportunityId]);
+
 
   // Memoize pagination calculations
   const { totalPages, paginatedOpportunities } = useMemo(() => {
@@ -346,7 +333,7 @@ const OpportunityList = React.memo(({ filters, title }: OpportunityListProps) =>
               </button>
               <button
                 className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                onClick={handleConfirmApply}
+                onClick={() => {}}
                 disabled={applyLoading}
               >
                 {applyLoading ? 'Applying...' : 'Confirm'}
