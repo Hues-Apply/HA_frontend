@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Clock, Bookmark as BookmarkIcon, MapPin, Building2 } from 'lucide-react';
 import { getOpportunities } from '../services/opportunities';
 import { applyToOpportunity } from '../services/opportunities';
@@ -50,48 +50,51 @@ async function getAppliedOpportunities(): Promise<Set<string>> {
     if (data && data.applications) {
       return new Set(data.applications.map((a: any) => String(a.opportunity_id)));
     }
-  } catch (e) { }
+  } catch (e) {
+    console.error('Failed to fetch applied opportunities:', e);
+  }
   return new Set();
 }
 
-export default function OpportunityList({ filters, title }: OpportunityListProps) {
+const OpportunityList = React.memo(({ filters, title }: OpportunityListProps) => {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savedOpportunities, setSavedOpportunities] = useState<Set<string>>(new Set());
   const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
-  const [isMobile, setIsMobile] = useState(false);
-  const pageSize = isMobile ? 9 : 9;
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
 
+  // Memoize page size calculation
+  const pageSize = useMemo(() => 9, []); // Simplified since it was always 9
 
+  // Reset page when filters change
   useEffect(() => {
-    setPage(1); // Reset to first page when filters change
+    setPage(1);
   }, [filters]);
 
+  // Fetch opportunities when filters or page changes
   useEffect(() => {
     fetchOpportunities();
   }, [filters, page]);
 
+  // Fetch applied opportunities on mount
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
     getAppliedOpportunities().then(setAppliedOpportunities);
   }, []);
 
-  const fetchOpportunities = async () => {
+  const fetchOpportunities = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await getOpportunities(filters);
+
       // Accept both array and object with results property, filter for required fields
       let raw: Opportunity[] = Array.isArray(data) ? data : (data && Array.isArray(data.results) ? data.results : []);
+
       // Only keep opportunities with company, title, location, and link
       const filtered = raw.filter(
         (opp) => opp.company && opp.title && opp.location && opp.link
@@ -103,9 +106,9 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
-  const toggleSave = (opportunityId: string) => {
+  const toggleSave = useCallback((opportunityId: string) => {
     setSavedOpportunities(prev => {
       const newSet = new Set(prev);
       if (newSet.has(opportunityId)) {
@@ -115,9 +118,9 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const formatDeadline = (deadline: string) => {
+  const formatDeadline = useCallback((deadline: string) => {
     const date = new Date(deadline);
     const now = new Date();
     const diffTime = date.getTime() - now.getTime();
@@ -127,22 +130,16 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Tomorrow';
     return `${diffDays} days`;
-  };
+  }, []);
 
-  const getMatchColor = (percentage?: number) => {
+  const getMatchColor = useCallback((percentage?: number) => {
     if (!percentage) return 'bg-gray-100 text-gray-600';
     if (percentage >= 80) return 'bg-green-100 text-green-700';
     if (percentage >= 60) return 'bg-yellow-100 text-yellow-700';
     return 'bg-red-100 text-red-700';
-  };
+  }, []);
 
-  const handleApplyClick = (opportunityId: string) => {
-    setSelectedOpportunityId(opportunityId);
-    setShowApplyModal(true);
-    setApplyError(null);
-  };
-
-  const handleConfirmApply = async () => {
+  const handleConfirmApply = useCallback(async () => {
     if (!selectedOpportunityId) return;
     setApplyLoading(true);
     setApplyError(null);
@@ -155,7 +152,14 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
     } finally {
       setApplyLoading(false);
     }
-  };
+  }, [selectedOpportunityId]);
+
+  // Memoize pagination calculations
+  const { totalPages, paginatedOpportunities } = useMemo(() => {
+    const totalPages = Math.ceil(opportunities.length / pageSize);
+    const paginatedOpportunities = opportunities.slice((page - 1) * pageSize, page * pageSize);
+    return { totalPages, paginatedOpportunities };
+  }, [opportunities, page, pageSize]);
 
   if (loading) {
     return (
@@ -187,7 +191,7 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
             <p className="text-sm text-gray-500">{error}</p>
             <button
               onClick={fetchOpportunities}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
               Try Again
             </button>
@@ -196,10 +200,6 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
       </section>
     );
   }
-
-  // Pagination logic
-  const totalPages = Math.ceil(opportunities.length / pageSize);
-  const paginatedOpportunities = opportunities.slice((page - 1) * pageSize, page * pageSize);
 
   if (opportunities.length === 0) {
     return (
@@ -227,18 +227,21 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
             <div key={key} className="bg-white rounded-xl shadow p-4 relative hover:shadow-lg transition-shadow">
               {/* Applied badge */}
               {opportunity.id && isApplied && (
-                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Applied</div>
+                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                  Applied
+                </div>
               )}
               <div className="absolute top-4 right-4">
                 <button
                   onClick={() => opportunity.id && toggleSave(opportunity.id)}
-                  className={`p-1 rounded ${opportunity.id && savedOpportunities.has(opportunity.id)
+                  className={`p-1 rounded transition-colors ${opportunity.id && savedOpportunities.has(opportunity.id)
                     ? 'text-blue-500'
                     : 'text-gray-400 hover:text-blue-500'
                     }`}
                   disabled={!opportunity.id}
+                  aria-label={opportunity.id && savedOpportunities.has(opportunity.id) ? 'Remove from saved' : 'Save opportunity'}
                 >
-                  <BookmarkIcon size={18} fill={opportunity.id && savedOpportunities.has(opportunity.id) ? 'currentColor' : 'border-blue'} />
+                  <BookmarkIcon size={18} fill={opportunity.id && savedOpportunities.has(opportunity.id) ? 'currentColor' : 'none'} />
                 </button>
               </div>
 
@@ -303,42 +306,46 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
           );
         })}
       </div>
+
       {/* Pagination Controls: Only Previous and Next */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-2">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className={`px-3 py-1 rounded border ${page === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+            className={`px-3 py-1 rounded border transition-colors ${page === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+            aria-label="Previous page"
           >
             Previous
           </button>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className={`px-3 py-1 rounded border ${page === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+            className={`px-3 py-1 rounded border transition-colors ${page === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+            aria-label="Next page"
           >
             Next
           </button>
         </div>
       )}
+
       {/* Apply Confirmation Modal */}
       {showApplyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-4">Confirm Application</h3>
             <p className="mb-4">Are you sure you want to apply for this opportunity?</p>
             {applyError && <div className="text-red-500 text-sm mb-2">{applyError}</div>}
             <div className="flex justify-end gap-2">
               <button
-                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
                 onClick={() => setShowApplyModal(false)}
                 disabled={applyLoading}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                 onClick={handleConfirmApply}
                 disabled={applyLoading}
               >
@@ -350,4 +357,8 @@ export default function OpportunityList({ filters, title }: OpportunityListProps
       )}
     </section>
   );
-}
+});
+
+OpportunityList.displayName = 'OpportunityList';
+
+export default OpportunityList;

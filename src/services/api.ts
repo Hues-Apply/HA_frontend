@@ -1,8 +1,6 @@
 // Base API services and constants for HuesApply
 
-export const BASE_URL = 'https://ha-backend-pq2f.vercel.app'; 
-
-  console.log('BASE_URL:', BASE_URL);
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ha-backend-pq2f.vercel.app';
 
 // Helper to handle API responses consistently
 export const handleApiResponse = async (response: Response) => {
@@ -16,7 +14,7 @@ export const handleApiResponse = async (response: Response) => {
       window.location.href = '/login';
       throw new Error('Authentication expired. Please log in again.');
     }
-    
+
     // Try to parse error response
     try {
       const errorData = await response.json();
@@ -26,7 +24,7 @@ export const handleApiResponse = async (response: Response) => {
       throw new Error(`API error: ${response.status}`);
     }
   }
-  
+
   return response.json();
 };
 
@@ -44,7 +42,7 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
     ...(getAuthHeader() as Record<string, string>),
     ...(options.headers as Record<string, string>)
   };
-  
+
   const response = await fetch(url, {
     ...options,
     headers

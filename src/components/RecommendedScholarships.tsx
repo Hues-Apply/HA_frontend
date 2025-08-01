@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Clock, Bookmark as BookmarkIcon, MapPin, Building2, DollarSign, Star, Target } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-import { getScholarshipApplicationStatus, getMatchedScholarships, getScholarships, Scholarship, ScholarshipFilters, toggleSaveScholarship } from '../services/scholarships';
+import { getScholarshipApplicationStatus, getMatchedScholarships, getScholarships, Scholarship, toggleSaveScholarship } from '../services/scholarships';
 
 interface MatchedScholarship extends Scholarship {
-  match_score?: number;
-  matched_parameters?: string[];
-  rank?: number;
+    match_score?: number;
+    matched_parameters?: string[];
+    rank?: number;
 }
 
 interface RecommendedScholarshipsProps {
@@ -15,7 +15,7 @@ interface RecommendedScholarshipsProps {
     title?: string;
 }
 
-export default function RecommendedScholarships({ className = ''}: RecommendedScholarshipsProps) {
+export default function RecommendedScholarships({ className = '' }: RecommendedScholarshipsProps) {
     const [scholarships, setScholarships] = useState<MatchedScholarship[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
             } catch (matchError: any) {
                 console.warn('Matched scholarships endpoint failed, falling back to regular scholarships:', matchError);
                 usingFallback = true;
-                
+
                 try {
                     console.log('Attempting fallback to regular scholarships...');
                     data = await getScholarships({ page_size: 6 });
@@ -78,7 +78,7 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
             console.error('Complete failure to fetch recommended scholarships:', err);
 
             let errorMessage = 'Failed to load recommendations.';
-            
+
             if (err.message?.includes('401')) {
                 errorMessage = 'Please log in to view recommendations.';
             } else if (err.message?.includes('404')) {
@@ -88,7 +88,7 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
             } else if (err.message) {
                 errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
         } finally {
             setLoading(false);
@@ -98,12 +98,12 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
     const fetchApplicationStatus = async () => {
         try {
             const res = await getScholarshipApplicationStatus();
-            
-            if(res && res.applications) {
+
+            if (res && res.applications) {
                 setAppliedScholarships(new Set(
                     res.applications
-                    .filter((a: any) => (a.scholarship?.id || a.scholarship_id) && a.applied)
-                    .map((a: any) => String(a.scholarship?.id || a.scholarship_id))
+                        .filter((a: any) => (a.scholarship?.id || a.scholarship_id) && a.applied)
+                        .map((a: any) => String(a.scholarship?.id || a.scholarship_id))
                 ));
             }
         } catch (error) {
@@ -116,7 +116,7 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
             const result = await toggleSaveScholarship(scholarshipId);
             setSavedScholarships(prev => {
                 const newSet = new Set(prev);
-                if(result.is_saved) {
+                if (result.is_saved) {
                     newSet.add(scholarshipId);
                 } else {
                     newSet.delete(scholarshipId);
@@ -135,9 +135,9 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
             const diffTime = date.getTime() - now.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if(diffDays < 0) return 'Expired';
-            if(diffDays === 0) return 'Today';
-            if(diffDays === 1) return 'Tomorrow';
+            if (diffDays < 0) return 'Expired';
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Tomorrow';
             return `${diffDays} days`;
         } catch (error) {
             return 'No deadline';
@@ -145,27 +145,27 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
     };
 
     const getMatchColor = (score?: number) => {
-        if(!score) return 'bg-gray-100 text-gray-600';
-        if(score >= 80) return 'bg-green-100 text-green-700';
-        if(score >= 60) return 'bg-yellow-100 text-yellow-700';
+        if (!score) return 'bg-gray-100 text-gray-600';
+        if (score >= 80) return 'bg-green-100 text-green-700';
+        if (score >= 60) return 'bg-yellow-100 text-yellow-700';
         return 'bg-red-100 text-red-700';
     };
 
     const getMatchLabel = (score?: number) => {
-        if(!score) return 'No match data';
-        if(score >= 80) return 'Excellent Match';
-        if(score >= 60) return 'Good Match';
+        if (!score) return 'No match data';
+        if (score >= 80) return 'Excellent Match';
+        if (score >= 60) return 'Good Match';
         return 'Fair Match';
     };
 
-    if(loading) {
+    if (loading) {
         return (
             <section className={`mb-10 ${className}`}>
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                     <Star className="mr-2 text-yellow-500" size={20} />
                     Recommended Scholarships
                 </h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[...Array(6)].map((_, index) => (
                         <div key={index} className="bg-white rounded-xl shadow p-4 animate-pulse">
@@ -182,8 +182,8 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
         );
     }
 
-    if(error) {
-        return(
+    if (error) {
+        return (
             <section className={`mb-10 ${className}`}>
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                     <Star className="mr-2 text-yellow-500" size={20} />
@@ -212,8 +212,8 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
         );
     }
 
-    if(scholarships.length === 0) {
-        return(
+    if (scholarships.length === 0) {
+        return (
             <section className={`mb-10 ${className}`}>
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                     <Star className="mr-2 text-yellow-500" size={20} />
@@ -268,16 +268,15 @@ export default function RecommendedScholarships({ className = ''}: RecommendedSc
                                         e.stopPropagation();
                                         scholarship.id && toggleSave(String(scholarship.id));
                                     }}
-                                    className={`p-1 rounded ${
-                                        scholarship.id && savedScholarships.has(String(scholarship.id))
+                                    className={`p-1 rounded ${scholarship.id && savedScholarships.has(String(scholarship.id))
                                             ? 'text-blue-500'
                                             : 'text-gray-400 hover:text-blue-500'
-                                    }`}
+                                        }`}
                                     disabled={!scholarship.id}
                                 >
-                                    <BookmarkIcon 
-                                        size={18} 
-                                        fill={scholarship.id && savedScholarships.has(String(scholarship.id)) ? 'currentColor' : 'none'} 
+                                    <BookmarkIcon
+                                        size={18}
+                                        fill={scholarship.id && savedScholarships.has(String(scholarship.id)) ? 'currentColor' : 'none'}
                                     />
                                 </button>
                             </div>

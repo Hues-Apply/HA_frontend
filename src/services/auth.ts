@@ -1,211 +1,145 @@
-import { BASE_URL, fetchWithAuth, handleApiResponse, getAuthHeader } from './api';
-import { deleteEducation } from './profile';
-
-// Types for authentication responses
-export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
-  user: User;
-}
+import { BASE_URL, fetchWithAuth } from './api';
 
 export interface User {
   id: number;
   email: string;
   first_name: string;
   last_name: string;
-  role: string;
-  is_new_user: boolean;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  date_joined: string;
+  last_login: string;
   google_data?: {
-    name: string;
     picture: string;
+    email: string;
   };
 }
 
 export interface UserRole {
   role: string;
-  is_applicant: boolean;
-  is_employer: boolean;
-  is_admin: boolean;
+  permissions: string[];
 }
 
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+}
+
+export interface SignupResponse {
+  user: User;
+  message: string;
+}
+
+// Helper function to handle API responses
+const handleApiResponse = async (response: Response) => {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+};
+
 // Exchange Google authorization code for tokens
-export const exchangeGoogleAuthCode = async (code: string): Promise<AuthResponse> => {
-  const response = await fetch(`${BASE_URL}/api/auth/google/callback/`, {
+export const exchangeGoogleAuthCode = async (code: string): Promise<LoginResponse> => {
+  const response = await fetch(`${BASE_URL}/auth/google/callback/`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ code })
+    body: JSON.stringify({ code }),
   });
+
   return handleApiResponse(response);
 };
 
-// Register a new user
-export interface RegisterData {
+// Login function
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  const response = await fetch(`${BASE_URL}/auth/login/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  return handleApiResponse(response);
+};
+
+// Signup function
+export const signup = async (userData: {
   email: string;
   password: string;
   first_name: string;
   last_name: string;
-  role: 'applicant' | 'employer';
-}
-
-export const registerUser = async (userData: RegisterData): Promise<AuthResponse> => {
-  const response = await fetch(`${BASE_URL}/api/register/`, {
+}): Promise<SignupResponse> => {
+  const response = await fetch(`${BASE_URL}/auth/signup/`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify(userData),
   });
 
   return handleApiResponse(response);
-};
-
-// Sign out
-export const signOut = async (refreshToken: string): Promise<{ success: string }> => {
-  return fetchWithAuth('/api/auth/sign-out/', {
-    method: 'POST',
-    body: JSON.stringify({ refresh_token: refreshToken })
-  });
 };
 
 // Get user role
 export const getUserRole = async (): Promise<UserRole> => {
-  return fetchWithAuth('/api/role/');
-};
-
-// Update user role
-export const updateUserRole = async (role: 'applicant' | 'employer'): Promise<{ message: string }> => {
-  return fetchWithAuth('/api/role/', {
-    method: 'POST',
-    body: JSON.stringify({ role })
-  });
-};
-
-
-// Get user profile
-export const getUserProfile = async (): Promise<User> => {
-  const response = await fetchWithAuth('/api/profile/');
+  const response = await fetchWithAuth(`${BASE_URL}/auth/role/`);
   return handleApiResponse(response);
-}
+};
 
-// Update user profile
-export const updateUserProfile = async (profileData: Partial<User>): Promise<User> => {
-  const response = await fetchWithAuth('/api/profile/', {
-    method: 'PUT',
+// Sign out function
+export const signOut = async (refreshToken: string): Promise<void> => {
+  const response = await fetch(`${BASE_URL}/auth/logout/`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(profileData)
+    body: JSON.stringify({ refresh_token: refreshToken }),
   });
-  return handleApiResponse(response);
-};
 
-// Get user by ID
-export const getUserById = async (userId: number): Promise<User> => {
-  const response = await fetchWithAuth(`/api/users/${userId}/`);
-  return handleApiResponse(response);
+  if (!response.ok) {
+    console.error('Logout failed:', response.status);
+  }
 };
-
-// Get all Users
-export const getAllUsers = async (): Promise<User[]> => {
-  const response = await fetchWithAuth('/api/users/');
-  return handleApiResponse(response);
-}
 
 // Update user by ID
 export const updateUserById = async (userId: number, userData: Partial<User>): Promise<User> => {
-  const response = await fetchWithAuth(`/api/users/${userId}/`, {
-    method: 'PUT',
+  const response = await fetchWithAuth(`${BASE_URL}/users/${userId}/`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify(userData),
   });
 
   return handleApiResponse(response);
 };
 
-// Delete user by ID
-export const deleteUserById = async (user: User): Promise<{ message: string }> => {
-
-  const response = await fetchWithAuth(`/api/users/${user.id}/`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  });
-
-  const result = await handleApiResponse(response);
-
-  if (user.role === 'applicant') {
-    await deleteEducation(user.id);
-  }
-
-  return result;
-};
-
-// Get user authentication header
-export const getUserAuthHeader = async (): Promise<{ Authorization: string } | { Authorization?: undefined }> => {
-  return getAuthHeader();
-};
-
-// Check if user is authenticated
-// export const isAuthenticated = async (): Promise<boolean> => {
-//   try {
-//     const response = await fetchWithAuth('/api/auth/check-auth/');
-//     return response.ok;
-//   } catch (error) {
-//     console.error('Error checking auth: ', error);
-//     return false;
-//   }
-// };
-
-// Get user by email
-export const getUserByEmail = async (email: string): Promise<User | null> => {
-  const response = await fetchWithAuth(`/api/users/email/${email}/`);
-
-  if (response.ok) {
-    return handleApiResponse(response);
-  } else if (response.status === 404) {
-    return null;
-  } else {
-    throw new Error(`Error fetching user by email: ${response.statusText}`);
-  }
-};
-
-// Update user role by user ID (for admin use)
-export const updateUserRoleById = async (userId: number, role: 'applicant' | 'employer' | 'admin'): Promise<{ message: string }> => {
-  // First get the complete user data to ensure we send the full payload
-  const user = await getUserById(userId);
-
-  const response = await fetchWithAuth(`/api/role/`, {
-    method: 'POST',
+// Update user role by ID
+export const updateUserRoleById = async (userId: number, role: string): Promise<User> => {
+  const response = await fetchWithAuth(`${BASE_URL}/users/${userId}/role/`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      id: userId,
-      email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      role: role,
-      is_new_user: user.is_new_user,
-      google_data: user.google_data
-    })
+    body: JSON.stringify({ role }),
   });
 
   return handleApiResponse(response);
 };
 
-// Update user with complete payload using /api/role/ endpoint
-export const updateUserComplete = async (userData: User): Promise<{ message: string }> => {
-  const response = await fetchWithAuth(`/api/role/`, {
-    method: 'POST',
+// Update user completion status
+export const updateUserComplete = async (userId: number, isComplete: boolean): Promise<User> => {
+  const response = await fetchWithAuth(`${BASE_URL}/users/${userId}/complete/`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify({ is_complete: isComplete }),
   });
 
   return handleApiResponse(response);

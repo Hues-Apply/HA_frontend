@@ -12,8 +12,8 @@ const Footer: React.FC = () => {
           <div className="col-span-1 lg:col-span-1">
             <h2 className="text-[#4B9CD3] font-semibold text-2xl mb-4">Hues Apply</h2>
             <p className="text-gray-600 text-sm mb-6">
-              Hues Apply simplifies the process of discovering and applying for scholarships, 
-              fellowships, jobs, and more. We aim to democratize access to global 
+              Hues Apply simplifies the process of discovering and applying for scholarships,
+              fellowships, jobs, and more. We aim to democratize access to global
               opportunities with tailored matching and expert support.
             </p>
             <div className="flex space-x-1" aria-label="Social media links">
@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
           <div>
             <FooterLinkSection title="CONTACT US" id="contact-us">
               <p className="text-gray-600 text-sm">
-                <strong>Phone:</strong> <a href="tel:+233241234567" className="hover:text-[#4B9CD3] focus:outline-none focus:underline">+233 24 123 4567</a>
+                <strong>Phone:</strong> <a href="tel:+27607340652" className="hover:text-[#4B9CD3] focus:outline-none focus:underline">+27 60 734 0652</a>
               </p>
               <p className="text-gray-600 text-sm">
                 <strong>Email:</strong> <a href="mailto:hello@huesapply.com" className="hover:text-[#4B9CD3] focus:outline-none focus:underline">hello@huesapply.com</a>

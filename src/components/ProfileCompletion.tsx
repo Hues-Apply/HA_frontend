@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
-import { GraduationCap, MapPin, Award, User, Briefcase } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { GraduationCap, MapPin, User, Briefcase } from 'lucide-react';
 import { getProfileCompletionStatus } from '../services/profile';
 
 interface ProfileCompletionProps {
   className?: string;
-  context?: 'general' | 'scholarship'; // Add context prop
-  isScholarshipPage?: boolean; // Legacy prop support
+  context?: 'general' | 'scholarship';
+  isScholarshipPage?: boolean;
 }
 
 interface CompletionStatus {
@@ -22,6 +22,7 @@ const ProfileCompletion = ({
 }: ProfileCompletionProps) => {
   const [completionStatus, setCompletionStatus] = useState<CompletionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Determine if this is being used in scholarship context
@@ -30,19 +31,22 @@ const ProfileCompletion = ({
   useEffect(() => {
     const fetchCompletionStatus = async () => {
       try {
-        // This would be your actual API call
-        // const status = await getProfileCompletionStatus();
+        setIsLoading(true);
+        setError(null);
 
-        // Mock data for demonstration
-        const status = {
-          completion_percentage: 65,
-          missing_sections: ['education', 'experience', 'personal_info'],
-          completed_sections: ['career_profile', 'projects']
-        };
-
+        // Make actual API call
+        const status = await getProfileCompletionStatus();
         setCompletionStatus(status);
       } catch (error) {
         console.error('Failed to fetch profile completion status:', error);
+        setError('Failed to load profile completion status. Please try again later.');
+
+        // Fallback to empty state if API fails
+        setCompletionStatus({
+          completion_percentage: 0,
+          missing_sections: [],
+          completed_sections: []
+        });
       } finally {
         setIsLoading(false);
       }
@@ -91,7 +95,31 @@ const ProfileCompletion = ({
       <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-          <div className="h-2 bg-gray-200 rounded"></div>
+          <div className="h-2 bg-gray-200 rounded mb-4"></div>
+          <div className="h-3 bg-gray-200 rounded mb-4 w-1/2"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500 ${className}`}>
+        <div className="text-center">
+          <div className="text-red-500 mb-2">
+            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Profile Status</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -136,6 +164,10 @@ const ProfileCompletion = ({
         <div
           className={`h-3 rounded-full transition-all duration-300 ${getColorByPercentage(completion_percentage)}`}
           style={{ width: `${completion_percentage}%` }}
+          role="progressbar"
+          aria-valuenow={completion_percentage}
+          aria-valuemin={0}
+          aria-valuemax={100}
         ></div>
       </div>
 

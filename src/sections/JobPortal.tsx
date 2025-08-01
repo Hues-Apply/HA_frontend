@@ -15,57 +15,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import RecommendedScholarships from '../components/RecommendedScholarships';
-
-const jobs = [
-  {
-    company: 'Google India',
-    role: 'UI Designer',
-    location: 'New Delhi',
-    match: '90%',
-    closing: 'today',
-    saved: true,
-  },
-  {
-    company: 'Facebook',
-    role: 'UI Designer',
-    location: 'New York',
-    match: '78%',
-    closing: 'in 3 days',
-    saved: false,
-  },
-  {
-    company: 'Apple',
-    role: 'UI Designer',
-    location: 'Sidney',
-    match: '90%',
-    closing: 'in 8 days',
-    saved: false,
-  },
-  {
-    company: 'Slack',
-    role: 'UI Designer',
-    location: 'London',
-    match: '90%',
-    closing: 'in 3 days',
-    saved: true,
-  },
-  {
-    company: 'Tata Motors',
-    role: 'UX Designer',
-    location: 'Mumbai',
-    match: '60%',
-    closing: 'in 9 days',
-    saved: false,
-  },
-  {
-    company: 'Yellow slice',
-    role: 'UI Designer',
-    location: 'New Delhi',
-    match: '90%',
-    closing: 'in 6 days',
-    saved: true,
-  },
-];
+import LoadingSpinner from '../components/LoadingSpinner';
+import { getOpportunities } from '../services/opportunities';
+import { Opportunity } from '../types/opportunities';
 
 const tabs = [
   {
@@ -103,7 +55,35 @@ export default function Dashboard() {
     type: '',
     location: '',
   });
+  const [savedOpportunities, setSavedOpportunities] = useState<Opportunity[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+
+  // Fetch saved opportunities
+  useEffect(() => {
+    const fetchSavedOpportunities = async () => {
+      if (!user) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await getOpportunities({
+          saved: true,
+          page_size: 20
+        });
+        setSavedOpportunities(response.results || []);
+      } catch (err) {
+        console.error('Error fetching saved opportunities:', err);
+        setError('Failed to load saved opportunities');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSavedOpportunities();
+  }, [user]);
 
   const applyFilters = () => {
     setFilter({
@@ -118,11 +98,11 @@ export default function Dashboard() {
     }
   };
 
-  const filteredJobs = jobs.filter((job) =>
-    job.company.toLowerCase().includes(search.toLowerCase())
+  const filteredSavedOpportunities = savedOpportunities.filter((opportunity) =>
+    opportunity.title?.toLowerCase().includes(search.toLowerCase()) ||
+    opportunity.company?.toLowerCase().includes(search.toLowerCase()) ||
+    opportunity.location?.toLowerCase().includes(search.toLowerCase())
   );
-
-  const savedJobs = filteredJobs.filter((job) => job.saved);
 
   const getTabStyles = (tab: typeof tabs[0], isActive: boolean) => {
     const baseStyle = "relative flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 font-medium text-xs sm:text-sm rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 flex-1 sm:flex-initial";
@@ -323,32 +303,56 @@ export default function Dashboard() {
             <section className="mb-8 sm:mb-10">
               <h2 className="text-lg font-semibold mb-4">Saved Opportunities</h2>
 
-              {savedJobs.length === 0 ? (
+              {loading ? (
+                <div className="flex justify-center items-center py-12">
+                  <LoadingSpinner size="lg" text="Loading saved opportunities..." />
+                </div>
+              ) : error ? (
+                <div className="text-red-500 text-center p-6 sm:p-8 bg-red-50 rounded-lg border border-red-200">
+                  <p className="mb-2">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-sm text-red-600 hover:text-red-800 underline"
+                  >
+                    Try again
+                  </button>
+                </div>
+              ) : filteredSavedOpportunities.length === 0 ? (
                 <div className="text-gray-500 text-center p-6 sm:p-8 bg-white rounded-lg shadow">
-                  No saved opportunities found. Browse opportunities and save them for later.
+                  {search ? 'No saved opportunities match your search.' : 'No saved opportunities found. Browse opportunities and save them for later.'}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {savedJobs.map((job, index) => (
-                    <div key={index} className="bg-white rounded-xl shadow p-4 relative">
+                  {filteredSavedOpportunities.map((opportunity) => (
+                    <div key={opportunity.id} className="bg-white rounded-xl shadow p-4 relative hover:shadow-md transition-shadow">
                       <div className="absolute top-4 right-4 text-blue-500">
                         <BookmarkIcon size={18} />
                       </div>
-                      <div className="text-lg font-bold mb-1 pr-8">{job.company}</div>
-                      <div className="inline-block text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-semibold mb-3">
-                        {job.match} Match
-                      </div>
+                      <div className="text-lg font-bold mb-1 pr-8">{opportunity.company}</div>
+                      {opportunity.match_percentage && (
+                        <div className="inline-block text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-semibold mb-3">
+                          {opportunity.match_percentage}% Match
+                        </div>
+                      )}
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Role</span>
-                        <span>{job.role}</span>
+                        <span className="font-medium">{opportunity.title}</span>
                       </div>
                       <div className="flex justify-between text-sm mb-3">
                         <span className="text-gray-600">Location</span>
-                        <span>{job.location}</span>
+                        <span className="font-medium">{opportunity.location}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
-                        <span className="flex items-center"><Clock size={14} className="mr-1" /> Closing {job.closing}</span>
-                        <button className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors">Apply</button>
+                        <span className="flex items-center">
+                          <Clock size={14} className="mr-1" />
+                          {opportunity.deadline ? `Closing ${new Date(opportunity.deadline).toLocaleDateString()}` : 'No deadline'}
+                        </span>
+                        <button
+                          className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          aria-label={`Apply to ${opportunity.title} at ${opportunity.company}`}
+                        >
+                          Apply
+                        </button>
                       </div>
                     </div>
                   ))}

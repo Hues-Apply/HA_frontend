@@ -1,6 +1,4 @@
-import { request } from 'http';
 import { fetchWithAuth } from './api';
-import { resolve } from 'path';
 
 export interface ScholarshipFilters {
   search?: string;
@@ -68,14 +66,14 @@ const retryRequest = async <T>(
 ): Promise<T> => {
   let lastError;
 
-  for(let i = 0; i <= maxRetries; i++) {
+  for (let i = 0; i <= maxRetries; i++) {
     try {
       return await requestFn();
     } catch (error) {
       lastError = error;
-      if(i === maxRetries) break;
+      if (i === maxRetries) break;
 
-      if(error instanceof Error &&
+      if (error instanceof Error &&
         (error.message.includes('404') || error.message.includes('401'))
       ) {
         break;
@@ -171,7 +169,7 @@ export const getScholarshipApplicationStatus = async (): Promise<{
     last_updated: string;
   }>;
 }> => {
-  return retryRequest(() => fetchWithAuth('/api/scholarships/applications/')); 
+  return retryRequest(() => fetchWithAuth('/api/scholarships/applications/'));
 };
 
 // Get matched scholarships
@@ -184,7 +182,7 @@ export const getMatchedScholarships = async (filters: ScholarshipFilters = {}): 
   });
   const queryString = params.toString();
   const endpoint = `/api/scholarships/match/${queryString ? `?${queryString}` : ''}`;
-  
+
   try {
     return await retryRequest(() => fetchWithAuth(endpoint));
   } catch (error: any) {

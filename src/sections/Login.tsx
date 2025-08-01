@@ -13,7 +13,21 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic
+
+    if (!email || !password) {
+      setApiError('Please enter both email and password');
+      return;
+    }
+
+    try {
+      setApiError('');
+      // For now, we'll use Google OAuth as the primary login method
+      // Email/password login would require additional backend implementation
+      setApiError('Email/password login is not yet implemented. Please use Google Sign-In.');
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setApiError(error.message || 'Login failed. Please try again.');
+    }
   };
 
   return (

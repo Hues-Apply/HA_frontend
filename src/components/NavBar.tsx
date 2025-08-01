@@ -26,36 +26,74 @@ const Navbar: React.FC = () => {
         };
     }, []);
 
+    // Close mobile menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Element;
+            if (isOpen && !target.closest('.mobile-menu') && !target.closest('.mobile-menu-button')) {
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen]);
+
+    // Close user menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Element;
+            if (showUserMenu && !target.closest('.user-menu')) {
+                setShowUserMenu(false);
+            }
+        };
+
+        if (showUserMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showUserMenu]);
+
     return (
-        <nav className={`bg-white w-full ${scrolled ? 'shadow-sm' : ''} fixed top-0 left-0 z-50 transition-shadow duration-300`} aria-label="Main navigation">
+        <nav className={`bg-white w-full ${scrolled ? 'shadow-sm' : ''} fixed top-0 left-0 z-30 transition-shadow duration-300`} aria-label="Main navigation">
             <div className="flex justify-between items-center py-4 px-4 md:px-8">
-                <Link to="/" className="text-[#4B9CD3] font-semibold text-2xl px-24" aria-label="Hues Apply Home">
+                <Link to="/" className="text-[#4B9CD3] font-semibold text-2xl flex items-center" aria-label="Hues Apply Home">
                     <img
                         src={"./hero/hues_apply_logo.svg"}
                         alt="Hues Apply"
-                        className="absolute top-0 left-10 h-24 w-28 hidden md:block"
-                    >
-                    </img>
+                        className="h-16 w-auto md:h-20"
+                    />
                 </Link>
 
-                <div className="hidden lg:flex text-[#333333] font-semibold text-[1rem] items-center gap-6" role="navigation" aria-label="Desktop menu">                    <Link
-                    to="/"
-                    className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
-                >
-                    Home
-                </Link>
+                <div className="hidden lg:flex text-[#333333] font-semibold text-[1rem] items-center gap-6" role="navigation" aria-label="Desktop menu">
+                    <Link
+                        to="/"
+                        className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
+                    >
+                        Home
+                    </Link>
                     <Link
                         to="/#about"
                         className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
                     >
                         About us
                     </Link>
-                    <Link
-                        to="/dashboard"
-                        className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
-                    >
-                        Dashboard
-                    </Link>
+                    {isAuthenticated && (
+                        <Link
+                            to="/dashboard"
+                            className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
+                        >
+                            Dashboard
+                        </Link>
+                    )}
                     <Link
                         to="/#services"
                         className="hover:text-[#4B9CD3] hover:bg-[#4B9CD31A] px-4 py-2 rounded-full transition"
@@ -68,14 +106,17 @@ const Navbar: React.FC = () => {
                     >
                         Contact
                     </Link>
-                </div>                <div className="hidden lg:flex items-center gap-4 font-semibold text-[1rem] text-[#333333]">
+                </div>
+
+                <div className="hidden lg:flex items-center gap-4 font-semibold text-[1rem] text-[#333333]">
                     {isAuthenticated ? (
-                        <div className="relative">
+                        <div className="relative user-menu">
                             <button
                                 onClick={() => setShowUserMenu(!showUserMenu)}
                                 className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100"
                                 aria-expanded={showUserMenu}
                                 aria-haspopup="true"
+                                aria-label="User menu"
                             >
                                 {user?.google_data?.picture ? (
                                     <img
@@ -90,7 +131,7 @@ const Navbar: React.FC = () => {
                             </button>
 
                             {showUserMenu && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-40 border border-gray-200">
                                     <Link
                                         to="/dashboard"
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -119,10 +160,10 @@ const Navbar: React.FC = () => {
                         </div>
                     ) : (
                         <>
-                            <Link to="/login" className="px-6 py-2 rounded-full border border-gray-100">
+                            <Link to="/login" className="px-6 py-2 rounded-full border border-gray-100 hover:bg-gray-50 transition">
                                 Login
                             </Link>
-                            <Link to="/signup" className="px-6 py-2 bg-[#4B9CD3] text-white rounded-full text-sm transition">
+                            <Link to="/signup" className="px-6 py-2 bg-[#4B9CD3] text-white rounded-full text-sm transition hover:bg-[#3a8bc0]">
                                 Register
                             </Link>
                         </>
@@ -132,7 +173,7 @@ const Navbar: React.FC = () => {
                 <div className="lg:hidden">
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="text-2xl text-[#4B9CD3] p-2"
+                        className="mobile-menu-button text-2xl text-[#4B9CD3] p-2 hover:bg-gray-100 rounded-lg transition"
                         aria-expanded={isOpen}
                         aria-controls="mobile-menu"
                         aria-label={isOpen ? "Close menu" : "Open menu"}
@@ -142,29 +183,41 @@ const Navbar: React.FC = () => {
                 </div>
             </div>
 
+            {/* Mobile Menu Overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-35 lg:hidden"
+                    onClick={() => setIsOpen(false)}
+                    aria-hidden="true"
+                />
+            )}
 
             {isOpen && (
                 <div
                     id="mobile-menu"
-                    className="lg:hidden bg-white border-t border-gray-200 px-4 py-4 flex flex-col gap-4 text-[#333333] font-semibold"
+                    className="mobile-menu lg:hidden bg-white border-t border-gray-200 px-4 py-4 flex flex-col gap-4 text-[#333333] font-semibold z-40 relative"
                     role="navigation"
                     aria-label="Mobile menu"
                 >
-                    <Link to="/" className="hover:text-[#4B9CD3] py-2">
+                    <Link to="/" className="hover:text-[#4B9CD3] py-2 transition" onClick={() => setIsOpen(false)}>
                         Home
                     </Link>
-                    <Link to="/#about" className="hover:text-[#4B9CD3] py-2">
+                    <Link to="/#about" className="hover:text-[#4B9CD3] py-2 transition" onClick={() => setIsOpen(false)}>
                         About us
                     </Link>
-                    <Link to="/dashboard" className="hover:text-[#4B9CD3] py-2">
-                        Dashboard
-                    </Link>
-                    <Link to="/#services" className="hover:text-[#4B9CD3] py-2">
+                    {isAuthenticated && (
+                        <Link to="/dashboard" className="hover:text-[#4B9CD3] py-2 transition" onClick={() => setIsOpen(false)}>
+                            Dashboard
+                        </Link>
+                    )}
+                    <Link to="/#services" className="hover:text-[#4B9CD3] py-2 transition" onClick={() => setIsOpen(false)}>
                         Services
                     </Link>
-                    <Link to="/#contact" className="hover:text-[#4B9CD3] py-2">
+                    <Link to="/#contact" className="hover:text-[#4B9CD3] py-2 transition" onClick={() => setIsOpen(false)}>
                         Contact
-                    </Link>                    <div className="flex flex-col gap-2 pt-2">
+                    </Link>
+
+                    <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
                         {isAuthenticated ? (
                             <>
                                 <div className="flex items-center gap-2 px-4 py-2">
@@ -179,7 +232,7 @@ const Navbar: React.FC = () => {
                                     )}
                                     <span className="font-medium">{user?.first_name || 'User'}</span>
                                 </div>
-                                <Link to="/profile" className="w-full px-4 py-2 border border-gray-300 rounded-full text-center">
+                                <Link to="/profile" className="w-full px-4 py-2 border border-gray-300 rounded-full text-center hover:bg-gray-50 transition" onClick={() => setIsOpen(false)}>
                                     Profile
                                 </Link>
                                 <button
@@ -187,17 +240,17 @@ const Navbar: React.FC = () => {
                                         logout();
                                         setIsOpen(false);
                                     }}
-                                    className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm text-center"
+                                    className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm text-center hover:bg-gray-200 transition"
                                 >
                                     Sign out
                                 </button>
                             </>
                         ) : (
                             <>
-                                <Link to="/login" className="w-full px-4 py-2 border border-gray-300 rounded-full text-center">
+                                <Link to="/login" className="w-full px-4 py-2 border border-gray-300 rounded-full text-center hover:bg-gray-50 transition" onClick={() => setIsOpen(false)}>
                                     Login
                                 </Link>
-                                <Link to="/signup" className="w-full px-4 py-2 bg-[#4B9CD3] text-white rounded-full text-sm text-center">
+                                <Link to="/signup" className="w-full px-4 py-2 bg-[#4B9CD3] text-white rounded-full text-sm text-center hover:bg-[#3a8bc0] transition" onClick={() => setIsOpen(false)}>
                                     Register
                                 </Link>
                             </>
