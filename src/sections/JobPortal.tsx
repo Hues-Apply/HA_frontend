@@ -66,7 +66,7 @@ export default function Dashboard() {
       setError(null);
 
       try {
-        const response = await getSavedOpportunities();
+        const response = await fetchSavedOpportunities();
         setSavedOpportunities(response.results || []);
       } catch (err) {
         console.error('Error fetching saved opportunities:', err);
@@ -79,12 +79,7 @@ export default function Dashboard() {
     fetchSavedOpportunities();
   }, [user]);
 
-  const applyFilters = () => {
-    setFilter({
-      ...filter,
-      search
-    });
-  };
+
 
   const filteredSavedOpportunities = savedOpportunities.filter((opportunity) =>
     opportunity.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -214,7 +209,7 @@ export default function Dashboard() {
           </div>
 
           {/* Conditional rendering based on activeTab */}
-          {activeTab === 'jobs' && activeSection === 'dashboard' && (
+          {activeTab === 'jobs' && (
             <div className="space-y-6 sm:space-y-8">
               {/* Profile Completion Nudge */}
               <ProfileCompletion />
@@ -282,12 +277,12 @@ export default function Dashboard() {
             </section>
           )}
 
-          {activeSection === 'matches' && (
+
             <section className="mb-8 sm:mb-10">
             </section>
           )}
 
-          {activeSection === 'saved' && (
+
             <section className="mb-8 sm:mb-10">
               <h2 className="text-lg font-semibold mb-4">Saved Opportunities</h2>
 
@@ -349,7 +344,7 @@ export default function Dashboard() {
             </section>
           )}
 
-          {activeSection === 'progress' && (
+
             <section className="mb-8 sm:mb-10">
               <h2 className="text-lg font-semibold mb-4">Application Progress</h2>
               <div className="bg-white rounded-lg p-6 shadow-md">

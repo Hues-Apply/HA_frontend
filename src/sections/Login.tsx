@@ -5,30 +5,7 @@ import SEO from '../components/SEO';
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState("");
-  const { setUser } = useAuth();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email || !password) {
-      setApiError('Please enter both email and password');
-      return;
-    }
-
-    try {
-      setApiError('');
-      // For now, we'll use Google OAuth as the primary login method
-      // Email/password login would require additional backend implementation
-      setApiError('Email/password login is not yet implemented. Please use Google Sign-In.');
-    } catch (error: any) {
-      console.error('Login error:', error);
-      setApiError(error.message || 'Login failed. Please try again.');
-    }
-  };
 
   return (
     <>

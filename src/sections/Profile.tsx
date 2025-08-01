@@ -1,12 +1,9 @@
-import React from 'react';
 import { useState } from 'react';
 import {
   User,
   ExternalLink,
   Clipboard,
   Camera,
-  Menu,
-  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProfileData } from '../hooks/useProfileData';
@@ -19,7 +16,7 @@ import AITab from '../components/AITab';
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('Personal');
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   // Use the custom hook for all profile data and logic
   const {
