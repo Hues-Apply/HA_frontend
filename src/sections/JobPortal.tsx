@@ -277,12 +277,6 @@ export default function Dashboard() {
             </section>
           )}
 
-
-          <section className="mb-8 sm:mb-10">
-          </section>
-          )}
-
-
           <section className="mb-8 sm:mb-10">
             <h2 className="text-lg font-semibold mb-4">Saved Opportunities</h2>
 
@@ -342,8 +336,6 @@ export default function Dashboard() {
               </div>
             )}
           </section>
-          )}
-
 
           <section className="mb-8 sm:mb-10">
             <h2 className="text-lg font-semibold mb-4">Application Progress</h2>
@@ -356,7 +348,6 @@ export default function Dashboard() {
               </div>
             </div>
           </section>
-          )}
         </main>
       </div>
     </>
