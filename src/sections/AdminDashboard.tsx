@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -640,13 +640,7 @@ export default function AdminDashboard() {
       <JobPreviewModal
         isOpen={showJobPreview}
         onClose={() => setShowJobPreview(false)}
-        onSave={(jobs) => {
-          console.log('Jobs saved to backend:', jobs);
-          setShowJobPreview(false);
-          setHasCachedJobs(false); // Clear cached jobs indicator
-          // Optionally refresh the dashboard or show success message
-          alert(`Successfully saved ${jobs.length} jobs to the backend!`);
-        }}
+        job={null}
       />
     </div>
   );

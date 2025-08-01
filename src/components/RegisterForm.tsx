@@ -112,13 +112,11 @@ export default function RegisterForm({ onSuccess, onError, className = '' }: Reg
         email: formData.email,
         password: formData.password,
         first_name: formData.firstName,
-        last_name: formData.lastName,
-        role: formData.role
+        last_name: formData.lastName
       });
 
-      // Store tokens
-      localStorage.setItem('accessToken', response.access_token);
-      localStorage.setItem('refreshToken', response.refresh_token);
+      // Note: Signup response doesn't include tokens, user needs to login separately
+      // or we need to modify the backend to return tokens on signup
 
       // Set user in context
       setUser(response.user);

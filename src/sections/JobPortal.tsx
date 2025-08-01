@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaMapMarkerAlt, FaFilter } from "react-icons/fa";
 import OpportunityList from "../components/OpportunityList";
 import ScholarshipList from "../components/ScholarshipList";
 import ProfileCompletion from "../components/ProfileCompletion";
@@ -16,8 +15,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import RecommendedScholarships from '../components/RecommendedScholarships';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { getOpportunities } from '../services/opportunities';
-import { Opportunity } from '../types/opportunities';
+import { getOpportunities, Opportunity } from '../services/opportunities';
 
 const tabs = [
   {
@@ -48,7 +46,6 @@ const tabs = [
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('jobs');
-  const [activeSection, setActiveSection] = useState('dashboard');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState({
     search: '',
@@ -69,10 +66,7 @@ export default function Dashboard() {
       setError(null);
 
       try {
-        const response = await getOpportunities({
-          saved: true,
-          page_size: 20
-        });
+        const response = await getSavedOpportunities();
         setSavedOpportunities(response.results || []);
       } catch (err) {
         console.error('Error fetching saved opportunities:', err);
@@ -90,12 +84,6 @@ export default function Dashboard() {
       ...filter,
       search
     });
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      applyFilters();
-    }
   };
 
   const filteredSavedOpportunities = savedOpportunities.filter((opportunity) =>

@@ -21,14 +21,11 @@ interface JobPreviewModalProps {
 }
 
 const JobPreviewModal = ({ isOpen, onClose, job }: JobPreviewModalProps) => {
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setIsVisible(true);
       document.body.style.overflow = 'hidden';
     } else {
-      setIsVisible(false);
       document.body.style.overflow = 'unset';
     }
 
