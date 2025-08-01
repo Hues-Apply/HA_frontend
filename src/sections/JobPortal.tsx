@@ -278,84 +278,84 @@ export default function Dashboard() {
           )}
 
 
-            <section className="mb-8 sm:mb-10">
-            </section>
+          <section className="mb-8 sm:mb-10">
+          </section>
           )}
 
 
-            <section className="mb-8 sm:mb-10">
-              <h2 className="text-lg font-semibold mb-4">Saved Opportunities</h2>
+          <section className="mb-8 sm:mb-10">
+            <h2 className="text-lg font-semibold mb-4">Saved Opportunities</h2>
 
-              {loading ? (
-                <div className="flex justify-center items-center py-12">
-                  <LoadingSpinner size="lg" text="Loading saved opportunities..." />
-                </div>
-              ) : error ? (
-                <div className="text-red-500 text-center p-6 sm:p-8 bg-red-50 rounded-lg border border-red-200">
-                  <p className="mb-2">{error}</p>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="text-sm text-red-600 hover:text-red-800 underline"
-                  >
-                    Try again
-                  </button>
-                </div>
-              ) : filteredSavedOpportunities.length === 0 ? (
-                <div className="text-gray-500 text-center p-6 sm:p-8 bg-white rounded-lg shadow">
-                  {search ? 'No saved opportunities match your search.' : 'No saved opportunities found. Browse opportunities and save them for later.'}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredSavedOpportunities.map((opportunity) => (
-                    <div key={opportunity.id} className="bg-white rounded-xl shadow p-4 relative hover:shadow-md transition-shadow">
-                      <div className="absolute top-4 right-4 text-blue-500">
-                        <BookmarkIcon size={18} />
-                      </div>
-                      <div className="text-lg font-bold mb-1 pr-8">{opportunity.company}</div>
-                      {opportunity.match_percentage && (
-                        <div className="inline-block text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-semibold mb-3">
-                          {opportunity.match_percentage}% Match
-                        </div>
-                      )}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Role</span>
-                        <span className="font-medium">{opportunity.title}</span>
-                      </div>
-                      <div className="flex justify-between text-sm mb-3">
-                        <span className="text-gray-600">Location</span>
-                        <span className="font-medium">{opportunity.location}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
-                        <span className="flex items-center">
-                          <Clock size={14} className="mr-1" />
-                          {opportunity.deadline ? `Closing ${new Date(opportunity.deadline).toLocaleDateString()}` : 'No deadline'}
-                        </span>
-                        <button
-                          className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                          aria-label={`Apply to ${opportunity.title} at ${opportunity.company}`}
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-
-
-            <section className="mb-8 sm:mb-10">
-              <h2 className="text-lg font-semibold mb-4">Application Progress</h2>
-              <div className="bg-white rounded-lg p-6 shadow-md">
-                <div className="text-center py-8 sm:py-10 text-gray-500">
-                  <p className="mb-4 text-sm sm:text-base">You haven't applied to any opportunities yet.</p>
-                  <Link to="/" className="text-blue-500 hover:underline text-sm sm:text-base">
-                    Browse opportunities to get started
-                  </Link>
-                </div>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <LoadingSpinner size="lg" text="Loading saved opportunities..." />
               </div>
-            </section>
+            ) : error ? (
+              <div className="text-red-500 text-center p-6 sm:p-8 bg-red-50 rounded-lg border border-red-200">
+                <p className="mb-2">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-sm text-red-600 hover:text-red-800 underline"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : filteredSavedOpportunities.length === 0 ? (
+              <div className="text-gray-500 text-center p-6 sm:p-8 bg-white rounded-lg shadow">
+                {search ? 'No saved opportunities match your search.' : 'No saved opportunities found. Browse opportunities and save them for later.'}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSavedOpportunities.map((opportunity) => (
+                  <div key={opportunity.id} className="bg-white rounded-xl shadow p-4 relative hover:shadow-md transition-shadow">
+                    <div className="absolute top-4 right-4 text-blue-500">
+                      <BookmarkIcon size={18} />
+                    </div>
+                    <div className="text-lg font-bold mb-1 pr-8">{opportunity.company}</div>
+                    {opportunity.match_percentage && (
+                      <div className="inline-block text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-semibold mb-3">
+                        {opportunity.match_percentage}% Match
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Role</span>
+                      <span className="font-medium">{opportunity.title}</span>
+                    </div>
+                    <div className="flex justify-between text-sm mb-3">
+                      <span className="text-gray-600">Location</span>
+                      <span className="font-medium">{opportunity.location}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
+                      <span className="flex items-center">
+                        <Clock size={14} className="mr-1" />
+                        {opportunity.deadline ? `Closing ${new Date(opportunity.deadline).toLocaleDateString()}` : 'No deadline'}
+                      </span>
+                      <button
+                        className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label={`Apply to ${opportunity.title} at ${opportunity.company}`}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+          )}
+
+
+          <section className="mb-8 sm:mb-10">
+            <h2 className="text-lg font-semibold mb-4">Application Progress</h2>
+            <div className="bg-white rounded-lg p-6 shadow-md">
+              <div className="text-center py-8 sm:py-10 text-gray-500">
+                <p className="mb-4 text-sm sm:text-base">You haven't applied to any opportunities yet.</p>
+                <Link to="/" className="text-blue-500 hover:underline text-sm sm:text-base">
+                  Browse opportunities to get started
+                </Link>
+              </div>
+            </div>
+          </section>
           )}
         </main>
       </div>

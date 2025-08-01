@@ -86,7 +86,7 @@ export default function SignupForm() {
             />
           </div>
 
-          
+
 
           <div className="text-center space-y-4">
             <p className="text-xs text-gray-500 leading-relaxed">

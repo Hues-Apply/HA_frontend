@@ -64,7 +64,7 @@ export default function Profile() {
         <div className="text-center bg-white p-6 sm:p-8 rounded-lg shadow-md max-w-md w-full">
           <p className="text-red-600 mb-4">Failed to load profile data</p>
           <p className="text-gray-600 mb-4 text-sm">{error}</p>
-          <button 
+          <button
             onClick={fetchProfileData}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto"
           >
@@ -140,8 +140,8 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Mobile Header */}
-      <div className="lg:hidden relative px-4 py-4 bg-gradient-to-r from-blue-600 to-blue-400 bg-cover bg-center bg-no-repeat" 
-           style={{backgroundImage: "url('/hero/path-to-star-texture.png')"}}>
+      <div className="lg:hidden relative px-4 py-4 bg-gradient-to-r from-blue-600 to-blue-400 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/hero/path-to-star-texture.png')" }}>
         <div className="absolute inset-0 bg-gradient-to-r"></div>
         <div className="relative z-10">
           <h1 className="text-xl font-semibold text-white">Welcome, I'm your AI buddy</h1>
@@ -153,7 +153,7 @@ export default function Profile() {
         {/* Desktop Layout */}
         <div className="hidden lg:block lg:w-full">
           {/* Desktop Header */}
-          <div className="h-56 relative bg-gradient-to-r from-blue-600 to-blue-400 bg-cover bg-center bg-no-repeat" style={{backgroundImage: "url('/hero/path-to-star-texture.png')"}}>
+          <div className="h-56 relative bg-gradient-to-r from-blue-600 to-blue-400 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/hero/path-to-star-texture.png')" }}>
             <div className="absolute inset-0 bg-gradient-to-r"></div>
             <div className="relative z-10 px-12 pt-10">
               <h1 className="text-3xl font-semibold text-white">Welcome, I'm your AI buddy</h1>
@@ -175,11 +175,10 @@ export default function Profile() {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`px-6 py-3 -mb-px text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-                        activeTab === tab
-                          ? 'border-black text-black'
-                          : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
-                      }`}
+                      className={`px-6 py-3 -mb-px text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === tab
+                        ? 'border-black text-black'
+                        : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
+                        }`}
                     >
                       {tab}
                     </button>
@@ -189,14 +188,14 @@ export default function Profile() {
                 {/* Tab Content */}
                 <div className="bg-white rounded-lg p-6">
                   {activeTab === 'Personal' && (
-                    <PersonalTab 
+                    <PersonalTab
                       personalInfo={personalInfo}
                       setPersonalInfo={setPersonalInfo}
                     />
                   )}
 
                   {activeTab === 'Career Profile' && (
-                    <CareerProfileTab 
+                    <CareerProfileTab
                       careerProfile={careerProfile}
                       setCareerProfile={setCareerProfile}
                     />
@@ -241,7 +240,7 @@ export default function Profile() {
                     <button className="px-6 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50">
                       Previous
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleSave(activeTab)}
                       disabled={loading}
                       className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
@@ -270,11 +269,10 @@ export default function Profile() {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-                        activeTab === tab
-                          ? 'border-black text-black'
-                          : 'border-transparent text-gray-500'
-                      }`}
+                      className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === tab
+                        ? 'border-black text-black'
+                        : 'border-transparent text-gray-500'
+                        }`}
                     >
                       {tab}
                     </button>
@@ -285,14 +283,14 @@ export default function Profile() {
               {/* Mobile Tab Content */}
               <div className="p-4">
                 {activeTab === 'Personal' && (
-                  <PersonalTab 
+                  <PersonalTab
                     personalInfo={personalInfo}
                     setPersonalInfo={setPersonalInfo}
                   />
                 )}
 
                 {activeTab === 'Career Profile' && (
-                  <CareerProfileTab 
+                  <CareerProfileTab
                     careerProfile={careerProfile}
                     setCareerProfile={setCareerProfile}
                   />
@@ -334,7 +332,7 @@ export default function Profile() {
 
                 {/* Mobile Action Buttons */}
                 <div className="flex flex-col gap-3 mt-6 pt-6 border-t">
-                  <button 
+                  <button
                     onClick={() => handleSave(activeTab)}
                     disabled={loading}
                     className="w-full px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
