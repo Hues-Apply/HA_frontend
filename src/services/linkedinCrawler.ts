@@ -1,19 +1,7 @@
 
 import { fetchWithAuth } from './api';
 
-// Interface based on exact npm package documentation
-interface LinkedInJobQuery {
-  keyword?: string;        // The text to search: (i.e. Software Developer)
-  location?: string;       // The name of the city: (i.e. Los Angeles)
-  dateSincePosted?: 'past month' | 'past week' | '24hr'; // Max range of jobs: past month, past week, 24hr
-  jobType?: 'full time' | 'part time' | 'contract' | 'temporary' | 'volunteer' | 'internship'; // Type of position
-  remoteFilter?: 'on site' | 'remote' | 'hybrid';   // Filter telecommuting: on site, remote, hybrid
-  salary?: '40000' | '60000' | '80000' | '100000' | '120000'; // Minimum Salary
-  experienceLevel?: 'internship' | 'entry level' | 'associate' | 'senior' | 'director' | 'executive'; // Experience level
-  limit?: string;          // Number of jobs returned: (i.e. '1', '10', '100', etc)
-  sortBy?: 'recent' | 'relevant'; // recent, relevant
-  page?: string;           // 0, 1, 2 ....
-}
+
 
 // Job object structure from npm package documentation
 interface LinkedInJob {
@@ -84,65 +72,6 @@ export class LinkedInJobCrawler {
   // Method to clear jobs from localStorage
   public static clearJobsFromLocalStorage() {
     localStorage.removeItem(this.STORAGE_KEY);
-  }
-  private static mapJobType(jobType: string): 'full time' | 'part time' | 'contract' | 'temporary' | 'volunteer' | 'internship' | '' {
-    // Exact values from API documentation: full time, part time, contract, temporary, volunteer, internship
-    const mapping: Record<string, 'full time' | 'part time' | 'contract' | 'temporary' | 'volunteer' | 'internship'> = {
-      'full-time': 'full time',
-      'part-time': 'part time',
-      'contract': 'contract',
-      'temporary': 'temporary',
-      'volunteer': 'volunteer',
-      'internship': 'internship'
-    };
-    return mapping[jobType] || '';
-  }
-
-  private static mapExperienceLevel(level: string): 'internship' | 'entry level' | 'associate' | 'senior' | 'director' | 'executive' | '' {
-    // Exact values from API documentation: internship, entry level, associate, senior, director, executive
-    const mapping: Record<string, 'internship' | 'entry level' | 'associate' | 'senior' | 'director' | 'executive'> = {
-      'entry': 'entry level',
-      'mid': 'associate',
-      'senior': 'senior',
-      'director': 'director',
-      'executive': 'executive',
-      'internship': 'internship'
-    };
-    return mapping[level] || '';
-  }
-
-  private static mapDatePosted(date: string): 'past month' | 'past week' | '24hr' | '' {
-    // Exact values from API documentation: past month, past week, 24hr
-    const mapping: Record<string, 'past month' | 'past week' | '24hr'> = {
-      '24h': '24hr',
-      'week': 'past week',
-      'month': 'past month'
-    };
-    return mapping[date] || '';
-  }
-
-  private static mapSalary(salary: string): '40000' | '60000' | '80000' | '100000' | '120000' | '' {
-    // Exact values from API documentation: 40000, 60000, 80000, 100000, 120000
-    if (!salary || salary === '') return '';
-    
-    const salaryNum = parseInt(salary);
-    const supportedSalaries = [40000, 60000, 80000, 100000, 120000] as const;
-    
-    const closest = supportedSalaries.reduce((prev, curr) => {
-      return (Math.abs(curr - salaryNum) < Math.abs(prev - salaryNum) ? curr : prev);
-    });
-    
-    return closest.toString() as '40000' | '60000' | '80000' | '100000' | '120000';
-  }
-
-  private static mapRemoteFilter(remoteFilter: string): 'on site' | 'remote' | 'hybrid' | '' {
-    // Exact values from API documentation: on site, remote, hybrid
-    const mapping: Record<string, 'on site' | 'remote' | 'hybrid'> = {
-      'onsite': 'on site',
-      'remote': 'remote',
-      'hybrid': 'hybrid'
-    };
-    return mapping[remoteFilter] || '';
   }
 
   public static async crawlJobs(filters: CrawlFilters): Promise<{

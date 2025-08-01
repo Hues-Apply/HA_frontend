@@ -1,28 +1,8 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import SEO from '../components/SEO';
-import { useAuth } from "../context/AuthContext";
 
 export default function SignupForm() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "applicant" as "applicant" | "employer",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [apiError, setApiError] = useState('');
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle signup logic
-  };
 
   return (
     <>

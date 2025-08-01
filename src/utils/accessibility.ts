@@ -56,7 +56,7 @@ export const useSkipLink = (targetId: string) => {
 };
 
 // ARIA live region utility
-export const useAriaLive = (level: 'polite' | 'assertive' = 'polite') => {
+export const useAriaLive = () => {
   const [message, setMessage] = useState<string>('');
 
   const announce = useCallback((text: string) => {
@@ -266,7 +266,7 @@ export const getContrastRatio = (color1: string, color2: string): number => {
 };
 
 // Accessibility hook for form validation
-export const useAccessibleForm = (formId: string) => {
+export const useAccessibleForm = () => {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [announcements, setAnnouncements] = useState<string[]>([]);
 

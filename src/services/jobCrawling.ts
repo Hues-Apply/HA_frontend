@@ -1,4 +1,4 @@
-import { BASE_URL, fetchWithAuth } from './api';
+import { fetchWithAuth } from './api';
 
 export interface JobCrawlingFilters {
   keyword?: string;
