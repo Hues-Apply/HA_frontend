@@ -24,9 +24,13 @@ export interface UserRole {
 }
 
 export interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
-  user: User;
+  success: boolean;
+  message: string;
+  data: {
+    access_token: string;
+    refresh_token: string;
+    user: User;
+  };
 }
 
 export interface SignupResponse {
@@ -45,28 +49,18 @@ const handleApiResponse = async (response: Response) => {
 
 // Exchange Google authorization code for tokens
 export const exchangeGoogleAuthCode = async (code: string): Promise<LoginResponse> => {
-  const response = await fetch(`${BASE_URL}/api/auth/google/callback/`, {
+  return fetchWithAuth('/api/auth/google/callback/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({ code }),
   });
-
-  return handleApiResponse(response);
 };
 
 // Login function
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
-  const response = await fetch(`${BASE_URL}/api/auth/login/`, {
+  return fetchWithAuth('/api/auth/login/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({ email, password }),
   });
-
-  return handleApiResponse(response);
 };
 
 // Signup function
@@ -92,8 +86,7 @@ export const registerUser = signup;
 
 // Get user role
 export const getUserRole = async (): Promise<UserRole> => {
-  const response = await fetchWithAuth(`${BASE_URL}/api/role/`);
-  return handleApiResponse(response);
+  return fetchWithAuth('/api/role/');
 };
 
 // Sign out function

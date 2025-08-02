@@ -1,6 +1,6 @@
 // Base API services and constants for HuesApply
 
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ha-backend-pq2f.vercel.app';
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend.huesapply.com';
 
 // Helper to handle API responses consistently
 export const handleApiResponse = async (response: Response) => {
@@ -8,17 +8,16 @@ export const handleApiResponse = async (response: Response) => {
     // Handle different error status codes
     if (response.status === 401) {
       // Clear tokens and redirect to login on auth failures
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
       throw new Error('Authentication expired. Please log in again.');
     }
 
     // Try to parse error response
     try {
       const errorData = await response.json();
-      throw errorData;
+      throw new Error(errorData.message || errorData.error || `API error: ${response.status}`);
     } catch (e) {
       // If parsing fails, throw generic error with status
       throw new Error(`API error: ${response.status}`);
@@ -29,17 +28,17 @@ export const handleApiResponse = async (response: Response) => {
 };
 
 // Helper to get auth header for authenticated requests
-export const getAuthHeader = () => {
-  const token = localStorage.getItem('accessToken');
+export const getAuthHeader = (): Record<string, string> => {
+  const token = sessionStorage.getItem('accessToken');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
 // Basic fetch wrapper with auth headers
 export const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${BASE_URL}${endpoint}`;
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(getAuthHeader() as Record<string, string>),
+    ...getAuthHeader(),
     ...(options.headers as Record<string, string>)
   };
 

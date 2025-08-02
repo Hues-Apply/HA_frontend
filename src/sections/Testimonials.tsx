@@ -66,6 +66,8 @@ const Testimonials: React.FC = () => {
       }, 500); // match this to the duration in CSS
       return () => clearTimeout(timer);
     }
+    // Return undefined explicitly for the case where not animating
+    return undefined;
   }, [isAnimating]);
 
   // Navigation functions

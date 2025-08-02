@@ -3,10 +3,7 @@ import { Link } from "react-router-dom";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import SEO from '../components/SEO';
 
-
-export default function LoginForm() {
-
-
+export default function Login() {
   return (
     <>
       <SEO
@@ -17,7 +14,6 @@ export default function LoginForm() {
         tags={['login', 'authentication', 'sign in', 'account']}
       />
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
-        {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-5"
           style={{
@@ -27,31 +23,21 @@ export default function LoginForm() {
           }}
         />
 
-        {/* Floating Shapes */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Large Circle */}
           <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-br from-blue-200 to-indigo-300 rounded-full opacity-20 blur-xl animate-pulse"></div>
-
-          {/* Medium Circle */}
           <div className="absolute bottom-20 left-20 w-48 h-48 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-20 blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-
-          {/* Small Circle */}
           <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-gradient-to-br from-indigo-200 to-blue-300 rounded-full opacity-20 blur-xl animate-pulse" style={{ animationDelay: '4s' }}></div>
-
-          {/* Floating Dots */}
           <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400 rounded-full opacity-60 animate-bounce"></div>
           <div className="absolute top-3/4 right-1/4 w-3 h-3 bg-indigo-400 rounded-full opacity-60 animate-bounce" style={{ animationDelay: '1s' }}></div>
           <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-60 animate-bounce" style={{ animationDelay: '2s' }}></div>
         </div>
 
-        {/* Logo */}
         <img
           src={"/hero/hues_apply_logo.svg"}
           alt="Hues Apply"
           className="absolute top-6 left-6 h-24 w-32 text-[#4DA5E2] hidden md:block z-10"
         />
 
-        {/* Main Form Container */}
         <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 relative z-10 border border-white/20">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
@@ -88,8 +74,6 @@ export default function LoginForm() {
               className="w-full hover:bg-gray-50 transition-colors shadow-sm"
             />
           </div>
-
-
 
           <div className="text-center space-y-4">
             <p className="text-xs text-gray-500 leading-relaxed">

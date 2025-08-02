@@ -66,7 +66,7 @@ export const uploadDocument = async (file: File): Promise<DocumentUploadResponse
   const response = await fetch(`${BASE_URL}/api/profile/upload-document/`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
     },
     body: formData
   });
@@ -215,13 +215,33 @@ export const createEducation = async (data: {
   degree: string;
   school: string;
   start_date: string;
-  end_date?: string;
+  end_date?: string | undefined;
   is_currently_studying: boolean;
   extra_curricular: string;
 }): Promise<{success: boolean; id: number}> => {
+  // Filter out undefined values for exact optional property types
+  const cleanData: {
+    degree: string;
+    school: string;
+    start_date: string;
+    end_date?: string;
+    is_currently_studying: boolean;
+    extra_curricular: string;
+  } = {
+    degree: data.degree,
+    school: data.school,
+    start_date: data.start_date,
+    is_currently_studying: data.is_currently_studying,
+    extra_curricular: data.extra_curricular
+  };
+  
+  if (data.end_date !== undefined) {
+    cleanData.end_date = data.end_date;
+  }
+  
   return fetchWithAuth('/api/profile/education/', {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 };
 
@@ -229,13 +249,33 @@ export const updateEducation = async (id: number, data: {
   degree: string;
   school: string;
   start_date: string;
-  end_date?: string;
+  end_date?: string | undefined;
   is_currently_studying: boolean;
   extra_curricular: string;
 }): Promise<{success: boolean}> => {
+  // Filter out undefined values for exact optional property types
+  const cleanData: {
+    degree: string;
+    school: string;
+    start_date: string;
+    end_date?: string;
+    is_currently_studying: boolean;
+    extra_curricular: string;
+  } = {
+    degree: data.degree,
+    school: data.school,
+    start_date: data.start_date,
+    is_currently_studying: data.is_currently_studying,
+    extra_curricular: data.extra_curricular
+  };
+  
+  if (data.end_date !== undefined) {
+    cleanData.end_date = data.end_date;
+  }
+  
   return fetchWithAuth(`/api/profile/education/${id}/`, {
     method: 'PUT',
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 };
 
@@ -251,13 +291,35 @@ export const createExperience = async (data: {
   company_name: string;
   location: string;
   start_date: string;
-  end_date?: string;
+  end_date?: string | undefined;
   is_currently_working: boolean;
   description: string;
 }): Promise<{success: boolean; id: number}> => {
+  // Filter out undefined values for exact optional property types
+  const cleanData: {
+    job_title: string;
+    company_name: string;
+    location: string;
+    start_date: string;
+    end_date?: string;
+    is_currently_working: boolean;
+    description: string;
+  } = {
+    job_title: data.job_title,
+    company_name: data.company_name,
+    location: data.location,
+    start_date: data.start_date,
+    is_currently_working: data.is_currently_working,
+    description: data.description
+  };
+  
+  if (data.end_date !== undefined) {
+    cleanData.end_date = data.end_date;
+  }
+  
   return fetchWithAuth('/api/profile/experience/', {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 };
 
@@ -266,13 +328,35 @@ export const updateExperience = async (id: number, data: {
   company_name: string;
   location: string;
   start_date: string;
-  end_date?: string;
+  end_date?: string | undefined;
   is_currently_working: boolean;
   description: string;
 }): Promise<{success: boolean}> => {
+  // Filter out undefined values for exact optional property types
+  const cleanData: {
+    job_title: string;
+    company_name: string;
+    location: string;
+    start_date: string;
+    end_date?: string;
+    is_currently_working: boolean;
+    description: string;
+  } = {
+    job_title: data.job_title,
+    company_name: data.company_name,
+    location: data.location,
+    start_date: data.start_date,
+    is_currently_working: data.is_currently_working,
+    description: data.description
+  };
+  
+  if (data.end_date !== undefined) {
+    cleanData.end_date = data.end_date;
+  }
+  
   return fetchWithAuth(`/api/profile/experience/${id}/`, {
     method: 'PUT',
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 };
 
@@ -286,28 +370,68 @@ export const deleteExperience = async (id: number): Promise<{success: boolean}> 
 export const createProject = async (data: {
   project_title: string;
   start_date: string;
-  end_date?: string;
+  end_date?: string | undefined;
   is_currently_working: boolean;
   project_link: string;
   description: string;
 }): Promise<{success: boolean; id: number}> => {
+  // Filter out undefined values for exact optional property types
+  const cleanData: {
+    project_title: string;
+    start_date: string;
+    end_date?: string;
+    is_currently_working: boolean;
+    project_link: string;
+    description: string;
+  } = {
+    project_title: data.project_title,
+    start_date: data.start_date,
+    is_currently_working: data.is_currently_working,
+    project_link: data.project_link,
+    description: data.description
+  };
+  
+  if (data.end_date !== undefined) {
+    cleanData.end_date = data.end_date;
+  }
+  
   return fetchWithAuth('/api/profile/project/', {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 };
 
 export const updateProject = async (id: number, data: {
   project_title: string;
   start_date: string;
-  end_date?: string;
+  end_date?: string | undefined;
   is_currently_working: boolean;
   project_link: string;
   description: string;
 }): Promise<{success: boolean}> => {
+  // Filter out undefined values for exact optional property types
+  const cleanData: {
+    project_title: string;
+    start_date: string;
+    end_date?: string;
+    is_currently_working: boolean;
+    project_link: string;
+    description: string;
+  } = {
+    project_title: data.project_title,
+    start_date: data.start_date,
+    is_currently_working: data.is_currently_working,
+    project_link: data.project_link,
+    description: data.description
+  };
+  
+  if (data.end_date !== undefined) {
+    cleanData.end_date = data.end_date;
+  }
+  
   return fetchWithAuth(`/api/profile/project/${id}/`, {
     method: 'PUT',
-    body: JSON.stringify(data)
+    body: JSON.stringify(cleanData)
   });
 };
 
