@@ -10,7 +10,7 @@ const OnboardingReview = () => {
 
   useEffect(() => {
     // Load parsed data from localStorage
-    const storedData = localStorage.getItem('parsedCVData');
+    const storedData = sessionStorage.getItem('parsedCVData');
     if (storedData) {
       try {
         setParsedData(JSON.parse(storedData));
@@ -85,7 +85,7 @@ const OnboardingReview = () => {
       await updateParsedProfile(parsedData);
       
       // Clear localStorage
-      localStorage.removeItem('parsedCVData');
+      sessionStorage.removeItem('parsedCVData');
       
       // Navigate to success page and then dashboard
       navigate('/onboarding/complete', { replace: true });

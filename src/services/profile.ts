@@ -61,26 +61,26 @@ export interface LanguageEntry {
 // Upload CV/Resume document
 export const uploadDocument = async (file: File): Promise<DocumentUploadResponse> => {
   const formData = new FormData();
-  formData.append('document', file);
-  
-  const response = await fetch(`${BASE_URL}/api/profile/upload-document/`, {
+  formData.append('file', file);
+
+  const response = await fetch(`${BASE_URL}/api/profile/upload-document-file/`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
     },
     body: formData
   });
-  
+
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.detail || 'Document upload failed');
   }
-  
+
   return response.json();
 };
 
 // Update parsed profile data
-export const updateParsedProfile = async (profileData: ParsedCVData): Promise<{success: boolean}> => {
+export const updateParsedProfile = async (profileData: ParsedCVData): Promise<{ success: boolean }> => {
   return fetchWithAuth('/api/profile/update-parsed/', {
     method: 'POST',
     body: JSON.stringify(profileData)
@@ -97,7 +97,7 @@ export const getProfileCompletionStatus = async (): Promise<{
 };
 
 // Update user's selected goals
-export const updateUserGoals = async (goals: string[]): Promise<{success: boolean}> => {
+export const updateUserGoals = async (goals: string[]): Promise<{ success: boolean }> => {
   return fetchWithAuth('/api/profile/update-goals/', {
     method: 'POST',
     body: JSON.stringify({ goals })
@@ -117,6 +117,10 @@ export const getComprehensiveProfile = async (): Promise<{
     profile_picture?: string;
     phone_number?: string;
     goal?: string;
+    cv_filename?: string;
+    cv_uploaded_at?: string;
+    has_cv_in_gcs?: boolean;
+    cv_download_url?: string;
     career_profile?: {
       industry: string;
       job_title: string;
@@ -187,7 +191,7 @@ export const updatePersonalInfo = async (data: {
   phone_number: string;
   country: string;
   goal: string;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   return fetchWithAuth('/api/profile/personal/', {
     method: 'POST',
     body: JSON.stringify(data)
@@ -203,7 +207,7 @@ export const updateCareerProfile = async (data: {
   industry: string;
   job_title: string;
   profile_summary: string;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   return fetchWithAuth('/api/profile/career/', {
     method: 'POST',
     body: JSON.stringify(data)
@@ -218,7 +222,7 @@ export const createEducation = async (data: {
   end_date?: string | undefined;
   is_currently_studying: boolean;
   extra_curricular: string;
-}): Promise<{success: boolean; id: number}> => {
+}): Promise<{ success: boolean; id: number }> => {
   // Filter out undefined values for exact optional property types
   const cleanData: {
     degree: string;
@@ -234,11 +238,11 @@ export const createEducation = async (data: {
     is_currently_studying: data.is_currently_studying,
     extra_curricular: data.extra_curricular
   };
-  
+
   if (data.end_date !== undefined) {
     cleanData.end_date = data.end_date;
   }
-  
+
   return fetchWithAuth('/api/profile/education/', {
     method: 'POST',
     body: JSON.stringify(cleanData)
@@ -252,7 +256,7 @@ export const updateEducation = async (id: number, data: {
   end_date?: string | undefined;
   is_currently_studying: boolean;
   extra_curricular: string;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   // Filter out undefined values for exact optional property types
   const cleanData: {
     degree: string;
@@ -268,18 +272,18 @@ export const updateEducation = async (id: number, data: {
     is_currently_studying: data.is_currently_studying,
     extra_curricular: data.extra_curricular
   };
-  
+
   if (data.end_date !== undefined) {
     cleanData.end_date = data.end_date;
   }
-  
+
   return fetchWithAuth(`/api/profile/education/${id}/`, {
     method: 'PUT',
     body: JSON.stringify(cleanData)
   });
 };
 
-export const deleteEducation = async (id: number): Promise<{success: boolean}> => {
+export const deleteEducation = async (id: number): Promise<{ success: boolean }> => {
   return fetchWithAuth(`/api/profile/education/${id}/`, {
     method: 'DELETE'
   });
@@ -294,7 +298,7 @@ export const createExperience = async (data: {
   end_date?: string | undefined;
   is_currently_working: boolean;
   description: string;
-}): Promise<{success: boolean; id: number}> => {
+}): Promise<{ success: boolean; id: number }> => {
   // Filter out undefined values for exact optional property types
   const cleanData: {
     job_title: string;
@@ -312,11 +316,11 @@ export const createExperience = async (data: {
     is_currently_working: data.is_currently_working,
     description: data.description
   };
-  
+
   if (data.end_date !== undefined) {
     cleanData.end_date = data.end_date;
   }
-  
+
   return fetchWithAuth('/api/profile/experience/', {
     method: 'POST',
     body: JSON.stringify(cleanData)
@@ -331,7 +335,7 @@ export const updateExperience = async (id: number, data: {
   end_date?: string | undefined;
   is_currently_working: boolean;
   description: string;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   // Filter out undefined values for exact optional property types
   const cleanData: {
     job_title: string;
@@ -349,18 +353,18 @@ export const updateExperience = async (id: number, data: {
     is_currently_working: data.is_currently_working,
     description: data.description
   };
-  
+
   if (data.end_date !== undefined) {
     cleanData.end_date = data.end_date;
   }
-  
+
   return fetchWithAuth(`/api/profile/experience/${id}/`, {
     method: 'PUT',
     body: JSON.stringify(cleanData)
   });
 };
 
-export const deleteExperience = async (id: number): Promise<{success: boolean}> => {
+export const deleteExperience = async (id: number): Promise<{ success: boolean }> => {
   return fetchWithAuth(`/api/profile/experience/${id}/`, {
     method: 'DELETE'
   });
@@ -374,7 +378,7 @@ export const createProject = async (data: {
   is_currently_working: boolean;
   project_link: string;
   description: string;
-}): Promise<{success: boolean; id: number}> => {
+}): Promise<{ success: boolean; id: number }> => {
   // Filter out undefined values for exact optional property types
   const cleanData: {
     project_title: string;
@@ -390,11 +394,11 @@ export const createProject = async (data: {
     project_link: data.project_link,
     description: data.description
   };
-  
+
   if (data.end_date !== undefined) {
     cleanData.end_date = data.end_date;
   }
-  
+
   return fetchWithAuth('/api/profile/project/', {
     method: 'POST',
     body: JSON.stringify(cleanData)
@@ -408,7 +412,7 @@ export const updateProject = async (id: number, data: {
   is_currently_working: boolean;
   project_link: string;
   description: string;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   // Filter out undefined values for exact optional property types
   const cleanData: {
     project_title: string;
@@ -424,18 +428,18 @@ export const updateProject = async (id: number, data: {
     project_link: data.project_link,
     description: data.description
   };
-  
+
   if (data.end_date !== undefined) {
     cleanData.end_date = data.end_date;
   }
-  
+
   return fetchWithAuth(`/api/profile/project/${id}/`, {
     method: 'PUT',
     body: JSON.stringify(cleanData)
   });
 };
 
-export const deleteProject = async (id: number): Promise<{success: boolean}> => {
+export const deleteProject = async (id: number): Promise<{ success: boolean }> => {
   return fetchWithAuth(`/api/profile/project/${id}/`, {
     method: 'DELETE'
   });
@@ -447,7 +451,7 @@ export const updateOpportunitiesInterest = async (data: {
   jobs: boolean;
   grants: boolean;
   internships: boolean;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   return fetchWithAuth('/api/profile/opportunities-interest/', {
     method: 'POST',
     body: JSON.stringify(data)
@@ -461,9 +465,83 @@ export const updateRecommendationPriority = async (data: {
   preferred_locations: boolean;
   others: boolean;
   additional_preferences: string;
-}): Promise<{success: boolean}> => {
+}): Promise<{ success: boolean }> => {
   return fetchWithAuth('/api/profile/recommendation-priority/', {
     method: 'POST',
     body: JSON.stringify(data)
   });
+};
+
+// Get user's profile data by ID (for admin purposes)
+export const getUserProfileById = async (userId: number): Promise<{
+  success: boolean;
+  data: {
+    id: number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    country: string;
+    date_joined: string;
+    profile_picture?: string;
+    phone_number?: string;
+    goal?: string;
+    cv_filename?: string;
+    cv_uploaded_at?: string;
+    has_cv_in_gcs?: boolean;
+    cv_download_url?: string;
+    career_profile?: {
+      industry: string;
+      job_title: string;
+      profile_summary: string;
+    };
+    education_profiles?: Array<{
+      id: number;
+      degree: string;
+      school: string;
+      start_date: string;
+      end_date?: string;
+      is_currently_studying: boolean;
+      extra_curricular: string;
+    }>;
+    experience_profiles?: Array<{
+      id: number;
+      job_title: string;
+      company_name: string;
+      location: string;
+      start_date: string;
+      end_date?: string;
+      is_currently_working: boolean;
+      description: string;
+    }>;
+    project_profiles?: Array<{
+      id: number;
+      project_title: string;
+      start_date: string;
+      end_date?: string;
+      is_currently_working: boolean;
+      project_link: string;
+      description: string;
+    }>;
+    opportunities_interest?: {
+      scholarships: boolean;
+      jobs: boolean;
+      grants: boolean;
+      internships: boolean;
+    };
+    recommendation_priority?: {
+      academic_background: boolean;
+      work_experience: boolean;
+      preferred_locations: boolean;
+      others: boolean;
+      additional_preferences: string;
+    };
+    parsed_profile_data?: ParsedCVData;
+    user_goals?: Array<{
+      goal: string;
+      goal_display: string;
+      priority: number;
+    }>;
+  };
+}> => {
+  return fetchWithAuth(`/api/users/${userId}/profile/`);
 };

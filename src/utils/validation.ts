@@ -245,6 +245,352 @@ export const validateField = (value: any, rules: ValidationRule[]): ValidationRe
   };
 };
 
+// Profile-specific validation functions
+export interface ProfileValidationRules {
+  personalInfo: {
+    name: { required: boolean; minLength: number; maxLength: number };
+    email: { required: boolean; format: RegExp };
+    phone: { required: boolean; format: RegExp };
+    country: { required: boolean; minLength: number };
+    goal: { maxLength: number };
+  };
+  careerProfile: {
+    industry: { required: boolean; minLength: number };
+    jobTitle: { required: boolean; minLength: number };
+    profileSummary: { required: boolean; minLength: number; maxLength: number };
+  };
+  education: {
+    degree: { required: boolean; minLength: number };
+    school: { required: boolean; minLength: number };
+    startDate: { required: boolean };
+    endDate: { required: boolean };
+    description: { maxLength: number };
+  };
+  experience: {
+    jobTitle: { required: boolean; minLength: number };
+    companyName: { required: boolean; minLength: number };
+    location: { required: boolean; minLength: number };
+    startDate: { required: boolean };
+    endDate: { required: boolean };
+    description: { required: boolean; minLength: number };
+  };
+  project: {
+    projectTitle: { required: boolean; minLength: number };
+    startDate: { required: boolean };
+    endDate: { required: boolean };
+    projectLink: { format: RegExp };
+    description: { required: boolean; minLength: number };
+  };
+}
+
+// Profile validation rules
+export const profileValidationRules: ProfileValidationRules = {
+  personalInfo: {
+    name: { required: true, minLength: 2, maxLength: 100 },
+    email: { required: true, format: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+    phone: { required: true, format: /^[\+]?[1-9][\d]{0,15}$/ },
+    country: { required: true, minLength: 2 },
+    goal: { maxLength: 1000 }
+  },
+  careerProfile: {
+    industry: { required: true, minLength: 2 },
+    jobTitle: { required: true, minLength: 2 },
+    profileSummary: { required: true, minLength: 10, maxLength: 2000 }
+  },
+  education: {
+    degree: { required: true, minLength: 2 },
+    school: { required: true, minLength: 2 },
+    startDate: { required: true },
+    endDate: { required: true },
+    description: { maxLength: 1000 }
+  },
+  experience: {
+    jobTitle: { required: true, minLength: 2 },
+    companyName: { required: true, minLength: 2 },
+    location: { required: true, minLength: 2 },
+    startDate: { required: true },
+    endDate: { required: true },
+    description: { required: true, minLength: 10 }
+  },
+  project: {
+    projectTitle: { required: true, minLength: 2 },
+    startDate: { required: true },
+    endDate: { required: true },
+    projectLink: { format: /^https?:\/\/.+/ },
+    description: { required: true, minLength: 10 }
+  }
+};
+
+// Personal Info validation
+export const validatePersonalInfo = (data: {
+  name: string;
+  email: string;
+  phone: string;
+  country: string;
+  goal: string;
+}): ValidationResult => {
+  const errors: string[] = [];
+  const rules = profileValidationRules.personalInfo;
+
+  // Name validation
+  if (rules.name.required && !data.name.trim()) {
+    errors.push('Name is required');
+  } else if (data.name.trim() && data.name.length < rules.name.minLength) {
+    errors.push(`Name must be at least ${rules.name.minLength} characters`);
+  } else if (data.name.length > rules.name.maxLength) {
+    errors.push(`Name must be less than ${rules.name.maxLength} characters`);
+  }
+
+  // Email validation
+  if (rules.email.required && !data.email.trim()) {
+    errors.push('Email is required');
+  } else if (data.email.trim() && !rules.email.format.test(data.email)) {
+    errors.push('Please enter a valid email address');
+  }
+
+  // Phone validation
+  if (rules.phone.required && !data.phone.trim()) {
+    errors.push('Phone number is required');
+  } else if (data.phone.trim()) {
+    const cleanPhone = data.phone.replace(/[\s\-\(\)]/g, '');
+    if (!rules.phone.format.test(cleanPhone)) {
+      errors.push('Please enter a valid phone number');
+    }
+  }
+
+  // Country validation
+  if (rules.country.required && !data.country.trim()) {
+    errors.push('Country is required');
+  } else if (data.country.trim() && data.country.length < rules.country.minLength) {
+    errors.push(`Country must be at least ${rules.country.minLength} characters`);
+  }
+
+  // Goal validation
+  if (data.goal && data.goal.length > rules.goal.maxLength) {
+    errors.push(`Goal must be less than ${rules.goal.maxLength} characters`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Career Profile validation
+export const validateCareerProfile = (data: {
+  industry: string;
+  jobTitle: string;
+  profileSummary: string;
+}): ValidationResult => {
+  const errors: string[] = [];
+  const rules = profileValidationRules.careerProfile;
+
+  // Industry validation
+  if (rules.industry.required && !data.industry.trim()) {
+    errors.push('Industry is required');
+  } else if (data.industry.trim() && data.industry.length < rules.industry.minLength) {
+    errors.push(`Industry must be at least ${rules.industry.minLength} characters`);
+  }
+
+  // Job Title validation
+  if (rules.jobTitle.required && !data.jobTitle.trim()) {
+    errors.push('Job title is required');
+  } else if (data.jobTitle.trim() && data.jobTitle.length < rules.jobTitle.minLength) {
+    errors.push(`Job title must be at least ${rules.jobTitle.minLength} characters`);
+  }
+
+  // Profile Summary validation
+  if (rules.profileSummary.required && !data.profileSummary.trim()) {
+    errors.push('Profile summary is required');
+  } else if (data.profileSummary.trim()) {
+    if (data.profileSummary.length < rules.profileSummary.minLength) {
+      errors.push(`Profile summary must be at least ${rules.profileSummary.minLength} characters`);
+    } else if (data.profileSummary.length > rules.profileSummary.maxLength) {
+      errors.push(`Profile summary must be less than ${rules.profileSummary.maxLength} characters`);
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Education validation
+export const validateEducation = (data: {
+  degree: string;
+  school: string;
+  startDate: string;
+  endDate: string;
+  isStudying: boolean;
+  description: string;
+}): ValidationResult => {
+  const errors: string[] = [];
+  const rules = profileValidationRules.education;
+
+  // Degree validation
+  if (rules.degree.required && !data.degree.trim()) {
+    errors.push('Degree is required');
+  } else if (data.degree.trim() && data.degree.length < rules.degree.minLength) {
+    errors.push(`Degree must be at least ${rules.degree.minLength} characters`);
+  }
+
+  // School validation
+  if (rules.school.required && !data.school.trim()) {
+    errors.push('School is required');
+  } else if (data.school.trim() && data.school.length < rules.school.minLength) {
+    errors.push(`School must be at least ${rules.school.minLength} characters`);
+  }
+
+  // Start Date validation
+  if (rules.startDate.required && !data.startDate) {
+    errors.push('Start date is required');
+  } else if (data.startDate && !isValidDate(data.startDate)) {
+    errors.push('Please enter a valid start date');
+  }
+
+  // End Date validation (only if not currently studying)
+  if (!data.isStudying) {
+    if (rules.endDate.required && !data.endDate) {
+      errors.push('End date is required');
+    } else if (data.endDate && !isValidDate(data.endDate)) {
+      errors.push('Please enter a valid end date');
+    } else if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {
+      errors.push('End date must be after start date');
+    }
+  }
+
+  // Description validation
+  if (data.description && data.description.length > rules.description.maxLength) {
+    errors.push(`Description must be less than ${rules.description.maxLength} characters`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Experience validation
+export const validateExperience = (data: {
+  jobTitle: string;
+  companyName: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  isCurrentlyWorking: boolean;
+  description: string;
+}): ValidationResult => {
+  const errors: string[] = [];
+  const rules = profileValidationRules.experience;
+
+  // Job Title validation
+  if (rules.jobTitle.required && !data.jobTitle.trim()) {
+    errors.push('Job title is required');
+  } else if (data.jobTitle.trim() && data.jobTitle.length < rules.jobTitle.minLength) {
+    errors.push(`Job title must be at least ${rules.jobTitle.minLength} characters`);
+  }
+
+  // Company Name validation
+  if (rules.companyName.required && !data.companyName.trim()) {
+    errors.push('Company name is required');
+  } else if (data.companyName.trim() && data.companyName.length < rules.companyName.minLength) {
+    errors.push(`Company name must be at least ${rules.companyName.minLength} characters`);
+  }
+
+  // Location validation
+  if (rules.location.required && !data.location.trim()) {
+    errors.push('Location is required');
+  } else if (data.location.trim() && data.location.length < rules.location.minLength) {
+    errors.push(`Location must be at least ${rules.location.minLength} characters`);
+  }
+
+  // Start Date validation
+  if (rules.startDate.required && !data.startDate) {
+    errors.push('Start date is required');
+  } else if (data.startDate && !isValidDate(data.startDate)) {
+    errors.push('Please enter a valid start date');
+  }
+
+  // End Date validation (only if not currently working)
+  if (!data.isCurrentlyWorking) {
+    if (rules.endDate.required && !data.endDate) {
+      errors.push('End date is required');
+    } else if (data.endDate && !isValidDate(data.endDate)) {
+      errors.push('Please enter a valid end date');
+    } else if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {
+      errors.push('End date must be after start date');
+    }
+  }
+
+  // Description validation
+  if (rules.description.required && !data.description.trim()) {
+    errors.push('Description is required');
+  } else if (data.description.trim() && data.description.length < rules.description.minLength) {
+    errors.push(`Description must be at least ${rules.description.minLength} characters`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Project validation
+export const validateProject = (data: {
+  projectTitle: string;
+  startDate: string;
+  endDate: string;
+  isCurrentlyWorking: boolean;
+  projectLink: string;
+  description: string;
+}): ValidationResult => {
+  const errors: string[] = [];
+  const rules = profileValidationRules.project;
+
+  // Project Title validation
+  if (rules.projectTitle.required && !data.projectTitle.trim()) {
+    errors.push('Project title is required');
+  } else if (data.projectTitle.trim() && data.projectTitle.length < rules.projectTitle.minLength) {
+    errors.push(`Project title must be at least ${rules.projectTitle.minLength} characters`);
+  }
+
+  // Start Date validation
+  if (rules.startDate.required && !data.startDate) {
+    errors.push('Start date is required');
+  } else if (data.startDate && !isValidDate(data.startDate)) {
+    errors.push('Please enter a valid start date');
+  }
+
+  // End Date validation (only if not currently working)
+  if (!data.isCurrentlyWorking) {
+    if (rules.endDate.required && !data.endDate) {
+      errors.push('End date is required');
+    } else if (data.endDate && !isValidDate(data.endDate)) {
+      errors.push('Please enter a valid end date');
+    } else if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {
+      errors.push('End date must be after start date');
+    }
+  }
+
+  // Project Link validation
+  if (data.projectLink && !rules.projectLink.format.test(data.projectLink)) {
+    errors.push('Please enter a valid project URL (must start with http:// or https://)');
+  }
+
+  // Description validation
+  if (rules.description.required && !data.description.trim()) {
+    errors.push('Description is required');
+  } else if (data.description.trim() && data.description.length < rules.description.minLength) {
+    errors.push(`Description must be at least ${rules.description.minLength} characters`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
 // Export all validation functions
 export default {
   sanitizeInput,
@@ -268,5 +614,12 @@ export default {
   validateCreditCard,
   validateSSN,
   validateZIPCode,
-  validateField
+  validateField,
+  // Profile-specific validations
+  validatePersonalInfo,
+  validateCareerProfile,
+  validateEducation,
+  validateExperience,
+  validateProject,
+  profileValidationRules
 };

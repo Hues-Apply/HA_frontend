@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UploadCloud } from 'lucide-react';
 import { parseResumeFromPdf } from 'resume-parser-ts';
 import type { Resume } from 'resume-parser-ts';
-import { BASE_URL } from '../services/api';
+import { uploadDocument } from '../services/profile';
 import type { ParsedCVData } from '../services/profile';
 
 const UploadComponent = () => {
@@ -55,25 +55,9 @@ const UploadComponent = () => {
     };
   };
 
-  // Upload document file to backend
+  // Upload document file to backend using the profile service
   const uploadDocumentFile = async (file: File): Promise<any> => {
-    const formData = new FormData();
-    formData.append('cv_file', file);
-
-    const response = await fetch(`${BASE_URL}/api/profile/personal/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Document upload failed');
-    }
-
-    return response.json();
+    return uploadDocument(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +108,7 @@ const UploadComponent = () => {
       await uploadDocumentFile(file);
 
       // Step 4: Store parsed data for review step
-      localStorage.setItem('parsedCVData', JSON.stringify(parsedCVData));
+      sessionStorage.setItem('parsedCVData', JSON.stringify(parsedCVData));
 
       // Step 5: Navigate to review step
       navigate('/onboarding/review', { replace: true });

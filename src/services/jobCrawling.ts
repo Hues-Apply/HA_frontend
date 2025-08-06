@@ -186,7 +186,7 @@ export const saveCrawledJobs = async (jobs: CrawledJob[]): Promise<{ success: bo
  */
 export const getCachedCrawledJobs = (): CrawledJob[] => {
   try {
-    const cached = localStorage.getItem('crawledJobs');
+    const cached = sessionStorage.getItem('crawledJobs');
     if (cached) {
       const { jobs, timestamp } = JSON.parse(cached);
       // Check if cache is less than 1 hour old
@@ -205,7 +205,7 @@ export const getCachedCrawledJobs = (): CrawledJob[] => {
  */
 export const cacheCrawledJobs = (jobs: CrawledJob[]): void => {
   try {
-    localStorage.setItem('crawledJobs', JSON.stringify({
+    sessionStorage.setItem('crawledJobs', JSON.stringify({
       jobs,
       timestamp: Date.now()
     }));
@@ -219,7 +219,7 @@ export const cacheCrawledJobs = (jobs: CrawledJob[]): void => {
  */
 export const clearCachedJobs = (): void => {
   try {
-    localStorage.removeItem('crawledJobs');
+    sessionStorage.removeItem('crawledJobs');
   } catch (error) {
     console.error('Error clearing cached jobs:', error);
   }

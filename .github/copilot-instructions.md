@@ -142,3 +142,17 @@ const { isValid, errors } = validatePassword(password);
 - Requires `VITE_GOOGLE_CLIENT_ID` environment variable
 - Uses credential response flow (not authorization code)
 - Token exchange handled in `services/auth.ts`
+
+
+## Additional Instructions
+- Always keep the codebase DRY (Don't Repeat Yourself).
+- Keep the code modular and maintainable.
+- Keep the implementation simple and straightforward.
+- Don't write tests unless explicitly requested.
+- Use TypeScript's built-in testing framework for all tests.
+- Make the implementation efficient and optimized for performance.
+- DO NOT write md files or documentation unless explicitly requested.
+- Do not write code that I didn't explicitly ask for, even if it is necessary to complete the task at hand.
+- Do not create management commands unless explicitly requested.
+- Ensure that all API endpoints are well-documented and follow RESTful principles.
+

@@ -15,8 +15,28 @@ import {
   updateOpportunitiesInterest,
   updateRecommendationPriority
 } from '../services/profile';
+import {
+  validatePersonalInfo,
+  validateCareerProfile,
+  validateEducation,
+  validateExperience,
+  validateProject,
+  sanitizeInput
+} from '../utils/validation';
 
-// Interfaces
+// Enhanced error types
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: any;
+}
+
+// Enhanced interfaces with validation
 export interface PersonalInfo {
   name: string;
   email: string;
@@ -101,9 +121,10 @@ export const useProfileData = () => {
     return '';
   };
 
-  // State management
+  // Enhanced state management with validation errors
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
   const [profileData, setProfileData] = useState<any>(null);
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
@@ -113,6 +134,13 @@ export const useProfileData = () => {
     country: '',
     goal: ''
   });
+
+  const [cvFile, setCvFile] = useState<{
+    filename?: string;
+    uploadedAt?: string;
+    hasCvInGcs?: boolean;
+    downloadUrl?: string;
+  }>({});
 
   const [careerProfile, setCareerProfile] = useState<CareerProfile>({
     industry: '',
@@ -130,18 +158,165 @@ export const useProfileData = () => {
     salaryExpectation: ''
   });
 
-  // Data fetching
+  // Enhanced error handling function
+  const handleApiError = (error: any, context: string): ApiError => {
+    console.error(`API Error in ${context}:`, error);
+
+    if (error.response) {
+      // Server responded with error status
+      const { status, data } = error.response;
+
+      switch (status) {
+        case 400:
+          return {
+            code: 'VALIDATION_ERROR',
+            message: data.error || 'Invalid data provided',
+            details: data.details || data
+          };
+        case 401:
+          return {
+            code: 'AUTHENTICATION_ERROR',
+            message: 'Please log in again to continue'
+          };
+        case 403:
+          return {
+            code: 'PERMISSION_ERROR',
+            message: 'You do not have permission to perform this action'
+          };
+        case 404:
+          return {
+            code: 'NOT_FOUND_ERROR',
+            message: 'The requested resource was not found'
+          };
+        case 500:
+          return {
+            code: 'SERVER_ERROR',
+            message: 'Server error. Please try again later'
+          };
+        default:
+          return {
+            code: 'UNKNOWN_ERROR',
+            message: data.error || 'An unexpected error occurred'
+          };
+      }
+    } else if (error.request) {
+      // Network error
+      return {
+        code: 'NETWORK_ERROR',
+        message: 'Network error. Please check your connection and try again'
+      };
+    } else {
+      // Other error
+      return {
+        code: 'UNKNOWN_ERROR',
+        message: error.message || 'An unexpected error occurred'
+      };
+    }
+  };
+
+  // Enhanced validation function
+  const validateTabData = (activeTab: string): { isValid: boolean; errors: Record<string, string[]> } => {
+    const errors: Record<string, string[]> = {};
+
+    switch (activeTab) {
+      case 'Personal':
+        const personalValidation = validatePersonalInfo(personalInfo);
+        if (!personalValidation.isValid) {
+          errors.personal = personalValidation.errors;
+        }
+        break;
+
+      case 'Career Profile':
+        const careerValidation = validateCareerProfile(careerProfile);
+        if (!careerValidation.isValid) {
+          errors.career = careerValidation.errors;
+        }
+        break;
+
+      case 'Education':
+        const educationErrors: string[] = [];
+        education.forEach((edu, index) => {
+          const eduValidation = validateEducation(edu);
+          if (!eduValidation.isValid) {
+            educationErrors.push(`Education ${index + 1}: ${eduValidation.errors.join(', ')}`);
+          }
+        });
+        if (educationErrors.length > 0) {
+          errors.education = educationErrors;
+        }
+        break;
+
+      case 'Experience':
+        const experienceErrors: string[] = [];
+        experience.forEach((exp, index) => {
+          const expValidation = validateExperience(exp);
+          if (!expValidation.isValid) {
+            experienceErrors.push(`Experience ${index + 1}: ${expValidation.errors.join(', ')}`);
+          }
+        });
+        if (experienceErrors.length > 0) {
+          errors.experience = experienceErrors;
+        }
+        break;
+
+      case 'Projects':
+        const projectErrors: string[] = [];
+        projects.forEach((project, index) => {
+          const projectValidation = validateProject(project);
+          if (!projectValidation.isValid) {
+            projectErrors.push(`Project ${index + 1}: ${projectValidation.errors.join(', ')}`);
+          }
+        });
+        if (projectErrors.length > 0) {
+          errors.projects = projectErrors;
+        }
+        break;
+    }
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
+  };
+
+  // Enhanced input sanitization
+  const sanitizeInputValue = (value: string): string => {
+    return sanitizeInput(value);
+  };
+
+  // Enhanced setter functions with sanitization
+  const setPersonalInfoWithSanitization = (info: PersonalInfo) => {
+    setPersonalInfo({
+      name: sanitizeInputValue(info.name),
+      email: sanitizeInputValue(info.email),
+      phone: sanitizeInputValue(info.phone),
+      country: sanitizeInputValue(info.country),
+      goal: sanitizeInputValue(info.goal)
+    });
+  };
+
+  const setCareerProfileWithSanitization = (profile: CareerProfile) => {
+    setCareerProfile({
+      industry: sanitizeInputValue(profile.industry),
+      jobTitle: sanitizeInputValue(profile.jobTitle),
+      profileSummary: sanitizeInputValue(profile.profileSummary)
+    });
+  };
+
+  // Data fetching with enhanced error handling
   const fetchProfileData = async () => {
     try {
       setLoading(true);
       setError(null);
+      setValidationErrors({});
+
       const response = await getComprehensiveProfile();
 
       if (response.success) {
         const profile = response.data;
         setProfileData(profile);
 
-        // Populate personal info
+        // Populate personal info with sanitization
         const formattedGoals = profile.user_goals
           ? profile.user_goals
             .sort((a, b) => a.priority - b.priority)
@@ -157,6 +332,14 @@ export const useProfileData = () => {
           goal: formattedGoals
         });
 
+        // Populate CV file information
+        setCvFile({
+          filename: profile.cv_filename,
+          uploadedAt: profile.cv_uploaded_at,
+          hasCvInGcs: profile.has_cv_in_gcs,
+          downloadUrl: profile.cv_download_url
+        });
+
         // Populate career profile
         setCareerProfile({
           industry: profile.career_profile?.industry || '',
@@ -164,13 +347,11 @@ export const useProfileData = () => {
           profileSummary: profile.career_profile?.profile_summary || ''
         });
 
-        // Populate education
+        // Populate education with enhanced parsing
         const educationData = profile.parsed_profile_data?.education?.map((edu, index) => {
-          // Parse the combined date string if it exists (e.g., "October 2015 - July 2019")
           let startDate = edu.start_date || '';
           let endDate = edu.end_date || '';
 
-          // If end_date contains a date range, split it
           if (endDate && endDate.includes(' - ')) {
             const dateParts = endDate.split(' - ');
             startDate = dateParts[0]?.trim() || '';
@@ -183,7 +364,7 @@ export const useProfileData = () => {
             school: edu.institution || '',
             startDate: parseDate(startDate),
             endDate: parseDate(endDate),
-            isStudying: false, // This field doesn't seem to be in the response
+            isStudying: false,
             description: edu.description || ''
           };
         }) || [];
@@ -198,13 +379,11 @@ export const useProfileData = () => {
           description: ''
         }]);
 
-        // Populate experience
+        // Populate experience with enhanced parsing
         const experienceData = profile.parsed_profile_data?.experience?.map((exp, index) => {
-          // Parse the combined date string if it exists (e.g., "July 2024 – Feb 2025")
           let startDate = exp.start_date || '';
           let endDate = exp.end_date || '';
 
-          // If end_date contains a date range, split it
           if (endDate && endDate.includes(' – ')) {
             const dateParts = endDate.split(' – ');
             startDate = dateParts[0]?.trim() || '';
@@ -215,7 +394,7 @@ export const useProfileData = () => {
             id: `existing_${index}`,
             jobTitle: exp.position || '',
             companyName: exp.company || '',
-            location: '', // Location not provided in the parsed data
+            location: '',
             startDate: parseDate(startDate),
             endDate: parseDate(endDate),
             isCurrentlyWorking: exp.is_current || false,
@@ -275,116 +454,147 @@ export const useProfileData = () => {
         });
       }
     } catch (err: any) {
-      console.error('Failed to fetch profile data:', err);
-      setError(err.message || 'Failed to load profile data');
+      const apiError = handleApiError(err, 'fetchProfileData');
+      setError(apiError.message);
+      console.error('Failed to fetch profile data:', apiError);
     } finally {
       setLoading(false);
     }
   };
 
-  // Save functions
+  // Enhanced save functions with error handling
   const savePersonalInfo = async () => {
-    const nameParts = personalInfo.name.split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    try {
+      const nameParts = personalInfo.name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
 
-    await updatePersonalInfo({
-      first_name: firstName,
-      last_name: lastName,
-      email: personalInfo.email,
-      phone_number: personalInfo.phone,
-      country: personalInfo.country,
-      goal: personalInfo.goal
-    });
+      await updatePersonalInfo({
+        first_name: firstName,
+        last_name: lastName,
+        email: personalInfo.email,
+        phone_number: personalInfo.phone,
+        country: personalInfo.country,
+        goal: personalInfo.goal
+      });
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'savePersonalInfo');
+      throw apiError;
+    }
   };
 
   const saveCareerProfile = async () => {
-    await updateCareerProfile({
-      industry: careerProfile.industry,
-      job_title: careerProfile.jobTitle,
-      profile_summary: careerProfile.profileSummary
-    });
+    try {
+      await updateCareerProfile({
+        industry: careerProfile.industry,
+        job_title: careerProfile.jobTitle,
+        profile_summary: careerProfile.profileSummary
+      });
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'saveCareerProfile');
+      throw apiError;
+    }
   };
 
   const saveEducation = async () => {
-    for (const edu of education) {
-      const educationData = {
-        degree: edu.degree,
-        school: edu.school,
-        start_date: edu.startDate,
-        end_date: edu.isStudying ? undefined : edu.endDate,
-        is_currently_studying: edu.isStudying,
-        extra_curricular: edu.description
-      };
+    try {
+      for (const edu of education) {
+        const educationData = {
+          degree: edu.degree,
+          school: edu.school,
+          start_date: edu.startDate,
+          end_date: edu.isStudying ? undefined : edu.endDate,
+          is_currently_studying: edu.isStudying,
+          extra_curricular: edu.description
+        };
 
-      if (edu.id === 'new' || edu.id.startsWith('temp_')) {
-        const response = await createEducation(educationData);
-        edu.id = response.id.toString();
-      } else if (!isNaN(Number(edu.id))) {
-        await updateEducation(Number(edu.id), educationData);
+        if (edu.id === 'new' || edu.id.startsWith('temp_')) {
+          const response = await createEducation(educationData);
+          edu.id = response.id.toString();
+        } else if (!isNaN(Number(edu.id))) {
+          await updateEducation(Number(edu.id), educationData);
+        }
       }
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'saveEducation');
+      throw apiError;
     }
   };
 
   const saveExperience = async () => {
-    for (const exp of experience) {
-      const experienceData = {
-        job_title: exp.jobTitle,
-        company_name: exp.companyName,
-        location: exp.location,
-        start_date: exp.startDate,
-        end_date: exp.isCurrentlyWorking ? undefined : exp.endDate,
-        is_currently_working: exp.isCurrentlyWorking,
-        description: exp.description
-      };
+    try {
+      for (const exp of experience) {
+        const experienceData = {
+          job_title: exp.jobTitle,
+          company_name: exp.companyName,
+          location: exp.location,
+          start_date: exp.startDate,
+          end_date: exp.isCurrentlyWorking ? undefined : exp.endDate,
+          is_currently_working: exp.isCurrentlyWorking,
+          description: exp.description
+        };
 
-      if (exp.id === 'new' || exp.id.startsWith('temp_')) {
-        const response = await createExperience(experienceData);
-        exp.id = response.id.toString();
-      } else if (!isNaN(Number(exp.id))) {
-        await updateExperience(Number(exp.id), experienceData);
+        if (exp.id === 'new' || exp.id.startsWith('temp_')) {
+          const response = await createExperience(experienceData);
+          exp.id = response.id.toString();
+        } else if (!isNaN(Number(exp.id))) {
+          await updateExperience(Number(exp.id), experienceData);
+        }
       }
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'saveExperience');
+      throw apiError;
     }
   };
 
   const saveProjects = async () => {
-    for (const project of projects) {
-      const projectData = {
-        project_title: project.projectTitle,
-        start_date: project.startDate,
-        end_date: project.isCurrentlyWorking ? undefined : project.endDate,
-        is_currently_working: project.isCurrentlyWorking,
-        project_link: project.projectLink,
-        description: project.description
-      };
+    try {
+      for (const project of projects) {
+        const projectData = {
+          project_title: project.projectTitle,
+          start_date: project.startDate,
+          end_date: project.isCurrentlyWorking ? undefined : project.endDate,
+          is_currently_working: project.isCurrentlyWorking,
+          project_link: project.projectLink,
+          description: project.description
+        };
 
-      if (project.id === 'new' || project.id.startsWith('temp_')) {
-        const response = await createProject(projectData);
-        project.id = response.id.toString();
-      } else if (!isNaN(Number(project.id))) {
-        await updateProject(Number(project.id), projectData);
+        if (project.id === 'new' || project.id.startsWith('temp_')) {
+          const response = await createProject(projectData);
+          project.id = response.id.toString();
+        } else if (!isNaN(Number(project.id))) {
+          await updateProject(Number(project.id), projectData);
+        }
       }
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'saveProjects');
+      throw apiError;
     }
   };
 
   const saveAIPreferences = async () => {
-    await updateOpportunitiesInterest({
-      scholarships: aiPreferences.opportunities.includes('Scholarships'),
-      jobs: aiPreferences.opportunities.includes('Jobs'),
-      grants: aiPreferences.opportunities.includes('Grants'),
-      internships: aiPreferences.opportunities.includes('Internships')
-    });
+    try {
+      await updateOpportunitiesInterest({
+        scholarships: aiPreferences.opportunities.includes('Scholarships'),
+        jobs: aiPreferences.opportunities.includes('Jobs'),
+        grants: aiPreferences.opportunities.includes('Grants'),
+        internships: aiPreferences.opportunities.includes('Internships')
+      });
 
-    await updateRecommendationPriority({
-      academic_background: aiPreferences.prioritizeBy.includes('My academic background'),
-      work_experience: aiPreferences.prioritizeBy.includes('My work experience'),
-      preferred_locations: aiPreferences.prioritizeBy.includes('My preferred locations'),
-      others: aiPreferences.prioritizeBy.includes('Other'),
-      additional_preferences: aiPreferences.salaryExpectation
-    });
+      await updateRecommendationPriority({
+        academic_background: aiPreferences.prioritizeBy.includes('My academic background'),
+        work_experience: aiPreferences.prioritizeBy.includes('My work experience'),
+        preferred_locations: aiPreferences.prioritizeBy.includes('My preferred locations'),
+        others: aiPreferences.prioritizeBy.includes('Other'),
+        additional_preferences: aiPreferences.salaryExpectation
+      });
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'saveAIPreferences');
+      throw apiError;
+    }
   };
 
-  // Add/Delete functions for Education
+  // Enhanced Add/Delete functions with error handling
   const addEducation = () => {
     const newEducation: Education = {
       id: `temp_${Date.now()}`,
@@ -419,13 +629,13 @@ export const useProfileData = () => {
       }
 
       setEducation(updated);
-    } catch (error) {
-      console.error('Failed to delete education entry:', error);
-      alert('Failed to delete education entry. Please try again.');
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'deleteEducationEntry');
+      console.error('Failed to delete education entry:', apiError);
+      throw apiError;
     }
   };
 
-  // Add/Delete functions for Experience
   const addExperience = () => {
     const newExperience: Experience = {
       id: `temp_${Date.now()}`,
@@ -462,13 +672,13 @@ export const useProfileData = () => {
       }
 
       setExperience(updated);
-    } catch (error) {
-      console.error('Failed to delete experience entry:', error);
-      alert('Failed to delete experience entry. Please try again.');
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'deleteExperienceEntry');
+      console.error('Failed to delete experience entry:', apiError);
+      throw apiError;
     }
   };
 
-  // Add/Delete functions for Projects
   const addProject = () => {
     const newProject: Project = {
       id: `temp_${Date.now()}`,
@@ -503,16 +713,26 @@ export const useProfileData = () => {
       }
 
       setProjects(updated);
-    } catch (error) {
-      console.error('Failed to delete project entry:', error);
-      alert('Failed to delete project entry. Please try again.');
+    } catch (err: any) {
+      const apiError = handleApiError(err, 'deleteProjectEntry');
+      console.error('Failed to delete project entry:', apiError);
+      throw apiError;
     }
   };
 
-  // Save function that handles all tabs
+  // Enhanced save function that handles all tabs with validation
   const handleSave = async (activeTab: string) => {
     try {
       setLoading(true);
+      setValidationErrors({}); // Clear previous validation errors
+
+      const { isValid, errors } = validateTabData(activeTab);
+      if (!isValid) {
+        setValidationErrors(errors);
+        setError('Please fix the validation errors before saving.');
+        setLoading(false);
+        return;
+      }
 
       switch (activeTab) {
         case 'Personal':
@@ -535,11 +755,10 @@ export const useProfileData = () => {
           break;
       }
 
-
       await fetchProfileData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save profile:', error);
-      alert('Failed to save profile. Please try again.');
+      setError(error.message || 'Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -556,15 +775,18 @@ export const useProfileData = () => {
     error,
     profileData,
     personalInfo,
+    cvFile,
     careerProfile,
     education,
     experience,
     projects,
     aiPreferences,
+    validationErrors,
 
     // Setters
-    setPersonalInfo,
-    setCareerProfile,
+    setPersonalInfo: setPersonalInfoWithSanitization,
+    setCvFile,
+    setCareerProfile: setCareerProfileWithSanitization,
     setEducation,
     setExperience,
     setProjects,

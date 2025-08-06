@@ -22,8 +22,10 @@ export default function Profile() {
   const {
     loading,
     error,
+    validationErrors,
     profileData,
     personalInfo,
+    cvFile,
     careerProfile,
     education,
     experience,
@@ -62,11 +64,16 @@ export default function Profile() {
     return (
       <div className="flex min-h-screen bg-gray-100 items-center justify-center p-4">
         <div className="text-center bg-white p-6 sm:p-8 rounded-lg shadow-md max-w-md w-full">
-          <p className="text-red-600 mb-4">Failed to load profile data</p>
+          <div className="text-red-500 mb-4">
+            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Profile</h3>
           <p className="text-gray-600 mb-4 text-sm">{error}</p>
           <button
             onClick={fetchProfileData}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto transition-colors"
           >
             Try Again
           </button>
@@ -104,6 +111,39 @@ export default function Profile() {
         </h3>
         <p className="text-xs sm:text-sm text-gray-500">{careerProfile.jobTitle || 'Job Title'}</p>
       </div>
+
+      {/* CV File Section */}
+      {cvFile.filename && (
+        <div className="mt-6 sm:mt-8 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-900 truncate">{cvFile.filename}</p>
+                {cvFile.uploadedAt && (
+                  <p className="text-xs text-gray-500">
+                    Uploaded {new Date(cvFile.uploadedAt).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            </div>
+            {cvFile.downloadUrl && (
+              <a
+                href={cvFile.downloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 text-xs font-medium"
+              >
+                View
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="mt-6 sm:mt-12 space-y-3 sm:space-y-5 text-xs sm:text-sm">
@@ -191,6 +231,7 @@ export default function Profile() {
                     <PersonalTab
                       personalInfo={personalInfo}
                       setPersonalInfo={setPersonalInfo}
+                      validationErrors={validationErrors.personal || []}
                     />
                   )}
 
@@ -198,6 +239,12 @@ export default function Profile() {
                     <CareerProfileTab
                       careerProfile={careerProfile}
                       setCareerProfile={setCareerProfile}
+                      cvFile={cvFile}
+                      onCvUpload={() => {
+                        // Refresh profile data after CV upload
+                        fetchProfileData();
+                      }}
+                      validationErrors={validationErrors.career || []}
                     />
                   )}
 
@@ -293,6 +340,11 @@ export default function Profile() {
                   <CareerProfileTab
                     careerProfile={careerProfile}
                     setCareerProfile={setCareerProfile}
+                    cvFile={cvFile}
+                    onCvUpload={() => {
+                      // Refresh profile data after CV upload
+                      fetchProfileData();
+                    }}
                   />
                 )}
 

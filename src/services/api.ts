@@ -10,7 +10,7 @@ export const handleApiResponse = async (response: Response) => {
       // Clear tokens and redirect to login on auth failures
       sessionStorage.removeItem('accessToken');
       sessionStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       throw new Error('Authentication expired. Please log in again.');
     }
 

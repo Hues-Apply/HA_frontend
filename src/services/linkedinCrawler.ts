@@ -35,13 +35,13 @@ export class LinkedInJobCrawler {
       source: 'linkedin',
       edited: false
     };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(crawlData));
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(crawlData));
   }
 
   // Method to get jobs from localStorage
   public static getJobsFromLocalStorage() {
     try {
-      const data = localStorage.getItem(this.STORAGE_KEY);
+      const data = sessionStorage.getItem(this.STORAGE_KEY);
       return data ? JSON.parse(data) : null;
     } catch (error) {
       console.error('Failed to get jobs from localStorage:', error);
@@ -59,7 +59,7 @@ export class LinkedInJobCrawler {
           jobs,
           edited: true
         };
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedData));
+        sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedData));
         return true;
       }
       return false;
@@ -71,7 +71,7 @@ export class LinkedInJobCrawler {
 
   // Method to clear jobs from localStorage
   public static clearJobsFromLocalStorage() {
-    localStorage.removeItem(this.STORAGE_KEY);
+    sessionStorage.removeItem(this.STORAGE_KEY);
   }
 
   public static async crawlJobs(filters: CrawlFilters): Promise<{

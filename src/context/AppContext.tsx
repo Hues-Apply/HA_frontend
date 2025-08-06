@@ -149,7 +149,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const actions = {
     setTheme: (theme: 'light' | 'dark') => {
       dispatch({ type: 'SET_THEME', payload: theme });
-      localStorage.setItem('theme', theme);
+      sessionStorage.setItem('theme', theme);
     },
 
     toggleSidebar: () => {
@@ -200,7 +200,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Load theme from localStorage on mount
   React.useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+    const savedTheme = sessionStorage.getItem('theme') as 'light' | 'dark';
     if (savedTheme && savedTheme !== state.theme) {
       actions.setTheme(savedTheme);
     }

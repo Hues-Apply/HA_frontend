@@ -35,7 +35,7 @@ export default function GoalSelectionForm() {
       await updateUserGoals(selectedGoals);
       
       // Store selected goals in localStorage as backup
-      localStorage.setItem('selectedGoals', JSON.stringify(selectedGoals));
+      sessionStorage.setItem('selectedGoals', JSON.stringify(selectedGoals));
       
       // Navigate to step 2 and replace the current history entry
       navigate('/onboarding/step-2', { replace: true });

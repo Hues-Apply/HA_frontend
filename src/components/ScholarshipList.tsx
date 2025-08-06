@@ -49,7 +49,7 @@ export default function ScholarshipList({ filters, title, showProfileCompletion 
 
   useEffect(() => {
     // Check if user has dismissed the profile completion prompt for scholarships
-    const dismissed = localStorage.getItem('scholarshipProfileCompletionDismissed');
+    const dismissed = sessionStorage.getItem('scholarshipProfileCompletionDismissed');
     setShowProfilePrompt(!dismissed && showProfileCompletion);
   }, [showProfileCompletion]);
 
@@ -101,7 +101,7 @@ export default function ScholarshipList({ filters, title, showProfileCompletion 
 
   const handleDismissProfileCompletion = () => {
     setShowProfilePrompt(false);
-    localStorage.setItem('scholarshipProfileCompletionDismissed', 'true');
+    sessionStorage.setItem('scholarshipProfileCompletionDismissed', 'true');
   };
 
   const toggleSave = (scholarshipId: string) => {

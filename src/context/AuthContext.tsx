@@ -35,7 +35,7 @@ const secureStorage = {
       if (key === 'accessToken' || key === 'refreshToken') {
         sessionStorage.setItem(key, sanitizedValue);
       } else {
-        localStorage.setItem(key, sanitizedValue);
+        sessionStorage.setItem(key, sanitizedValue);
       }
     } catch (error) {
       console.error('Failed to store data:', error);
@@ -47,7 +47,7 @@ const secureStorage = {
       if (key === 'accessToken' || key === 'refreshToken') {
         return sessionStorage.getItem(key);
       }
-      return localStorage.getItem(key);
+      return sessionStorage.getItem(key);
     } catch (error) {
       console.error('Failed to retrieve data:', error);
       return null;
@@ -59,7 +59,7 @@ const secureStorage = {
       if (key === 'accessToken' || key === 'refreshToken') {
         sessionStorage.removeItem(key);
       } else {
-        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
       }
     } catch (error) {
       console.error('Failed to remove data:', error);
@@ -69,7 +69,7 @@ const secureStorage = {
   clear: () => {
     try {
       sessionStorage.clear();
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
     } catch (error) {
       console.error('Failed to clear storage:', error);
     }

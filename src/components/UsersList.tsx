@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import UserDetailsModal from './UserDetailsModal';
 
 interface GoogleUser {
   id: number;
@@ -28,6 +28,8 @@ const UsersList = () => {
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
   const [editingUser, setEditingUser] = useState<GoogleUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<GoogleUser | null>(null);
+  const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -202,6 +204,16 @@ const UsersList = () => {
     } finally {
       setUpdatingUserId(null);
     }
+  };
+
+  const openUserDetails = (user: GoogleUser) => {
+    setSelectedUser(user);
+    setShowUserDetailsModal(true);
+  };
+
+  const closeUserDetails = () => {
+    setShowUserDetailsModal(false);
+    setSelectedUser(null);
   };
 
   if (loading) {
@@ -427,6 +439,12 @@ const UsersList = () => {
                           ) : (
                             <>
                               <button
+                                onClick={() => openUserDetails(user)}
+                                className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                              >
+                                👁️ View Details
+                              </button>
+                              <button
                                 onClick={() => startEditUser(user)}
                                 className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
                               >
@@ -471,6 +489,16 @@ const UsersList = () => {
           </div>
         </div>
       </div>
+
+      {/* User Details Modal */}
+      {selectedUser && (
+        <UserDetailsModal
+          isOpen={showUserDetailsModal}
+          onClose={closeUserDetails}
+          userId={selectedUser.id}
+          userBasicInfo={selectedUser}
+        />
+      )}
     </div>
   );
 };

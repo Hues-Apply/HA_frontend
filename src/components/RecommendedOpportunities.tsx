@@ -41,7 +41,7 @@ export default function RecommendedOpportunities({
     try {
       // This would typically call an API to get saved opportunities
       // For now, we'll use localStorage as a fallback
-      const saved = localStorage.getItem('savedOpportunities');
+      const saved = sessionStorage.getItem('savedOpportunities');
       if (saved) {
         setSavedOpportunities(new Set(JSON.parse(saved)));
       }
@@ -59,7 +59,7 @@ export default function RecommendedOpportunities({
         newSaved.add(opportunityId);
       }
       setSavedOpportunities(newSaved);
-      localStorage.setItem('savedOpportunities', JSON.stringify([...newSaved]));
+      sessionStorage.setItem('savedOpportunities', JSON.stringify([...newSaved]));
     } catch (err) {
       console.error('Error toggling save:', err);
     }
