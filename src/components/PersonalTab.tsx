@@ -20,14 +20,14 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
   const handleFieldChange = (field: keyof PersonalInfo, value: string) => {
     const sanitizedValue = sanitizeInput(value);
 
-    setPersonalInfo(prev => ({ ...prev, [field]: sanitizedValue }));
+    setPersonalInfo({ ...personalInfo, [field]: sanitizedValue });
 
     // Mark field as touched
-    setTouchedFields(prev => ({ ...prev, [field]: true }));
+    setTouchedFields((prev: Record<string, boolean>) => ({ ...prev, [field]: true }));
 
     // Clear field error if user is typing
     if (fieldErrors[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+      setFieldErrors((prev: Record<string, string>) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -39,9 +39,9 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
     );
 
     if (fieldError && touchedFields[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: fieldError }));
+      setFieldErrors((prev: Record<string, string>) => ({ ...prev, [field]: fieldError }));
     } else {
-      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+      setFieldErrors((prev: Record<string, string>) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -88,8 +88,8 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
             onChange={(e) => handleFieldChange('name', e.target.value)}
             onBlur={() => handleFieldBlur('name')}
             className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${touchedFields.name && !isFieldValid('name')
-                ? 'border-red-300 bg-red-50'
-                : 'border-gray-300'
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300'
               }`}
             placeholder="Enter your full name"
           />
@@ -108,8 +108,8 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
             onChange={(e) => handleFieldChange('email', e.target.value)}
             onBlur={() => handleFieldBlur('email')}
             className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${touchedFields.email && !isFieldValid('email')
-                ? 'border-red-300 bg-red-50'
-                : 'border-gray-300'
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300'
               }`}
             placeholder="Enter your email address"
           />
@@ -130,8 +130,8 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
             onChange={(e) => handleFieldChange('phone', e.target.value)}
             onBlur={() => handleFieldBlur('phone')}
             className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${touchedFields.phone && !isFieldValid('phone')
-                ? 'border-red-300 bg-red-50'
-                : 'border-gray-300'
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300'
               }`}
             placeholder="Enter your phone number"
           />
@@ -150,8 +150,8 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
             onChange={(e) => handleFieldChange('country', e.target.value)}
             onBlur={() => handleFieldBlur('country')}
             className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${touchedFields.country && !isFieldValid('country')
-                ? 'border-red-300 bg-red-50'
-                : 'border-gray-300'
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300'
               }`}
             placeholder="Enter your country"
           />
@@ -171,8 +171,8 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
           onBlur={() => handleFieldBlur('goal')}
           rows={3}
           className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${touchedFields.goal && !isFieldValid('goal')
-              ? 'border-red-300 bg-red-50'
-              : 'border-gray-300'
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300'
             }`}
           placeholder="Describe your career goals and aspirations..."
         />
